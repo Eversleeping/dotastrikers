@@ -1,0 +1,13 @@
+"AddonInfo"
+{
+	"addonSteamAppID"				"816"
+	"addontitle"					"DotaStrikers"
+	"addonversion"					"0.1"
+	"addontagline"					"DotaStrikers"
+	"addonauthor"					"XXX"
+	"addonSteamGroupName"			""
+	"addonauthorSteamID"			""
+	"addonContent_Campaign"			"0"
+	"addonURL0"						""
+	"addonDescription"				"DotaStrikers"
+}
