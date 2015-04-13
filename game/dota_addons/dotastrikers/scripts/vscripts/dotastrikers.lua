@@ -209,15 +209,6 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 				hero.gc.goalie = nil
 			end
 		end
-		if hero.phaseOn then
-			-- Check if out of mana.
-			if hero:GetMana() <= 1.0 then
-				hero:CastAbilityImmediately(hero:FindAbilityByName("phase_off"), 0)
-			else
-				-- Drain a small percentage of mana
-				hero:SetMana(hero:GetMana()-(hero:GetMaxMana()*.01))
-			end
-		end
 	end
 
 	--local hero = ply:GetAssignedHero()
@@ -255,7 +246,12 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 		if hero.surgeOn then
 			if currMana <= 0 then
-				hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
+				if hero:GetClassname() ~= "npc_dota_hero_antimage" then
+					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
+				else
+					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break_sprint"), 0)
+					manaDrainInterval = SURGE_TICK*40
+				end
 			end
 			hero:SetMana(currMana - manaDrainInterval)
 		else
@@ -292,6 +288,8 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	local currVel = unit:GetPhysicsVelocity()
 	local fv = unit:GetForwardVector()
 	local ball = Ball.unit
+	local unitFriction = unit:GetPhysicsFriction()
+
 	if unitPos.z > (GroundZ) and not unit.isAboveGround then
 		unit.isAboveGround = true
 		--print("unit.isAboveGround")
@@ -299,7 +297,9 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if unit.isDSHero and not unit:HasModifier("modifier_rooted_passive") then
 			GlobalDummy.rooted_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_rooted_passive", {})
 		end
-		unit:SetPhysicsFriction(AIR_FRICTION)
+		if not unit.dontChangeFriction then
+			unit:SetPhysicsFriction(AIR_FRICTION)
+		end
 		unit.bounce_multiplier = BOUNCE_MULTIPLIER
 
 	elseif unitPos.z <= (GroundZ) and unit.isAboveGround then
@@ -327,7 +327,9 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			if unit:HasModifier("modifier_rooted_passive") then
 				unit:RemoveModifierByName("modifier_rooted_passive")
 			end
-			unit:SetPhysicsFriction(GROUND_FRICTION)
+			if not unit.dontChangeFriction then
+				unit:SetPhysicsFriction(GROUND_FRICTION)
+			end
 		end
 	end
 
@@ -347,6 +349,19 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	end
 
 	-- do above ground think logic
+	if unit.isAboveGround then
+		if not unit.dontChangeFriction and unitFriction ~= AIR_FRICTION then
+			unit:SetPhysicsFriction(AIR_FRICTION)
+		end
+
+	else
+		if not unit.dontChangeFriction and unitFriction ~= GROUND_FRICTION then
+			unit:SetPhysicsFriction(GROUND_FRICTION)
+		end
+
+	end
+
+
 	--[[if unit.isAboveGround then
 		if unit.isDSHero then
 			if not unit.physics_directional_influence then
@@ -442,9 +457,13 @@ function DotaStrikers:OnAbilityUsed(keys)
 	local ball = Ball.unit
 
 	if abilityname == "slam" then
-		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), 400)) do
+		local radius = hero:FindAbilityByName("slam"):GetCastRange()
+		print("radius: " .. radius)
+		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
 			if IsPhysicsUnit(ent) then
 				local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
+				local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
+				local knockbackScale = (radius-dist)/radius
 				-- if it's the ball and ball has a controller, don't move the ball.
 				-- if it's the slammer, don't move him
 				if (ent == ball and ball.controller ~= nil) or ent == hero then
@@ -453,7 +472,7 @@ function DotaStrikers:OnAbilityUsed(keys)
 					if ent.isDSHero and not ent:HasModifier("modifier_rooted_passive") then
 						GlobalDummy.rooted_passive:ApplyDataDrivenModifier(GlobalDummy, ent, "modifier_rooted_passive", {})
 					end
-					ent:AddPhysicsVelocity(dir*1900 + Vector(0,0,1900))
+					ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,1900)*knockbackScale))
 				end
 			end
 		end
@@ -946,8 +965,14 @@ function Ball:Init(  )
 					if hero.isUsingPull then
 						hero:CastAbilityNoTarget(hero.pull_break, 0)
 					end
-					hero:EmitSound("Hero_Puck.ProjectileImpact")
 					print("new controller.")
+					if ball.affectedByPowershot then
+						ball.affectedByPowershot = false
+						ball.dontChangeFriction = false
+						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
+					else
+						hero:EmitSound("Hero_Puck.ProjectileImpact")
+					end
 
 					if hero == Referee.unit then
 						Referee.unit:MoveToTargetToAttack(ball)
@@ -1088,7 +1113,7 @@ function DotaStrikers:InitMap()
 				passTest = true
 				if unit:GetPlayerOwner() ~= nil then
 					--print("printing error.")
-					if GameRules:GetGameTime()-unit.lastErrorPopupTime > .6 then
+					if GameRules:GetGameTime()-unit.lastErrorPopupTime > 1 then
 						FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = "Your team already has a goalie" } )
 						unit.lastErrorPopupTime = GameRules:GetGameTime()
 					end
@@ -1106,6 +1131,13 @@ function DotaStrikers:InitMap()
 				passTest = false
 			else
 				passTest = true
+				-- people can't enter enemy goal posts.
+				if unit:GetTeamNumber() ~= gc.team then
+					if GameRules:GetGameTime()-unit.lastErrorPopupTime > 1 then
+						FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = "Can't enter enemy goal post" } )
+						unit.lastErrorPopupTime = GameRules:GetGameTime()
+					end
+				end
 				
 			end
 			if passTest then

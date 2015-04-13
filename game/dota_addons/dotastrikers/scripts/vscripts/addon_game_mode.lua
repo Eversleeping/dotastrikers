@@ -17,6 +17,8 @@ function Precache( context )
 	-- It it likely that precaching a single particle system will precache all of its children, but this may not be guaranteed
 	--PrecacheResource("particle", "particles/econ/generic/generic_aoe_explosion_sphere_1/generic_aoe_explosion_sphere_1.vpcf", context)
 	PrecacheResource("particle_folder", "particles/ball", context)
+	--particles/powershot/windrunner_spell_powershot.vpcf
+	PrecacheResource("particle_folder", "particles/powershot", context)
 	--PrecacheResource("particle_folder", "particles/shield", context)
 
 	PrecacheResource("particle", "particles/units/heroes/hero_wisp/wisp_tether.vpcf", context)
@@ -57,6 +59,7 @@ function Precache( context )
 	--PrecacheModel("models/heroes/viper/viper.vmdl", context)
 
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_puck.vsndevts", context)
+	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_vengefulspirit.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_creeps.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_items.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds.vsndevts", context)

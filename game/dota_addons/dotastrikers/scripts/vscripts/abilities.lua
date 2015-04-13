@@ -14,47 +14,46 @@ function OnRefereeAttacked( keys )
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
-function get_throw_point( keys )
-	local hero = keys.caster
+function on_powershot_succeeded( keys )
+	print("on_powershot_succeeded")
+	local caster = keys.caster
 	local ball = Ball.unit
-	if not ball.controller or hero ~= ball.controller then return end
+	local dir = caster.throw_direction
+	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
+	ball:SetForwardVector(dir)
+	ball.dontChangeFriction = true
+	ball.affectedByPowershot = true
+	ball:SetPhysicsFriction(0)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/windrunner_spell_powershot.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+	ParticleManager:SetParticleControl(ball.powershot_particle, 1, ball:GetPhysicsVelocity())
+	ball:AddPhysicsVelocity(dir*1600)
 
-	local point = keys.target_points[1]
-	local pos = ball.controller:GetAbsOrigin()
-	local dir = (point-pos):Normalized()
-
-	local dummy = CreateUnitByName("dummy_no_invuln", pos + dir*200, false, nil, nil, ball.controller:GetOpposingTeamNumber())
-	ball.controller.throwPoint = point
-	local abil = ball.controller:FindAbilityByName("throw_target")
-	dummy.throwDummy = true
-
-	Timers:CreateTimer(NEXT_FRAME, function()
-		ball.controller:CastAbilityOnTarget(dummy, abil, 0)
-	end)
-
-	Timers:CreateTimer(1, function()
-		dummy:ForceKill(false)
-	end)
 end
 
-function throw_target( keys )
+function throw_ball( keys )
+	--PrintTable(keys)
+	--print("get_throw_point")
+	local caster = keys.caster
 	local ball = Ball.unit
-	-- prevent ability from being used on things other than the throwDummy.
-	if not keys.target.throwDummy then
-		return
+	if caster ~= ball.controller then return end
+
+	local point = keys.target_points[1]
+	local dir = (point-ball:GetAbsOrigin()):Normalized()
+
+	if keys.ability:GetAbilityName() == "powershot" then
+		-- begin the channeling portion
+		caster.throw_direction = dir
+		caster:CastAbilityNoTarget(caster:FindAbilityByName("powershot_channel"), 0)
+	else
+		ball.controller:EmitSound("Hero_Puck.Attack")
+		ball:SetForwardVector(dir)
+		ball:AddPhysicsVelocity(dir*1400)
+		ball.controller = nil
 	end
-	local direction = (keys.caster.throwPoint-ball:GetAbsOrigin()):Normalized()
-	ball.controller:EmitSound("Hero_Puck.Attack")
-	ball:SetForwardVector(direction)
-	ball:AddPhysicsVelocity(direction*1900)
-	--print("adding vel.")
 end
 
 function surge( keys )
 	local caster = keys.caster
-	caster:RemoveAbility("surge")
-	caster:AddAbility("surge_break")
-	caster:FindAbilityByName("surge_break"):SetLevel(1)
 	caster.surgeOn = true
 
 	-- apply effects
@@ -62,25 +61,56 @@ function surge( keys )
 	--particles/units/heroes/hero_spirit_breaker/spirit_breaker_haste_owner.vpcf
 	--particles/generic_gameplay/rune_haste_owner.vpcf
 	--caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	caster.surgeParticle = ParticleManager:CreateParticle("particles/generic_gameplay/rune_haste_owner.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 	-- use this 1 for DH
-	--caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+	--
+	if caster:GetClassname() ~= "npc_dota_hero_antimage" then
+		caster:RemoveAbility("surge")
+		caster:AddAbility("surge_break")
+		caster:FindAbilityByName("surge_break"):SetLevel(1)
 
-	caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*2/3)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/generic_gameplay/rune_haste_owner.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*2/3)
+	else
+		caster:RemoveAbility("surge_sprint")
+		caster:AddAbility("surge_break_sprint")
+		caster:FindAbilityByName("surge_break_sprint"):SetLevel(1)
 
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		--caster.dontChangeFriction = true
+		--caster:SetPhysicsFriction(0)
+		--caster:AddPhysicsVelocity(caster:GetForwardVector()*400)
+		caster:AddPhysicsAcceleration(caster:GetForwardVector()*800)
+
+	end
 
 
 end
 
 function surge_break( keys )
 	local caster = keys.caster
-	caster:RemoveAbility("surge_break")
-	caster:AddAbility("surge")
-	caster:FindAbilityByName("surge"):SetLevel(1)
 	caster.surgeOn = false
 
+	if caster:GetClassname() ~= "npc_dota_hero_antimage" then
+		caster:RemoveAbility("surge_break")
+		caster:AddAbility("surge")
+		caster:FindAbilityByName("surge"):SetLevel(1)
+		caster:SetBaseMoveSpeed(caster.base_move_speed)
+
+	else
+		caster:RemoveAbility("surge_break_sprint")
+		caster:AddAbility("surge_sprint")
+		caster:FindAbilityByName("surge_sprint"):SetLevel(1)
+		--[[caster.dontChangeFriction = false
+		if caster.isAboveGround then
+			caster:SetPhysicsFriction(AIR_FRICTION)
+		else
+			caster:SetPhysicsFriction(GROUND_FRICTION)
+		end]]
+
+	end
+
 	ParticleManager:DestroyParticle(caster.surgeParticle, false)
-	caster:SetBaseMoveSpeed(caster.base_move_speed)
+
 
 end
 
