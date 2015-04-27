@@ -24,7 +24,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"on_powershot_succeeded"
 			}
 		}
@@ -51,7 +51,7 @@
 			"RunScript"
 			{
 				"Target"				"POINT"
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"throw_ball"
 			}
 
@@ -79,7 +79,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"ninja_jump"
 			}
 		}
@@ -102,7 +102,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge"
 			}
 		}
@@ -125,7 +125,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge_break"
 			}
 		}
@@ -148,7 +148,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge"
 			}
 		}
@@ -171,7 +171,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge_break"
 			}
 		}
@@ -194,7 +194,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"pull_break"
 			}
 		}
@@ -217,7 +217,7 @@
 		{
 			"RunScript"
 			{
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"pull"
 			}
 		}
@@ -301,7 +301,7 @@
 			"RunScript"
 			{
 				"Target"				"TARGET"
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"throw_target"
 			}
 		}
@@ -328,7 +328,7 @@
 			"RunScript"
 			{
 				"Target"				"POINT"
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"throw_ball"
 			}
 
@@ -356,7 +356,7 @@
 			"RunScript"
 			{
 				"Target"				"CASTER"
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"phase_off"
 			}
 
@@ -384,7 +384,7 @@
 			"RunScript"
 			{
 				"Target"				"CASTER"
-				"ScriptFile"			"scripts/vscripts/abilities.lua"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"phase_on"
 			}
 
@@ -468,7 +468,7 @@
 				{
 					"RunScript"
 					{
-						"ScriptFile"	"scripts/vscripts/abilities.lua"
+						"ScriptFile"	"scripts/vscripts/ability_proxy.lua"
 						"Function"		"OnRefereeAttacked"
 					}
 				}

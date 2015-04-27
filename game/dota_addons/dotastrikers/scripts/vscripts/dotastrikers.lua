@@ -1,21 +1,5 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-NEXT_FRAME = .01
-Testing = true
---TestMoreAbilities = false
-OutOfWorldVector = Vector(5000, 5000, -200)
-DrawDebug = false
-UseCursorStream = false
-
-GROUND_FRICTION = .04
-AIR_FRICTION = .02
-BOUNCE_MULTIPLIER = 21
-GRAVITY = -1700
-BASE_ACCELERATION = Vector(0,0,GRAVITY)
-BALL_COLLISION_DIST = 110
-
-SURGE_TICK = .2
-
 if not Testing then
   statcollection.addStats({
     modID = 'XXXXXXXXXXXXXXXXXXX'
@@ -283,109 +267,6 @@ function DotaStrikers:ApplyDSPhysics( unit )
 	unit.lastErrorPopupTime = GameRules:GetGameTime()
 end
 
-function DotaStrikers:OnMyPhysicsFrame( unit )
-	local unitPos = unit:GetAbsOrigin()
-	local currVel = unit:GetPhysicsVelocity()
-	local fv = unit:GetForwardVector()
-	local ball = Ball.unit
-	local unitFriction = unit:GetPhysicsFriction()
-
-	if unitPos.z > (GroundZ) and not unit.isAboveGround then
-		unit.isAboveGround = true
-		--print("unit.isAboveGround")
-		-- if hero, set the modifier up
-		if unit.isDSHero and not unit:HasModifier("modifier_rooted_passive") then
-			GlobalDummy.rooted_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_rooted_passive", {})
-		end
-		if not unit.dontChangeFriction then
-			unit:SetPhysicsFriction(AIR_FRICTION)
-		end
-		unit.bounce_multiplier = BOUNCE_MULTIPLIER
-
-	elseif unitPos.z <= (GroundZ) and unit.isAboveGround then
-		-- bounce takes priority
-		-- determine if bounce should occur.
-		local bounceOccured = false
-		local len3dSq = Length3DSq(currVel)
-		--print("len3dSq: " .. len3dSq)
-		if len3dSq > 200*200 and not unit.noBounce then
-			currVel = Vector(currVel.x, currVel.y, -1*currVel.z*unit.bounce_multiplier)
-			unit.bounce_multiplier = unit.bounce_multiplier*.8
-			unit:SetPhysicsVelocity(currVel)
-			bounceOccured = true
-			--unit:SetPhysicsFriction(GROUND_FRICTION)
-		end
-
-		if unit.noBounce then
-			unit.noBounce = false
-		end
-
-		if not bounceOccured then
-			unit.isAboveGround = false
-			--print("not unit.isAboveGround")
-			-- if hero, remove the modifier
-			if unit:HasModifier("modifier_rooted_passive") then
-				unit:RemoveModifierByName("modifier_rooted_passive")
-			end
-			if not unit.dontChangeFriction then
-				unit:SetPhysicsFriction(GROUND_FRICTION)
-			end
-		end
-	end
-
-	if unit.isDSHero then
-		if unit.isUsingPull then
-			-- it's imba is the puller already has the pull and she's using pull.
-			if ball.controller ~= unit then
-				local dirToBall = (Ball.unit:GetAbsOrigin() - unit:GetAbsOrigin()):Normalized()
-				unit:SetPhysicsAcceleration(BASE_ACCELERATION + dirToBall*2500)
-			end
-		end
-		if unit == ball.controller then
-			ball:SetAbsOrigin(unit:GetAbsOrigin() + Vector(fv.x,fv.y,0)*(BALL_COLLISION_DIST-40))
-			--print("setting ball fv.")
-			ball:SetForwardVector(fv)
-		end
-	end
-
-	-- do above ground think logic
-	if unit.isAboveGround then
-		if not unit.dontChangeFriction and unitFriction ~= AIR_FRICTION then
-			unit:SetPhysicsFriction(AIR_FRICTION)
-		end
-
-	else
-		if not unit.dontChangeFriction and unitFriction ~= GROUND_FRICTION then
-			unit:SetPhysicsFriction(GROUND_FRICTION)
-		end
-
-	end
-
-
-	--[[if unit.isAboveGround then
-		if unit.isDSHero then
-			if not unit.physics_directional_influence then
-				unit.lastMovespeedVect = fv*unit:GetBaseMoveSpeed()
-				unit:SetPhysicsVelocity(currVel + unit.lastMovespeedVect)
-				unit.physics_directional_influence = true
-			end
-		end
-	elseif not unit.isAboveGround then
-		if unit.isDSHero then
-			if unit.physics_directional_influence and not unit.isUsingPull then
-				unit.physics_directional_influence = false
-			end
-		end
-	end
-
-	if unit.physics_directional_influence then
-		local baseVel = currVel - unit.lastMovespeedVect
-		unit.lastMovespeedVect = fv*unit:GetBaseMoveSpeed()
-		unit:SetPhysicsVelocity(baseVel + unit.lastMovespeedVect)
-	end]]
-
-end
-
 function DotaStrikers:OnPlayersHeroRespawn( hero )
 
 
@@ -469,10 +350,8 @@ function DotaStrikers:OnAbilityUsed(keys)
 				if (ent == ball and ball.controller ~= nil) or ent == hero then
 
 				else
-					if ent.isDSHero and not ent:HasModifier("modifier_rooted_passive") then
-						GlobalDummy.rooted_passive:ApplyDataDrivenModifier(GlobalDummy, ent, "modifier_rooted_passive", {})
-					end
-					ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,1900)*knockbackScale))
+					ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
+					--ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
 				end
 			end
 		end
@@ -914,115 +793,6 @@ function DotaStrikersHero:Init(hero)
 	end
 	--elseif heroName == ""
 
-end
-
-Ball = {}
-
-function Ball:Init(  )
-	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_GOODGUYS)
-	local ball = Ball.unit
-	BALL = ball.unit
-	ball.isBall = true
-
-	function ball:IsBallOutOfBounds()
-		local ballPos = ball:GetAbsOrigin()
-		return ballPos.x > Bounds.max or ballPos.x < Bounds.min or ballPos.y > Bounds.max or ballPos.y < Bounds.min
-	end
-
-	function ball:InGoalPost(  )
-		local ballPos = ball:GetAbsOrigin()
-		local inGoalPost = true
-		for i=1,2 do
-			local gc = GoalColliders[i]
-			local corner1 = gc.corners[1]
-			local corner2 = gc.corners[3]
-			if ballPos.x > corner1.x or ballPos.x < corner2.x or ballPos.y > corner1.y or ballPos.y < corner2.y then
-				inGoalPost = false
-			end
-		end
-		return inGoalPost
-	end
-
-	ball.controller = nil
-	DotaStrikers:ApplyDSPhysics(ball)
-
-	Timers:CreateTimer(1, function()
-		if not ball.ballParticle then
-			ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
-		end
-	end)
-
-	ball:OnPhysicsFrame(function(unit)
-		DotaStrikers:OnMyPhysicsFrame(ball)
-		local ballPos = ball:GetAbsOrigin()
-		for _,hero in ipairs(DotaStrikers.vHeroes) do
-			-- TODO: do 3D collision
-			local collision = (hero:GetAbsOrigin()-ball:GetAbsOrigin()):Length() <= BALL_COLLISION_DIST
-			--if collision then print ("collision.") end
-			if hero ~= ball.controller and collision then
-				if not hero.ballProc then
-					ball:SetPhysicsVelocity(Vector(0,0,0))
-					if hero.isUsingPull then
-						hero:CastAbilityNoTarget(hero.pull_break, 0)
-					end
-					print("new controller.")
-					if ball.affectedByPowershot then
-						ball.affectedByPowershot = false
-						ball.dontChangeFriction = false
-						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
-					else
-						hero:EmitSound("Hero_Puck.ProjectileImpact")
-					end
-
-					if hero == Referee.unit then
-						Referee.unit:MoveToTargetToAttack(ball)
-					else
-						ball.controller = hero
-					end
-					hero.ballProc = true
-				end
-			elseif hero ~= ball.controller and not collision then
-				if hero.ballProc then
-					hero.ballProc = false
-				end
-			elseif hero == ball.controller and not collision then
-				--print("ball.controller is nil")
-				ball.controller = nil
-				hero.ballProc = false
-			end
-		end
-
-		--[[if ball:InGoalPost() then
-			ball.inGoalPost = true
-		else
-			ball.inGoalPost = false
-		end]]
-
-		--print("ball veL: " .. VectorString(ball:GetPhysicsVelocity()))
-
-		if ball.controller ~= nil then
-			-- handle when controller took the ball out of bounds
-			local isBallOutOfBounds = ball:IsBallOutOfBounds()
-
-			if isBallOutOfBounds and not ball.outOfBoundsProc then
-				--Timers:RemoveTimer(ball.outOfBoundsTimer)
-				ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
-					if not ball.outOfBoundsProc then return end
-					print("Referee.unit:GetBallInBounds()")
-					Referee.unit:GetBallInBounds()
-				end)
-				ball.outOfBoundsProc = true
-			elseif not isBallOutOfBounds and ball.outOfBoundsProc then
-				Timers:RemoveTimer(ball.outOfBoundsTimer)
-				ball.outOfBoundsProc = false
-			end
-
-		else
-			ball:SetForwardVector(ball:GetPhysicsVelocity():Normalized())
-		end
-	end)
-
-	return ball
 end
 
 function DotaStrikers:InitMap()

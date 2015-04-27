@@ -211,4 +211,8 @@ function Timers:RemoveTimers(killAll)
 	Timers.timers = timers
 end
 
+function WaitFrames( func, numFrames )
+	Timers:CreateTimer(.03*numFrames, func)
+end
+
 Timers:start()

@@ -1,4 +1,10 @@
-function OnRefereeAttacked( keys )
+THROW_VELOCITY = 2000
+SURGE_TICK = .2
+SLAM_Z = 2500
+BASE_SPEED = 380
+MAX_PULL_DURATION = 4.55
+
+function DotaStrikers:OnRefereeAttacked( keys )
 	print("OnRefereeAttacked")
 	local attacked = keys.target
 	local ball = Ball.unit
@@ -14,13 +20,12 @@ function OnRefereeAttacked( keys )
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
-function on_powershot_succeeded( keys )
+function DotaStrikers:on_powershot_succeeded( keys )
 	print("on_powershot_succeeded")
 	local caster = keys.caster
 	local ball = Ball.unit
 	local dir = caster.throw_direction
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
-	ball:SetForwardVector(dir)
 	ball.dontChangeFriction = true
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
@@ -30,7 +35,7 @@ function on_powershot_succeeded( keys )
 
 end
 
-function throw_ball( keys )
+function DotaStrikers:throw_ball( keys )
 	--PrintTable(keys)
 	--print("get_throw_point")
 	local caster = keys.caster
@@ -46,13 +51,12 @@ function throw_ball( keys )
 		caster:CastAbilityNoTarget(caster:FindAbilityByName("powershot_channel"), 0)
 	else
 		ball.controller:EmitSound("Hero_Puck.Attack")
-		ball:SetForwardVector(dir)
-		ball:AddPhysicsVelocity(dir*1400)
+		ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
 		ball.controller = nil
 	end
 end
 
-function surge( keys )
+function DotaStrikers:surge( keys )
 	local caster = keys.caster
 	caster.surgeOn = true
 
@@ -86,7 +90,7 @@ function surge( keys )
 
 end
 
-function surge_break( keys )
+function DotaStrikers:surge_break( keys )
 	local caster = keys.caster
 	caster.surgeOn = false
 
@@ -114,7 +118,7 @@ function surge_break( keys )
 
 end
 
-function pull( keys )
+function DotaStrikers:pull( keys )
 	local caster = keys.caster
 	caster.isUsingPull = true
 	caster:RemoveAbility("pull")
@@ -123,23 +127,6 @@ function pull( keys )
 	caster.pull_break:SetLevel(1)
 
 	local ball = Ball.unit
-
-	--[[Timers:CreateTimer(.03, function()
-		if caster.isUsingPull then
-			if caster.lastPullAccel then
-				caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.lastPullAccel)
-				--caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-caster.lastPullVel)
-			end
-			local dirToBall = (ball:GetAbsOrigin() - caster:GetAbsOrigin()):Normalized()
-			caster.lastPullAccel = 1200*dirToBall
-			caster:AddPhysicsAcceleration(caster.lastPullAccel)
-		else
-			return nil
-		end
-		return .1
-	end)
-
-	caster:AddDirectionalInfluence()]]
 
 	-- particle
 	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
@@ -158,7 +145,7 @@ function pull( keys )
 
 end
 
-function pull_break( keys )
+function DotaStrikers:pull_break( keys )
 	local caster = keys.caster
 	caster.isUsingPull = false
 	caster:RemoveAbility("pull_break")
@@ -197,15 +184,12 @@ function pull_break( keys )
 
 end
 
-function ninja_jump( keys )
+function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
 	caster:AddPhysicsVelocity(caster:GetForwardVector()*700 + Vector(0,0,1500))
 	if caster == Ball.unit.controller then
-		Ball.unit:AddPhysicsVelocity(Vector(0,0,900))
+		Ball.unit:AddPhysicsVelocity(Vector(0,0,1400))
 	end
 	caster.noBounce = true
 
 end
-
-BASE_SPEED = 380
-MAX_PULL_DURATION = 4.55
