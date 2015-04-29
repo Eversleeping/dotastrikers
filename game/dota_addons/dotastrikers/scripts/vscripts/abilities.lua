@@ -5,7 +5,7 @@ SLAM_FORCE = 1900
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
-PSHOT_ONHIT_VEL = 800
+PSHOT_ONHIT_VEL = 1000
 NINJA_JUMP_Z = 1600
 NINJA_JUMP_XY = 600
 
@@ -58,6 +58,7 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	local ball = Ball.unit
 	local dir = caster.throw_direction
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
+	ball.controller = nil
 	ball.dontChangeFriction = true
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
@@ -106,7 +107,15 @@ function DotaStrikers:surge( keys )
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
 
 		--particles/generic_gameplay/rune_haste_owner.vpcf
-		caster.surgeParticle = ParticleManager:CreateParticle("particles/generic_gameplay/rune_haste_owner.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/items2_fx/phase_boots.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+
+		-- play local phaseboots sound.
+		local phaseBoots = CreateItem("item_phase", caster, caster)
+		-- apparently this works fine without timers.
+		caster:AddItem(phaseBoots)
+		caster:CastAbilityImmediately(phaseBoots, 0)
+		caster:RemoveItem(phaseBoots)
+
 		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*2/3)
 	else
 		caster:RemoveAbility("surge_sprint")

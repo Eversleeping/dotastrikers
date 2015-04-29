@@ -110,15 +110,6 @@ function Ball:Init(  )
 				ball.lastForwardVector = ballFV
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
-
-			--[[local angDelta = math.abs(RotationDelta(VectorToAngles(ballVelocityDir), VectorToAngles(ballFV)).y)
-			if angDelta > 20 and angDelta ~= 180 then
-				if ball.velocityMagnitude > 100*100 and ball.bStarted then
-					--print("velocityMagnitude: " .. ball.velocityMagnitude)
-					ball.particleDummy:SetForwardVector(ballVelocityDir)
-					--print("angDelta: " .. angDelta)
-				end
-			end]]
 		end
 	end)
 

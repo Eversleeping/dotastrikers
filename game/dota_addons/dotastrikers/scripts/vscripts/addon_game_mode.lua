@@ -3,7 +3,6 @@ requires = {
 	'util',
 	'timers',
 	'physics',
-	--'myllphysics',
 	'constants',
 	'dotastrikers',
 	'ball',
@@ -49,7 +48,23 @@ function Precache( context )
 	PrecacheResource("particle", "particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf", context)
 	PrecacheResource("particle", "particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", context)
 	PrecacheResource("particle", "particles/units/heroes/hero_brewmaster/brewmaster_thunder_clap.vpcf", context)
-	PrecacheResource("particle", "particles/units/heroes/hero_spirit_breaker/spirit_breaker_haste_owner.vpcf", context)
+	PrecacheResource("particle", "particles/items2_fx/phase_boots.vpcf", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
@@ -75,10 +90,7 @@ function Precache( context )
 	--game_sounds_items
 	PrecacheResource("soundfile", "soundevents/soundevents_custom.vsndevts", context)
 
-	-- Entire items can be precached by name
-	-- Abilities can also be precached in this way despite the name
-	PrecacheItemByNameSync("example_ability", context)
-	PrecacheItemByNameSync("item_example_item", context)
+	PrecacheItemByNameSync("item_phase_boots", context)
 
 	-- Entire heroes (sound effects/voice/models/particles) can be precached with PrecacheUnitByNameSync
 	-- Custom units from npc_units_custom.txt can also have all of their abilities and precache{} blocks precached in this way

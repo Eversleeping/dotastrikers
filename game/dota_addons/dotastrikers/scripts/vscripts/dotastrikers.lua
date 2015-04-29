@@ -607,10 +607,6 @@ function DotaStrikers:InitDotaStrikers()
 		DotaStrikers:InitMap()
 	end)
 
-	--[[Timers:CreateTimer(.06, function()
-		DebugDrawBox(Vector(0,0,GlobalDummy.z), Vector(Bounds.min,Bounds.min,0), Vector(Bounds.max,Bounds.max,100), 255, 0, 0, 50, 99999)
-	end)]]
-
 	VisionDummies = {GoodGuys = {}, BadGuys = {}}
 	local timeOffset = .03
 	-- CREATE vision dummies
