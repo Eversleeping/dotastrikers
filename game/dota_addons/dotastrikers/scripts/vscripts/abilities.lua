@@ -1,11 +1,13 @@
 THROW_VELOCITY = 2000
 SURGE_TICK = .2
-SLAM_Z = 2500
+SLAM_Z = 2900
 SLAM_FORCE = 1900
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 800
+NINJA_JUMP_Z = 1600
+NINJA_JUMP_XY = 600
 
 function DotaStrikers:OnAbilityUsed( keys )
 	local player = EntIndexToHScript(keys.PlayerID)
@@ -103,6 +105,7 @@ function DotaStrikers:surge( keys )
 		caster:AddAbility("surge_break")
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
 
+		--particles/generic_gameplay/rune_haste_owner.vpcf
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/generic_gameplay/rune_haste_owner.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*2/3)
 	else
@@ -217,7 +220,7 @@ end
 
 function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
-	caster:AddPhysicsVelocity(caster:GetForwardVector()*600 + Vector(0,0,1900))
+	caster:AddPhysicsVelocity(caster:GetForwardVector()*NINJA_JUMP_XY + Vector(0,0,NINJA_JUMP_Z))
 	if caster == Ball.unit.controller then
 		--Ball.unit:AddPhysicsVelocity(Vector(0,0,1400))
 	end
@@ -230,7 +233,7 @@ function DotaStrikers:text_particle( keys )
 	local particle = "particles/pass_me/legion_commander_duel_victory_text.vpcf"
 
 	if abilName == "frown" then
-		local frownIndex = RandomInt(1, 4)
+		local frownIndex = RandomInt(1, 5)
 		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
 	end
 
