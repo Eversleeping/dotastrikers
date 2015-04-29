@@ -131,6 +131,52 @@
 		}
 	}
 
+	"frown"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"frown"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"1.5"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"text_particle"
+			}
+		}
+	}
+
+	"pass_me"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"pass_me"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"1.5"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"text_particle"
+			}
+		}
+	}
+
 	"surge"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
@@ -225,25 +271,26 @@
 
 	"slam"
 	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
-		"BaseClass"             		"brewmaster_thunder_clap"
-		"AbilityCastPoint"				".36"
-		"MaxLevel" 						"1"
+		"BaseClass"						"earthshaker_echo_slam"
+		"MaxLevel"						"1"
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0.36"
 
 		// Time		
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCooldown"				"1"
-		
-		// Casting
+
+		// Damage.
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0.4"
+		"AbilityDamage"					"0"
+		"AbilityCastRange"					"720"
 
 		// Cost
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityManaCost"				"0"		
-		"AbilityCastRange"				"720"
 
 		// Special
 		//-------------------------------------------------------------------------------------------------------------
@@ -252,32 +299,22 @@
 			"01"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"radius"					"720"
+				"echo_slam_damage_range"	"720"
 			}
 			"02"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"duration"					"0"
+				"var_type"					"FIELD_INTEGER"
+				"echo_slam_echo_search_range" "720"
 			}
 			"03"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"duration_creeps"			"0"
+				"var_type"					"FIELD_INTEGER"
+				"echo_slam_echo_range"		"720"
 			}
 			"04"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"damage"					"0"
-			}
-			"05"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"movement_slow"				"0"
-			}
-			"06"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"attack_speed_slow"			"0"
+				"echo_slam_echo_damage"		"0"
 			}
 		}
 	}

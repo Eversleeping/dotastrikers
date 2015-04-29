@@ -29,3 +29,7 @@ end
 function ninja_jump( keys )
 	DotaStrikers:ninja_jump(keys)
 end
+
+function text_particle( keys )
+	DotaStrikers:text_particle(keys)
+end

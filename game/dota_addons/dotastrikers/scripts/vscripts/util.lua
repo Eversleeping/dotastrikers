@@ -1,4 +1,9 @@
-
+function ShowErrorMsg( unit, msg )
+	if not unit.lastErrorPopupTime or (GameRules:GetGameTime()-unit.lastErrorPopupTime > 1) then
+		FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = msg } )
+		unit.lastErrorPopupTime = GameRules:GetGameTime()
+	end
+end
 
 function Length3DSq(v) 
     return v.x * v.x + v.y * v.y + v.z * v.z

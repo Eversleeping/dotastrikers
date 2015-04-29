@@ -1,11 +1,11 @@
-Ball = {}
+BALL_PARTICLE_Z_OFFSET=40 --this makes the particle look nicer.
 
 function Ball:Init(  )
-	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_GOODGUYS)
+	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_NOTEAM)
 	local ball = Ball.unit
 	BALL = ball.unit
 	ball.isBall = true
-	ball.lastBallVelocityDir = ball:GetForwardVector()
+	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
 
 	function ball:IsBallOutOfBounds()
 		local ballPos = ball:GetAbsOrigin()
@@ -29,17 +29,22 @@ function Ball:Init(  )
 	ball.controller = nil
 	DotaStrikers:ApplyDSPhysics(ball)
 
+	-- constantly reposition the ball particle dummy.
 	Timers:CreateTimer(1, function()
 		if not ball.ballParticle then
-			ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+			ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 		end
+		local pos = ball:GetAbsOrigin()
+		ball.particleDummy:SetAbsOrigin(Vector(pos.x, pos.y, pos.z+BALL_PARTICLE_Z_OFFSET))
+		return .01
 	end)
 
 	ball:OnPhysicsFrame(function(unit)
 		DotaStrikers:OnMyPhysicsFrame(ball)
 		local ballPos = ball:GetAbsOrigin()
+
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
-			local collision = (hero:GetAbsOrigin()-ball:GetAbsOrigin()):Length() <= BALL_COLLISION_DIST
+			local collision = (hero:GetAbsOrigin()-ballPos):Length() <= BALL_COLLISION_DIST
 			--if collision then print ("collision.") end
 			if hero ~= ball.controller and collision then
 				if not hero.ballProc then
@@ -47,11 +52,14 @@ function Ball:Init(  )
 					if hero.isUsingPull then
 						hero:CastAbilityNoTarget(hero.pull_break, 0)
 					end
-					print("new controller.")
+					--print("new controller.")
 					if ball.affectedByPowershot then
 						ball.affectedByPowershot = false
 						ball.dontChangeFriction = false
+						ball:SetPhysicsFriction(GROUND_FRICTION)
+						hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
 						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
+						ParticleManager:DestroyParticle(ball.powershot_particle, true)
 					else
 						hero:EmitSound("Hero_Puck.ProjectileImpact")
 					end
@@ -67,25 +75,18 @@ function Ball:Init(  )
 				if hero.ballProc then
 					hero.ballProc = false
 				end
-			elseif hero == ball.controller and not collision then
-				--print("ball.controller is nil")
-				ball.controller = nil
-				hero.ballProc = false
+			elseif hero == ball.controller then
+				local fv = hero:GetForwardVector()
+				-- reposition ball to in front of controller.
+				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*(BALL_COLLISION_DIST-40))
+				ball:SetForwardVector(fv)
 			end
 		end
 
-		--[[if ball:InGoalPost() then
-			ball.inGoalPost = true
-		else
-			ball.inGoalPost = false
-		end]]
-
-		--print("ball veL: " .. VectorString(ball:GetPhysicsVelocity()))
-
 		if ball.controller ~= nil then
+			ball.particleDummy:SetForwardVector(ball.controller:GetForwardVector())
 			-- handle when controller took the ball out of bounds
 			local isBallOutOfBounds = ball:IsBallOutOfBounds()
-
 			if isBallOutOfBounds and not ball.outOfBoundsProc then
 				--Timers:RemoveTimer(ball.outOfBoundsTimer)
 				ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
@@ -93,25 +94,31 @@ function Ball:Init(  )
 					print("Referee.unit:GetBallInBounds()")
 					Referee.unit:GetBallInBounds()
 				end)
+				-- show error msg
+				ShowErrorMsg(ball.controller, "Ball is out of bounds")
 				ball.outOfBoundsProc = true
 			elseif not isBallOutOfBounds and ball.outOfBoundsProc then
 				Timers:RemoveTimer(ball.outOfBoundsTimer)
 				ball.outOfBoundsProc = false
 			end
 		else
-			-- turn the facing direction of the ball. prolly went a lil overboard with this.
+			-- turn the facing direction of the ball for aesthetics. prolly went a lil overboard with this.
 			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
-			local ballFV = ball:GetForwardVector()
+			local ballFV = ball.particleDummy:GetForwardVector()
 
-			local angDelta = math.abs(RotationDelta(VectorToAngles(ballVelocityDir), VectorToAngles(ballFV)).y)
+			if ball.bStarted and ball.velocityMagnitude > 100*100 and ballFV ~= ball.lastForwardVector then
+				ball.lastForwardVector = ballFV
+				ball.particleDummy:SetForwardVector(ballVelocityDir)
+			end
+
+			--[[local angDelta = math.abs(RotationDelta(VectorToAngles(ballVelocityDir), VectorToAngles(ballFV)).y)
 			if angDelta > 20 and angDelta ~= 180 then
-				ball.lastForwardVector = ballVelocityDir
 				if ball.velocityMagnitude > 100*100 and ball.bStarted then
 					--print("velocityMagnitude: " .. ball.velocityMagnitude)
-					ball:SetForwardVector(ballVelocityDir)
+					ball.particleDummy:SetForwardVector(ballVelocityDir)
 					--print("angDelta: " .. angDelta)
 				end
-			end
+			end]]
 		end
 	end)
 

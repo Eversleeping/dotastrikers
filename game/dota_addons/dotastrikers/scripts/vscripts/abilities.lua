@@ -1,8 +1,38 @@
 THROW_VELOCITY = 2000
 SURGE_TICK = .2
 SLAM_Z = 2500
+SLAM_FORCE = 1900
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
+PSHOT_VELOCITY = 1600
+PSHOT_ONHIT_VEL = 800
+
+function DotaStrikers:OnAbilityUsed( keys )
+	local player = EntIndexToHScript(keys.PlayerID)
+	local abilityname = keys.abilityname
+	local hero = player:GetAssignedHero()
+	local ball = Ball.unit
+
+	if abilityname == "slam" then
+		local radius = hero:FindAbilityByName("slam"):GetCastRange()
+		print("radius: " .. radius)
+		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
+			if IsPhysicsUnit(ent) then
+				local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
+				local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
+				local knockbackScale = (radius-dist)/radius
+				-- if it's the ball and ball has a controller, don't move the ball.
+				-- if it's the slammer, don't move him
+				if (ent == ball and ball.controller ~= nil) or ent == hero then
+
+				else
+					ent:AddPhysicsVelocity((dir*SLAM_FORCE + Vector(0,0,SLAM_Z)*knockbackScale))
+					--ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
+				end
+			end
+		end
+	end
+end
 
 function DotaStrikers:OnRefereeAttacked( keys )
 	print("OnRefereeAttacked")
@@ -29,9 +59,9 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	ball.dontChangeFriction = true
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
-	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/windrunner_spell_powershot.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
-	ParticleManager:SetParticleControl(ball.powershot_particle, 1, ball:GetPhysicsVelocity())
-	ball:AddPhysicsVelocity(dir*1600)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+	--ParticleManager:SetParticleControl(ball.powershot_particle, 1, ball:GetPhysicsVelocity())
+	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
 end
 
@@ -43,7 +73,8 @@ function DotaStrikers:throw_ball( keys )
 	if caster ~= ball.controller then return end
 
 	local point = keys.target_points[1]
-	local dir = (point-ball:GetAbsOrigin()):Normalized()
+	local ballPos = ball:GetAbsOrigin()
+	local dir = (Vector(point.x,point.y,ballPos.z)-ballPos):Normalized()
 
 	if keys.ability:GetAbilityName() == "powershot" then
 		-- begin the channeling portion
@@ -186,10 +217,33 @@ end
 
 function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
-	caster:AddPhysicsVelocity(caster:GetForwardVector()*700 + Vector(0,0,1500))
+	caster:AddPhysicsVelocity(caster:GetForwardVector()*600 + Vector(0,0,1900))
 	if caster == Ball.unit.controller then
-		Ball.unit:AddPhysicsVelocity(Vector(0,0,1400))
+		--Ball.unit:AddPhysicsVelocity(Vector(0,0,1400))
 	end
 	caster.noBounce = true
+end
+
+function DotaStrikers:text_particle( keys )
+	local caster = keys.caster
+	local abilName = keys.ability:GetAbilityName()
+	local particle = "particles/pass_me/legion_commander_duel_victory_text.vpcf"
+
+	if abilName == "frown" then
+		local frownIndex = RandomInt(1, 4)
+		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
+	end
+
+	if caster.textParticle then
+		ParticleManager:DestroyParticle(caster.textParticle, true)
+		caster.textParticle = nil
+	end
+	caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
+	if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
+		ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))
+	else
+		ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(255,0,0))
+	end
+	ParticleManager:SetParticleControlEnt(caster.textParticle, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 
 end

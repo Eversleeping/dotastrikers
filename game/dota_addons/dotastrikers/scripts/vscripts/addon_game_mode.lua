@@ -24,6 +24,8 @@ function Precache( context )
 	PrecacheResource("particle_folder", "particles/ball", context)
 	--particles/powershot/windrunner_spell_powershot.vpcf
 	PrecacheResource("particle_folder", "particles/powershot", context)
+	PrecacheResource("particle_folder", "particles/pass_me", context)
+	PrecacheResource("particle_folder", "particles/thunderclap", context)
 	--PrecacheResource("particle_folder", "particles/shield", context)
 
 	PrecacheResource("particle", "particles/units/heroes/hero_wisp/wisp_tether.vpcf", context)
@@ -44,9 +46,9 @@ function Precache( context )
 	PrecacheResource("particle", "particles/units/heroes/hero_medusa/medusa_mana_shield.vpcf", context)
 	PrecacheResource("particle", "particles/units/heroes/hero_lich/lich_frost_nova_sphere_1.vpcf", context)
 	PrecacheResource("particle", "particles/immunity_sphere_buff.vpcf", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_brewmaster/brewmaster_thunder_clap.vpcf", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
@@ -64,6 +66,7 @@ function Precache( context )
 	--PrecacheModel("models/heroes/viper/viper.vmdl", context)
 
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_puck.vsndevts", context)
+	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_earthshaker.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_vengefulspirit.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_creeps.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_items.vsndevts", context)
@@ -81,6 +84,7 @@ function Precache( context )
 	-- Custom units from npc_units_custom.txt can also have all of their abilities and precache{} blocks precached in this way
 	PrecacheUnitByNameSync("npc_dota_hero_ancient_apparition", context)
 	PrecacheUnitByNameSync("npc_dota_hero_omniknight", context)
+	PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
 end
 
 -- Create the game mode when we activate

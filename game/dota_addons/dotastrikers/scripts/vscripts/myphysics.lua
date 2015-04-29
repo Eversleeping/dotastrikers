@@ -2,9 +2,9 @@ GROUND_FRICTION = .04
 AIR_FRICTION = .02
 GRAVITY = -2900
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
-BALL_COLLISION_DIST = 110
+BALL_COLLISION_DIST = 120
 BOUNCE_MULTIPLIER = .9
-
+PULL_ACCEL_FORCE = 2300
 BOUNCE_VEL_THRESHOLD = 500
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
@@ -18,9 +18,8 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		unit.isAboveGround = true
 		unit:SetGroundBehavior(PHYSICS_GROUND_NONE)
 		print("unit.isAboveGround")
-		--print("currVel: " .. VectorString(unit:GetPhysicsVelocity()))
 		-- if hero, set the modifier up
-		if not unit:HasModifier("modifier_rooted_passive") then --len3dSq > BOUNCE_VEL_THRESHOLD*BOUNCE_VEL_THRESHOLD
+		if not unit:HasModifier("modifier_rooted_passive") then
 			if unit ~= ball then
 				GlobalDummy.rooted_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_rooted_passive", {})
 			end
@@ -32,15 +31,16 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		-- bounce takes priority
 		-- determine if bounce should occur.
 		local bounceOccured = false
-		--print("len3dSq: " .. len3dSq)
 		if len3dSq > BOUNCE_VEL_THRESHOLD*BOUNCE_VEL_THRESHOLD and not unit.noBounce then
 			--print("Bouncing.")
 			currVel = Vector(currVel.x, currVel.y, math.abs(currVel.z)*unit.bounce_multiplier)
 			unit.bounce_multiplier = unit.bounce_multiplier*.8
 			unit:SetPhysicsVelocity(currVel)
-			--print("currVel: " .. VectorString(currVel))
 			bounceOccured = true
 			unit:SetPhysicsFriction(GROUND_FRICTION)
+			if len3dSq > 700*700 then
+				self:DisplayCracksOnGround(unit)
+			end
 		end
 
 		if unit.noBounce then
@@ -50,7 +50,6 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if not bounceOccured then
 			unit.isAboveGround = false
 			print("not unit.isAboveGround")
-			--print("currVel: " .. VectorString(unit:GetPhysicsVelocity()))
 			-- if hero, remove the modifier
 			if unit:HasModifier("modifier_rooted_passive") then
 				unit:RemoveModifierByName("modifier_rooted_passive")
@@ -65,16 +64,8 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			-- it's imba is the puller already has the pull and she's using pull.
 			if ball.controller ~= unit then
 				local dirToBall = (Ball.unit:GetAbsOrigin() - unit:GetAbsOrigin()):Normalized()
-				unit:SetPhysicsAcceleration(BASE_ACCELERATION + dirToBall*2500)
+				unit:SetPhysicsAcceleration(BASE_ACCELERATION + dirToBall*PULL_ACCEL_FORCE)
 			end
-		end
-		if unit == ball.controller then
-			-- reposition ball to in front of controller.
-			ball:SetAbsOrigin(unit:GetAbsOrigin() + Vector(fv.x,fv.y,0)*(BALL_COLLISION_DIST-40))
-			ball:SetForwardVector(fv)
-		end
-		if unit:GetPlayerID() == 0 then
-			--print("currVel: " .. VectorString(unit:GetPhysicsVelocity()))
 		end
 	end
 
@@ -90,27 +81,17 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 	end
+end
 
-	--[[if unit.isAboveGround then
-		if unit.isDSHero then
-			if not unit.physics_directional_influence then
-				unit.lastMovespeedVect = fv*unit:GetBaseMoveSpeed()
-				unit:SetPhysicsVelocity(currVel + unit.lastMovespeedVect)
-				unit.physics_directional_influence = true
-			end
-		end
-	elseif not unit.isAboveGround then
-		if unit.isDSHero then
-			if unit.physics_directional_influence and not unit.isUsingPull then
-				unit.physics_directional_influence = false
-			end
-		end
-	end
-
-	if unit.physics_directional_influence then
-		local baseVel = currVel - unit.lastMovespeedVect
-		unit.lastMovespeedVect = fv*unit:GetBaseMoveSpeed()
-		unit:SetPhysicsVelocity(baseVel + unit.lastMovespeedVect)
-	end]]
+function DotaStrikers:DisplayCracksOnGround( unit )
+	if unit == Ball.unit and unit.controller then return end
+	local pos = unit:GetAbsOrigin()
+	local crackDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_NOTEAM)
+	--particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf
+	crackDummy.crackParticle = ParticleManager:CreateParticle("particles/thunderclap/brewmaster_thunder_clap.vpcf", PATTACH_ABSORIGIN, crackDummy)
+	crackDummy:EmitSound("Hero_EarthShaker.IdleSlam")
+	Timers:CreateTimer(2, function()
+		crackDummy:RemoveSelf()
+	end)
 
 end

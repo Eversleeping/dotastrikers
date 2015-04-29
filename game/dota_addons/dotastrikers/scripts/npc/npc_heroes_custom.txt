@@ -120,8 +120,8 @@
 		"Ability1"				"ninja_jump"
 		"Ability2"				"throw_ball"
 		"Ability3"				"surge"
-		"Ability4"				"dotastrikers_empty4"
-		"Ability5"				"dotastrikers_empty5"
+		"Ability4"				"pass_me"
+		"Ability5"				"frown"
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
@@ -227,13 +227,13 @@
 	"slam"
 	{
 		"AbilityLayout" 		"6"
-		"override_hero"			"npc_dota_hero_brewmaster"
+		"override_hero"			"npc_dota_hero_earthshaker"
 		"SoundSet"				"0"	
 		"Ability1"				"slam"
 		"Ability2"				"throw_ball"
 		"Ability3"				"surge"
-		"Ability4"				"dotastrikers_empty4"
-		"Ability5"				"dotastrikers_empty5"
+		"Ability4"				"pass_me"
+		"Ability5"				"frown"
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
@@ -325,7 +325,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"410"									// Speed.
+		"MovementSpeed"				"522"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"981"									// Base health.

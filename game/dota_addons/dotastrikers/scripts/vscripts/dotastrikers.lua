@@ -1,5 +1,7 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
+Ball = {}
+
 if not Testing then
   statcollection.addStats({
     modID = 'XXXXXXXXXXXXXXXXXXX'
@@ -264,7 +266,6 @@ function DotaStrikers:ApplyDSPhysics( unit )
 	unit:SetPhysicsAcceleration(BASE_ACCELERATION)
 	unit.shieldParticles = {}
 	unit.lastShieldParticleTime = GameRules:GetGameTime()
-	unit.lastErrorPopupTime = GameRules:GetGameTime()
 end
 
 function DotaStrikers:OnPlayersHeroRespawn( hero )
@@ -331,32 +332,8 @@ function DotaStrikers:OnItemPurchased( keys )
 end
 
 -- An ability was used by a player
-function DotaStrikers:OnAbilityUsed(keys)
-	local player = EntIndexToHScript(keys.PlayerID)
-	local abilityname = keys.abilityname
-	local hero = player:GetAssignedHero()
-	local ball = Ball.unit
-
-	if abilityname == "slam" then
-		local radius = hero:FindAbilityByName("slam"):GetCastRange()
-		print("radius: " .. radius)
-		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
-			if IsPhysicsUnit(ent) then
-				local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
-				local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
-				local knockbackScale = (radius-dist)/radius
-				-- if it's the ball and ball has a controller, don't move the ball.
-				-- if it's the slammer, don't move him
-				if (ent == ball and ball.controller ~= nil) or ent == hero then
-
-				else
-					ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
-					--ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
-				end
-			end
-		end
-	end
-
+function DotaStrikers:OnAbilityUsedProxy(keys)
+	self:OnAbilityUsed(keys)
 end
 
 -- A non-player entity (necro-book, chen creep, etc) used an ability
@@ -553,7 +530,7 @@ function DotaStrikers:InitDotaStrikers()
 	ListenToGameEvent('tree_cut', Dynamic_Wrap(DotaStrikers, 'OnTreeCut'), self)
 	ListenToGameEvent('entity_hurt', Dynamic_Wrap(DotaStrikers, 'OnEntityHurt'), self)
 	ListenToGameEvent('player_connect', Dynamic_Wrap(DotaStrikers, 'PlayerConnect'), self)
-	ListenToGameEvent('dota_player_used_ability', Dynamic_Wrap(DotaStrikers, 'OnAbilityUsed'), self)
+	ListenToGameEvent('dota_player_used_ability', Dynamic_Wrap(DotaStrikers, 'OnAbilityUsedProxy'), self)
 	ListenToGameEvent('game_rules_state_change', Dynamic_Wrap(DotaStrikers, 'OnGameRulesStateChange'), self)
 	ListenToGameEvent('npc_spawned', Dynamic_Wrap(DotaStrikers, 'OnNPCSpawned'), self)
 	ListenToGameEvent('dota_player_pick_hero', Dynamic_Wrap(DotaStrikers, 'OnPlayerPickHero'), self)
@@ -882,11 +859,7 @@ function DotaStrikers:InitMap()
 				-- if the unit isn't the ball and there's a goalie in there, collision occurs.
 				passTest = true
 				if unit:GetPlayerOwner() ~= nil then
-					--print("printing error.")
-					if GameRules:GetGameTime()-unit.lastErrorPopupTime > 1 then
-						FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = "Your team already has a goalie" } )
-						unit.lastErrorPopupTime = GameRules:GetGameTime()
-					end
+					ShowErrorMsg(unit, "Can't enter enemy goal post")
 				end
 
 				--ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact.vpcf", PATTACH_ABSORIGIN, unit)
@@ -903,10 +876,7 @@ function DotaStrikers:InitMap()
 				passTest = true
 				-- people can't enter enemy goal posts.
 				if unit:GetTeamNumber() ~= gc.team then
-					if GameRules:GetGameTime()-unit.lastErrorPopupTime > 1 then
-						FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = "Can't enter enemy goal post" } )
-						unit.lastErrorPopupTime = GameRules:GetGameTime()
-					end
+					ShowErrorMsg(unit, "Can't enter enemy goal post")
 				end
 				
 			end
@@ -937,7 +907,7 @@ end
 Referee = {}
 
 function Referee:Init(  )
-	Referee.unit = CreateUnitByName("npc_dota_hero_omniknight", Vector(4000,4000,0), true, nil, nil, Ball.unit:GetOpposingTeamNumber())
+	Referee.unit = CreateUnitByName("npc_dota_hero_omniknight", Vector(4000,4000,0), true, nil, nil, DOTA_TEAM_NEUTRALS)
 	local referee = Referee.unit
 	--table.insert(DotaStrikers.vHeroes, referee)
 
