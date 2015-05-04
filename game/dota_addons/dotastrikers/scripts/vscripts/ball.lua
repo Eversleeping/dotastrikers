@@ -104,7 +104,7 @@ function Ball:Init(  )
 				ball.outOfBoundsProc = false
 			end
 		else
-			-- turn the facing direction of the ball for aesthetics. prolly went a lil overboard with this.
+			-- turn the facing direction of the ball for aesthetics.
 			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
 			local ballFV = ball.particleDummy:GetForwardVector()
 
