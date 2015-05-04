@@ -1,11 +1,12 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
+Bounds = {min = -920, max = 920}
+RectangleOffset = 2010-Bounds.max --750
+
 Ball = {}
 
 if not Testing then
-  statcollection.addStats({
-    modID = 'XXXXXXXXXXXXXXXXXXX'
-  })
+  statcollection.addStats({ modID = 'XXXXXXXXXXXXXXXXXXX' })
 end
 
 ColorStr = 
@@ -188,7 +189,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		if hero.goalie then
 			-- check if actually still in goal
 			local corner1 = hero.gc.corners[1]
-			local corner2 = hero.gc.corners[3]
+			local corner2 = hero.gc.corners[2]
 			if heroPos.x > corner1.x or heroPos.x < corner2.x or heroPos.y > corner1.y or heroPos.y < corner2.y then
 				--print("goalie left net.")
 				hero.goalie = false
@@ -260,7 +261,7 @@ end
 function DotaStrikers:ApplyDSPhysics( unit )
 	Physics:Unit(unit)
 	unit:Hibernate(false)
-	unit:SetNavCollisionType(PHYSICS_NAV_BOUNCE)
+	unit:SetNavCollisionType(PHYSICS_NAV_NOTHING)
 	unit:SetGroundBehavior(PHYSICS_GROUND_ABOVE)
 	-- gravity
 	unit:SetPhysicsAcceleration(BASE_ACCELERATION)
@@ -496,9 +497,8 @@ end
 -- It can be used to pre-initialize any values/tables that will be needed later
 function DotaStrikers:InitDotaStrikers()
 	DotaStrikers = self
-	--print('[DOTASTRIKERS] Starting to load DotaStrikers gamemode...')
+	print('[DOTASTRIKERS] Starting to load DotaStrikers gamemode...')
 
-	-- Setup rules
 	-- Setup rules
 	GameRules:SetHeroRespawnEnabled( true )
 	GameRules:SetUseUniversalShopMode( true )
@@ -507,8 +507,8 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetPreGameTime( 0)
 	GameRules:SetPostGameTime( 30 )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)
-	GameRules:SetHeroMinimapIconScale( 1.4 )
-	GameRules:SetCreepMinimapIconScale( 1.7 )
+	GameRules:SetHeroMinimapIconScale( .8 )
+	GameRules:SetCreepMinimapIconScale( 1.4 )
 	--print('[DOTASTRIKERS] GameRules set')
 
 	InitLogFile( "log/dotastrikers.txt","")
@@ -601,8 +601,6 @@ function DotaStrikers:InitDotaStrikers()
 	print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
 	GroundZ = GlobalDummy:GetAbsOrigin().z
 
-	Bounds = {min = -3000, max = 3000}
-
 	Timers:CreateTimer(.06, function()
 		DotaStrikers:InitMap()
 	end)
@@ -611,8 +609,8 @@ function DotaStrikers:InitDotaStrikers()
 	local timeOffset = .03
 	-- CREATE vision dummies
 	local offset = 1800 --528
-	for y=Bounds.max-500, Bounds.min, -1*offset do
-		for x=Bounds.min+500, Bounds.max, offset do
+	for y=Bounds.max, Bounds.min, -1*offset do
+		for x=Bounds.min-RectangleOffset, Bounds.max+RectangleOffset, offset do
 			Timers:CreateTimer(timeOffset, function()
 				--if GridNav:IsTraversable(Vector(x,y,GlobalDummy.z)) and not GridNav:IsBlocked(Vector(x,y,GlobalDummy.z)) then
 				local goodguy = CreateUnitByName("vision_dummy", Vector(x,y,GlobalDummy.z), false, nil, nil, DOTA_TEAM_GOODGUYS)
@@ -673,7 +671,7 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 1400 )
+		mode:SetCameraDistanceOverride( 1700 )
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( false ) -- this needed for kill banners?
@@ -768,17 +766,22 @@ function DotaStrikersHero:Init(hero)
 
 end
 
+
 function DotaStrikers:InitMap()
+	local ball = Ball.unit
+
 	BoundsColliders = {}
 	Corners = 
 	{
-		[1] = Vector(Bounds.max, Bounds.max, GroundZ),
-		[2] = Vector(Bounds.min, Bounds.max, GroundZ),
-		[3] = Vector(Bounds.min, Bounds.min, GroundZ),
-		[4] = Vector(Bounds.max, Bounds.min, GroundZ),
+		[1] = Vector(Bounds.max+RectangleOffset, Bounds.max, GroundZ),
+		[2] = Vector(Bounds.min-RectangleOffset, Bounds.max, GroundZ),
+		[3] = Vector(Bounds.min-RectangleOffset, Bounds.min, GroundZ),
+		[4] = Vector(Bounds.max+RectangleOffset, Bounds.min, GroundZ),
 	}
 
-	local offset = 900
+	CornerParticles = {}
+
+	local offset = 2000
 	local colliderZ = 2000
 	for i=1,4 do
 		BoundsColliders[i] = Physics:AddCollider("bounds_collider_" .. i, Physics:ColliderFromProfile("aaboxreflect"))
@@ -788,16 +791,16 @@ function DotaStrikers:InitMap()
 			nextCorner = Corners[i+1]
 		end
 		if i == 1 then
-			corner = Vector(corner.x+offset, corner.y, corner.z)
+			corner = Vector(corner.x+offset, corner.y, 0)
 			nextCorner = Vector(nextCorner.x-offset, nextCorner.y+offset,nextCorner.z+colliderZ)
 		elseif i == 2 then
-			corner = Vector(corner.x, corner.y+offset, corner.z)
+			corner = Vector(corner.x, corner.y+offset, 0)
 			nextCorner = Vector(nextCorner.x-offset, nextCorner.y-offset,nextCorner.z+colliderZ)
 		elseif i == 3 then
-			corner = Vector(corner.x-offset, corner.y, corner.z)
+			corner = Vector(corner.x-offset, corner.y, 0)
 			nextCorner = Vector(nextCorner.x+offset, nextCorner.y-offset,nextCorner.z+colliderZ)
 		else
-			corner = Vector(corner.x, corner.y-offset, corner.z)
+			corner = Vector(corner.x, corner.y-offset, 0)
 			nextCorner = Vector(nextCorner.x+offset, nextCorner.y+offset, nextCorner.z+colliderZ)
 		end
 
@@ -817,36 +820,34 @@ function DotaStrikers:InitMap()
 
 			return passTest
 		end
-		BoundsColliders[i].draw = true
+		--BoundsColliders[i].draw = true
 	end
 
 	GoalColliders = {}
 	GoalColliders[1] = Physics:AddCollider("goal_collider_" .. 1, Physics:ColliderFromProfile("aaboxreflect"))
 	GoalColliders[2] = Physics:AddCollider("goal_collider_" .. 2, Physics:ColliderFromProfile("aaboxreflect"))
 
-	local ball = Ball.unit
 	GoalColliders[1].team = DOTA_TEAM_GOODGUYS
 	GoalColliders[2].team = DOTA_TEAM_BADGUYS
-	local gcOffset = 700
+
+	local rgp = Entities:FindByName(nil, "radiant_goal_point"):GetAbsOrigin()
+	local rgp2 = Entities:FindByName(nil, "radiant_goal_point2"):GetAbsOrigin()
+	local outwardness = 422
+	local gcOffset = 190
 	GoalColliders[1].corners =
 	{
-		[1] = Vector(500, Bounds.max+gcOffset, 0),
-		[2] = Vector(-500, Bounds.max+gcOffset, 0),
-		[3] = Vector(-500, Bounds.max-gcOffset,colliderZ),
-		[4] = Vector(500,Bounds.max-gcOffset,0),
+		[1] = Vector(Bounds.min-RectangleOffset+outwardness, -210, 0),
+		[2] = Vector(Bounds.min-RectangleOffset-offset, 210, colliderZ),
 	}
 	GoalColliders[2].corners =
 	{
-		[1] = Vector(500, Bounds.min+gcOffset, 0),
-		[2] = Vector(-500, Bounds.min+gcOffset, 0),
-		[3] = Vector(-500, Bounds.min-gcOffset,colliderZ),
-		[4] = Vector(500,Bounds.min-gcOffset,0),
+		[1] = Vector(Bounds.max+RectangleOffset-outwardness, -210, 0),
+		[2] = Vector(Bounds.max+RectangleOffset+offset, 210, colliderZ),
 	}
 
 	for i=1,2 do
-		local gc = GoalColliders[1]
-		if i==2 then gc = GoalColliders[2] end
-		gc.box = {gc.corners[1], gc.corners[3]}
+		local gc = GoalColliders[i]
+		gc.box = {gc.corners[1], gc.corners[2]}
 		gc.test = function ( self, unit )
 			if not IsPhysicsUnit(unit) then return false end
 			if unit == gc.goalie then return false end -- ignore the current goalie in this goalpost.
@@ -896,8 +897,9 @@ function DotaStrikers:InitMap()
 
 			return passTest
 		end
-		gc.draw = true
+		--gc.draw = true
 	end
+	--self:PlaceProps()
 end
 
 Referee = {}
@@ -935,19 +937,17 @@ function Referee:Init(  )
 	end)
 end
 
---[[function DotaStrikers:ThinkAbilities()
-	--[[if not RoundInProgress then
-		return
-	end
-	for _,hero in pairs(self.vHeroes) do
-		if hero.phaseOn then
-			-- Check if out of mana.
-			if hero:GetMana() <= 1.0 then
-				hero:CastAbilityImmediately(hero:FindAbilityByName("phase_off"), 0)
-			else
-				-- Drain a small percentage of mana
-				hero:SetMana(hero:GetMana()-(hero:GetMaxMana()*.01))
-			end
-		end
+--[[function DotaStrikers:PlaceProps(  )
+	local poles = Entities:FindAllByModel("models/props_debris/wooden_pole_02.vmdl")
+	for i,pole in ipairs(poles) do
+		if i == 1 then
+			pole:SetAbsOrigin()
+		elseif i == 2 then
+
+		elseif i == 3 then
+
+		elseif i == 4 then
+
+
 	end
 end]]

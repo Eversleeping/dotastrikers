@@ -7,9 +7,9 @@
 		"SoundSet"				"0"	
 		"Ability1"				"powershot"
 		"Ability2"				"throw_ball"
-		"Ability3"				"dotastrikers_empty3"
-		"Ability4"				"dotastrikers_empty4"
-		"Ability5"				"dotastrikers_empty5"
+		"Ability3"				"surge"
+		"Ability4"				"pass_me"
+		"Ability5"				"frown"
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
@@ -45,7 +45,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"390"									// Speed.
+		"MovementSpeed"				"270"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -63,8 +63,8 @@
 		"SoundSet"				"0"	
 		"Ability1"				"surge_sprint"
 		"Ability2"				"throw_ball"
-		"Ability3"				"dotastrikers_empty3"
-		"Ability4"				"dotastrikers_empty4"
+		"Ability3"				"pass_me"
+		"Ability4"				"frown"
 		"Ability5"				"dotastrikers_empty5"
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
@@ -101,7 +101,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"390"									// Speed.
+		"MovementSpeed"				"270"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -118,6 +118,62 @@
 		"override_hero"			"npc_dota_hero_slark"
 		"SoundSet"				"0"	
 		"Ability1"				"ninja_jump"
+		"Ability2"				"throw_ball"
+		"Ability3"				"surge"
+		"Ability4"				"pass_me"
+		"Ability5"				"frown"
+		"Ability6"				"fissure"
+		"Ability7"				"throw_target"
+		"Ability8"				"hero_passive"
+		"Ability9"				""
+		"Ability10"				""
+		"Ability11"				""
+		"Ability12"				""
+		"Ability13"				""
+		"Ability14"				""
+		"Ability15"				""
+		"Ability16"				""
+
+		"ArmorPhysical"				"0"									// Physical protection.
+		"MagicalResistance"				"0"									// Magical protection (percentage).
+
+		"AttackCapabilities"		"DOTA_UNIT_CAP_NO_ATTACK"
+		"AttackDamageMin"			"1"										// Damage range min.
+		"AttackDamageMax"			"1"										// Damage range max.
+
+		//"AttributePrimary"			"DOTA_ATTRIBUTE_STRENGTH"
+		"AttributeBaseStrength"		"0"										// Base strength
+		"AttributeStrengthGain"		"0"										// Strength bonus per level.
+		"AttributeBaseIntelligence"	"0"										// Base intelligence
+		"AttributeIntelligenceGain"	"0"										// Intelligence bonus per level.
+		"AttributeBaseAgility"		"0"										// Base agility
+		"AttributeAgilityGain"		"0"										// Agility bonus per level.
+
+		"BountyXP"					"0"									// Experience earn.
+		"BountyGoldMin"				"0"										// Gold earned min.
+		"BountyGoldMax"				"0"										// Gold earned max.
+
+		"BoundsHullName"			"DOTA_HULL_SIZE_HERO"
+		"RingRadius"				"70"
+
+		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
+		"MovementSpeed"				"270"									// Speed.
+		"MovementTurnRate"			"1.0"									// Turning rate.
+
+		"StatusHealth"				"100"									// Base health.
+		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
+		"StatusMana"				"100"										// Base mana.
+		"StatusManaRegen"			"0"									// Mana regeneration rate.
+
+		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
+	}
+
+	"pull"
+	{
+		"AbilityLayout" 		"6"
+		"override_hero"			"npc_dota_hero_lina"
+		"SoundSet"				"0"	
+		"Ability1"				"pull"
 		"Ability2"				"throw_ball"
 		"Ability3"				"surge"
 		"Ability4"				"pass_me"
@@ -157,63 +213,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"390"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
-
-		"StatusHealth"				"100"									// Base health.
-		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
-		"StatusManaRegen"			"0"									// Mana regeneration rate.
-
-		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
-	}
-
-	"pull"
-	{
-		"AbilityLayout" 		"6"
-		"override_hero"			"npc_dota_hero_lina"
-		"SoundSet"				"0"	
-		"Ability1"				"pull"
-		"Ability2"				"throw_ball"
-		"Ability3"				"surge"
-		"Ability4"				"dotastrikers_empty4"
-		"Ability5"				"dotastrikers_empty5"
-		"Ability6"				"dotastrikers_empty6"
-		"Ability7"				"throw_target"
-		"Ability8"				"hero_passive"
-		"Ability9"				""
-		"Ability10"				""
-		"Ability11"				""
-		"Ability12"				""
-		"Ability13"				""
-		"Ability14"				""
-		"Ability15"				""
-		"Ability16"				""
-
-		"ArmorPhysical"				"0"									// Physical protection.
-		"MagicalResistance"				"0"									// Magical protection (percentage).
-
-		"AttackCapabilities"		"DOTA_UNIT_CAP_NO_ATTACK"
-		"AttackDamageMin"			"1"										// Damage range min.
-		"AttackDamageMax"			"1"										// Damage range max.
-
-		//"AttributePrimary"			"DOTA_ATTRIBUTE_STRENGTH"
-		"AttributeBaseStrength"		"0"										// Base strength
-		"AttributeStrengthGain"		"0"										// Strength bonus per level.
-		"AttributeBaseIntelligence"	"0"										// Base intelligence
-		"AttributeIntelligenceGain"	"0"										// Intelligence bonus per level.
-		"AttributeBaseAgility"		"0"										// Base agility
-		"AttributeAgilityGain"		"0"										// Agility bonus per level.
-
-		"BountyXP"					"0"									// Experience earn.
-		"BountyGoldMin"				"0"										// Gold earned min.
-		"BountyGoldMax"				"0"										// Gold earned max.
-
-		"BoundsHullName"			"DOTA_HULL_SIZE_HERO"
-		"RingRadius"				"70"
-
-		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"390"									// Speed.
+		"MovementSpeed"				"270"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -269,7 +269,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"390"									// Speed.
+		"MovementSpeed"				"270"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.

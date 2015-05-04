@@ -17,7 +17,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	if unitPos.z > (GroundZ+20) and not unit.isAboveGround then
 		unit.isAboveGround = true
 		unit:SetGroundBehavior(PHYSICS_GROUND_NONE)
-		print("unit.isAboveGround")
+		--print("unit.isAboveGround")
 		-- if hero, set the modifier up
 		if not unit:HasModifier("modifier_rooted_passive") then
 			if unit ~= ball then
@@ -37,9 +37,11 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			unit.bounce_multiplier = unit.bounce_multiplier*.8
 			unit:SetPhysicsVelocity(currVel)
 			bounceOccured = true
-			unit:SetPhysicsFriction(GROUND_FRICTION)
+			if not unit.dontChangeFriction then
+				unit:SetPhysicsFriction(GROUND_FRICTION)
+			end
 			if len3dSq > 700*700 then
-				self:DisplayCracksOnGround(unit)
+				--self:DisplayCracksOnGround(unit)
 			end
 		end
 
@@ -49,7 +51,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 		if not bounceOccured then
 			unit.isAboveGround = false
-			print("not unit.isAboveGround")
+			--print("not unit.isAboveGround")
 			-- if hero, remove the modifier
 			if unit:HasModifier("modifier_rooted_passive") then
 				unit:RemoveModifierByName("modifier_rooted_passive")
@@ -72,11 +74,13 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	-- do above ground think logic
 	if unit.isAboveGround then
 		if not unit.dontChangeFriction and unit:GetPhysicsFriction() ~= AIR_FRICTION then
+			--if unit == Ball.unit then print("Changing ball friciton.") end
 			unit:SetPhysicsFriction(AIR_FRICTION)
 		end
 
 	else
 		if not unit.dontChangeFriction and unit:GetPhysicsFriction() ~= GROUND_FRICTION then
+			--if unit == Ball.unit then print("Changing ball friciton.") end
 			unit:SetPhysicsFriction(GROUND_FRICTION)
 		end
 

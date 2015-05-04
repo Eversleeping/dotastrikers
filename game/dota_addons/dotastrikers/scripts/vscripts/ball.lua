@@ -9,7 +9,9 @@ function Ball:Init(  )
 
 	function ball:IsBallOutOfBounds()
 		local ballPos = ball:GetAbsOrigin()
-		return ballPos.x > Bounds.max or ballPos.x < Bounds.min or ballPos.y > Bounds.max or ballPos.y < Bounds.min
+		local smoothing = 20
+		return ballPos.x > (Bounds.max+RectangleOffset+smoothing) or ballPos.x < (Bounds.min-RectangleOffset-smoothing) or 
+			ballPos.y > (Bounds.max+smoothing) or ballPos.y < (Bounds.min-smoothing)
 	end
 
 	function ball:InGoalPost(  )

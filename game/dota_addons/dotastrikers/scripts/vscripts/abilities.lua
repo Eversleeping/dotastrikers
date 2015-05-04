@@ -1,13 +1,15 @@
-THROW_VELOCITY = 2000
+THROW_VELOCITY = 1300
 SURGE_TICK = .2
-SLAM_Z = 2900
-SLAM_FORCE = 1900
+SLAM_Z = 2600
+SLAM_FORCE = 1200
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
-PSHOT_ONHIT_VEL = 1000
+PSHOT_ONHIT_VEL = 1300
 NINJA_JUMP_Z = 1600
 NINJA_JUMP_XY = 600
+
+REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 
 function DotaStrikers:OnAbilityUsed( keys )
 	local player = EntIndexToHScript(keys.PlayerID)
@@ -17,7 +19,7 @@ function DotaStrikers:OnAbilityUsed( keys )
 
 	if abilityname == "slam" then
 		local radius = hero:FindAbilityByName("slam"):GetCastRange()
-		print("radius: " .. radius)
+		--print("radius: " .. radius)
 		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
 			if IsPhysicsUnit(ent) then
 				local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
@@ -45,10 +47,12 @@ function DotaStrikers:OnRefereeAttacked( keys )
 	--print("towardsCenter: " .. VectorString(towardsCenter))
 	ball.controlledByRef = true
 	ball.controller = nil
-	ball:SetPhysicsVelocity(towardsCenter*4000)
+	ball:SetPhysicsVelocity(towardsCenter*REF_OOB_HIT_VEL)
 	local caster = keys.caster
-	caster:SetAbsOrigin(Vector(4000,4000,0))
-	caster:Stop()
+	Timers:CreateTimer(.06, function()
+		caster:SetAbsOrigin(Vector(4000,4000,0))
+		caster:Stop()
+	end)
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
@@ -63,7 +67,6 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
 	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
-	--ParticleManager:SetParticleControl(ball.powershot_particle, 1, ball:GetPhysicsVelocity())
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
 end
@@ -116,7 +119,7 @@ function DotaStrikers:surge( keys )
 		caster:CastAbilityImmediately(phaseBoots, 0)
 		caster:RemoveItem(phaseBoots)
 
-		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*2/3)
+		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*1/3)
 	else
 		caster:RemoveAbility("surge_sprint")
 		caster:AddAbility("surge_break_sprint")

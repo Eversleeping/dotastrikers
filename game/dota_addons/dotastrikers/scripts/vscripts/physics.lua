@@ -933,7 +933,7 @@ function Physics:Unit(unit)
       
       local newVelLength = newVelocity:Length()
       
-      local blockedPos = not GridNav:IsTraversable(position) or GridNav:IsBlocked(position)
+      local blockedPos = unit.nNavCollision ~= PHYSICS_NAV_NOTHING and (not GridNav:IsTraversable(position) or GridNav:IsBlocked(position))
       if not blockedPos then
         unit.vLastGoodPosition = position
         unit.nStuckFrames = 0
@@ -961,7 +961,7 @@ function Physics:Unit(unit)
             --print(ent:GetClassname() .. " -- " .. ent:GetName() .. " -- " .. tostring(ent.IsHero))
             ent = Entities:FindInSphere(ent, position, 35)
           end
-          if blocked or blockedPos or GridNav:IsNearbyTree(position, 30, true) then
+          if blocked or blockedPos or (GridNav:IsNearbyTree(position, 30, true) and unit.nNavCollision ~= PHYSICS_NAV_NOTHING) then
             FindClearSpaceForUnit(unit, position, false)
             unit.nSkipSlide = 1
             --print('FCS hib')
