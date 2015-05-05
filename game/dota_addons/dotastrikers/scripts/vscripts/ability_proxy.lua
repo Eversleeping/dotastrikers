@@ -33,3 +33,7 @@ end
 function text_particle( keys )
 	DotaStrikers:text_particle(keys)
 end
+
+function slam( keys )
+	DotaStrikers:slam(keys)
+end

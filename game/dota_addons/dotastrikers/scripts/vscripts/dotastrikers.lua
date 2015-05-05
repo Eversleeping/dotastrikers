@@ -280,7 +280,7 @@ function DotaStrikers:GreetPlayers(  )
 	local lines = 
 	{
 		[1] = ColorIt("Welcome to ", "green") .. ColorIt("DotaStrikers! ", "magenta") .. ColorIt("v0.1", "blue"),
-		[2] = ColorIt("Developer: ", "green") .. ColorIt("XXX", "orange")
+		[2] = ColorIt("Developer: ", "green") .. ColorIt("Myll", "orange")
 	}
 
 	Timers:CreateTimer(4, function()
@@ -808,7 +808,14 @@ function DotaStrikers:InitMap()
 			elseif unit.isDSHero then
 				passTest = true
 			end
-
+			-- done with passTest logic. move onto parsing that logic, add sounds, effects, etc.
+			if unit.isBall and passTest and not unit.controller and not ball.affectedByPowershot then
+				unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
+			elseif unit.isDSHero and passTest then
+				if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD then
+					unit:EmitSound("ThunderClapCaster")
+				end
+			end
 
 			return passTest
 		end
@@ -867,8 +874,13 @@ function DotaStrikers:InitMap()
 				
 			end
 			if passTest then
-				-- this is in abilities.lua
-				DotaStrikers:OnCantEnterGoalPost(unit)
+				DotaStrikers:OnCantEnterGoalPost(unit) -- this is in abilities.lua
+				-- if high velocity onto the goal post, do sounds/effects etc.
+				if unit.isDSHero then
+					if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD then
+						unit:EmitSound("ThunderClapCaster")
+					end
+				end
 			end
 
 			return passTest

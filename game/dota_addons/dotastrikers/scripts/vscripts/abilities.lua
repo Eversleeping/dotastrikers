@@ -10,6 +10,7 @@ NINJA_JUMP_Z = 1600
 NINJA_JUMP_XY = 600
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
+NUM_KICK_SOUNDS = 4
 
 function DotaStrikers:OnAbilityUsed( keys )
 	local player = EntIndexToHScript(keys.PlayerID)
@@ -18,22 +19,7 @@ function DotaStrikers:OnAbilityUsed( keys )
 	local ball = Ball.unit
 
 	if abilityname == "slam" then
-		local radius = hero:FindAbilityByName("slam"):GetCastRange()
-		--print("radius: " .. radius)
-		for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
-			if IsPhysicsUnit(ent) then
-				local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
-				local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
-				local knockbackScale = (radius-dist)/radius
-				-- if it's the ball and ball has a controller, don't move the ball.
-				-- if it's the slammer, don't move him
-				if (ent == ball and ball.controller ~= nil) or ent == hero then
 
-				else
-					ent:AddPhysicsVelocity((dir*SLAM_FORCE + Vector(0,0,SLAM_Z)*knockbackScale))
-				end
-			end
-		end
 	end
 end
 
@@ -90,8 +76,9 @@ function DotaStrikers:throw_ball( keys )
 		caster.throw_direction = dir
 		caster:CastAbilityNoTarget(caster:FindAbilityByName("powershot_channel"), 0)
 	else
-		ball.controller:EmitSound("Hero_Puck.Attack")
+		--ball.controller:EmitSound("Hero_Puck.Attack")
 		ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
+		ball:EmitSound("Kick" .. RandomInt(1, NUM_KICK_SOUNDS))
 		ball.controller = nil
 	end
 end
@@ -273,4 +260,46 @@ function DotaStrikers:OnCantEnterGoalPost( unit )
 		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
 		unit.lastShieldParticleTime = currTime
 	end
+end
+
+function DotaStrikers:slam( keys )
+	local caster = keys.caster
+	local hero = caster
+	local ball = Ball.unit
+
+	local radius = hero:FindAbilityByName("slam"):GetCastRange()
+	local affected = 0
+	--print("radius: " .. radius)
+	for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
+		if IsPhysicsUnit(ent) then
+			local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
+			local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
+			local knockbackScale = (radius-dist)/radius
+			-- if it's the ball and ball has a controller, don't move the ball.
+			-- if it's the slammer, don't move him
+			if (ent == ball and ball.controller ~= nil) or ent == hero then
+
+			else
+				ent:AddPhysicsVelocity((dir*SLAM_FORCE + Vector(0,0,SLAM_Z)*knockbackScale))
+				affected = affected + 1
+			end
+		end
+	end
+	--[[if affected == 0 then
+		hero:EmitSound("Hero_EarthShaker.IdleSlam")
+	elseif affected == 1 then
+		hero:EmitSound("Hero_EarthShaker.EchoSlamSmall")
+	else
+		hero:EmitSound("Hero_EarthShaker.EchoSlam")
+	end]]
+
+	local echoDummy = CreateUnitByName("dummy", hero:GetAbsOrigin(), false, nil, nil, DOTA_TEAM_NEUTRALS)
+	local slamDummyAbil = echoDummy:FindAbilityByName("slam_dummy")
+	Timers:CreateTimer(NEXT_FRAME, function()
+		echoDummy:CastAbilityImmediately(slamDummyAbil, 0)
+		Timers:CreateTimer(1, function()
+			echoDummy:ForceKill(true)
+		end)
+	end)
+
 end

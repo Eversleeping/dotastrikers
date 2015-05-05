@@ -324,12 +324,40 @@
 	"slam"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"earthshaker_echo_slam"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				".2"
+		"AbilityCooldown"				"1"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		"AbilityCastRange"				"720"
+		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_4"
+		//"AnimationPlaybackRate"			"2"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"slam"
+			}
+		}
+	}
+
+	"slam_dummy"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
 		"BaseClass"						"earthshaker_echo_slam"
 		"MaxLevel"						"1"
 
 		// Casting
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0.36"
+		"AbilityCastPoint"				"0"
 
 		// Time		
 		//-------------------------------------------------------------------------------------------------------------
@@ -338,7 +366,7 @@
 		// Damage.
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityDamage"					"0"
-		"AbilityCastRange"					"720"
+		"AbilityCastRange"				"0"
 
 		// Cost
 		//-------------------------------------------------------------------------------------------------------------
@@ -351,7 +379,7 @@
 			"01"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"echo_slam_damage_range"	"720"
+				"echo_slam_damage_range"	"0"
 			}
 			"02"
 			{
@@ -361,7 +389,7 @@
 			"03"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"echo_slam_echo_range"		"720"
+				"echo_slam_echo_range"		"0"
 			}
 			"04"
 			{

@@ -6,12 +6,16 @@ BALL_COLLISION_DIST = 120
 BOUNCE_MULTIPLIER = .9
 PULL_ACCEL_FORCE = 2300
 BOUNCE_VEL_THRESHOLD = 500
+CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
+
+NUM_BOUNCE_SOUNDS = 3
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
 	local unitPos = unit:GetAbsOrigin()
 	local currVel = unit:GetPhysicsVelocity()
 	local ball = Ball.unit
 	local len3dSq = Length3DSq(currVel)
+	local currTime = GameRules:GetGameTime()
 	unit.velocityMagnitude = len3dSq
 
 	if unitPos.z > (GroundZ+20) and not unit.isAboveGround then
@@ -40,8 +44,21 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			if not unit.dontChangeFriction then
 				unit:SetPhysicsFriction(GROUND_FRICTION)
 			end
-			if len3dSq > 700*700 then
-				--self:DisplayCracksOnGround(unit)
+			if unit == ball and (currTime-ball.lastBounceTime > .3) and not ball.controller then
+				if not ball.affectedByPowershot then -- powershot will call this sound too many times.
+					ball:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
+				end
+				ball.lastBounceTime = currTime
+				--[[if ball.affectedByPowershot then
+					ParticleManager:CreateParticle("particles/units/heroes/hero_silencer/silencer_last_word_trigger_cracks.vpcf", PATTACH_ABSORIGIN, ball)
+				else
+					ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf", PATTACH_ABSORIGIN, ball)
+				end]]
+			elseif unit ~= ball then
+				if len3dSq > CRACK_THRESHOLD*CRACK_THRESHOLD then
+					unit:EmitSound("ThunderClapCaster")
+					ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
+				end
 			end
 		end
 
@@ -85,17 +102,4 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 	end
-end
-
-function DotaStrikers:DisplayCracksOnGround( unit )
-	if unit == Ball.unit and unit.controller then return end
-	local pos = unit:GetAbsOrigin()
-	local crackDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_NOTEAM)
-	--particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf
-	crackDummy.crackParticle = ParticleManager:CreateParticle("particles/thunderclap/brewmaster_thunder_clap.vpcf", PATTACH_ABSORIGIN, crackDummy)
-	crackDummy:EmitSound("Hero_EarthShaker.IdleSlam")
-	Timers:CreateTimer(2, function()
-		crackDummy:RemoveSelf()
-	end)
-
 end

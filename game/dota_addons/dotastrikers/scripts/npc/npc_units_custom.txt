@@ -124,7 +124,7 @@
 		
 		"Ability1"					"dummy_passive"			
 		"Ability2"					"rooted_passive"		
-		"Ability3"					""	
+		"Ability3"					"slam_dummy"	
 		"Ability4"					""	
 		"Ability5"					""	
 		"Ability6"					""	

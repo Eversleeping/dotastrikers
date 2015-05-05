@@ -1,4 +1,5 @@
 BALL_PARTICLE_Z_OFFSET=40 --this makes the particle look nicer.
+NUM_CATCH_SOUNDS = 3
 
 function Ball:Init(  )
 	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_NOTEAM)
@@ -6,6 +7,7 @@ function Ball:Init(  )
 	BALL = ball.unit
 	ball.isBall = true
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
+	ball.lastBounceTime = 0
 
 	function ball:IsBallOutOfBounds()
 		local ballPos = ball:GetAbsOrigin()
@@ -63,7 +65,8 @@ function Ball:Init(  )
 						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
 						ParticleManager:DestroyParticle(ball.powershot_particle, true)
 					else
-						hero:EmitSound("Hero_Puck.ProjectileImpact")
+						--hero:EmitSound("Hero_Puck.ProjectileImpact")
+						ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
 					end
 
 					if hero == Referee.unit then
