@@ -13,13 +13,13 @@ string m_pszCullReplacementName = ""
 float m_flCullRadius = 0.000000
 float m_flCullFillCost = 1.000000
 int m_nCullControlPoint = 0
-float m_flMaxRecreationTime = -1.000000
+float m_flMaxRecreationTime = 0.000000
 string m_hFallback = ""
 int m_nFallbackMaxCount = -1
 string m_hLowViolenceDef = ""
 uint(4) m_ConstantColor = (255,255,255,255)
 float(3) m_ConstantNormal = (0.000000,0.000000,1.000000)
-float m_flConstantRadius = 2.000000
+float m_flConstantRadius = 5.000000
 float m_flConstantRotation = 0.000000
 float m_flConstantRotationSpeed = 0.000000
 float m_flConstantLifespan = 1.000000
@@ -38,7 +38,7 @@ bool m_bScreenSpaceEffect = false
 float m_flMaxDrawDistance = 100000.000000
 float m_flStartFadeDistance = 200000.000000
 float m_flNoDrawTimeToGoToSleep = 8.000000
-int m_nMaxParticles = 0
+int m_nMaxParticles = 4
 int m_nSkipRenderControlPoint = -1
 int m_nAllowRenderControlPoint = -1
 int m_nAggregationMinAvailableParticles = 0
@@ -50,79 +50,7 @@ ParticleChildrenInfo_t[]  m_Children =
 [
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_g.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_f.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_b.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_destruction.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = true
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_c.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_d.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_h.vpcf"
-
-bool m_bPreventNameBasedLookup = false
-float m_flDelay = 0.000000
-bool m_bEndCap = false
-bool m_bDisableChild = false
-},
-ParticleChildrenInfo_t
-{
-string m_ChildRef = "particles/powershot/windrunner_spell_powershot_trail_light.vpcf"
+string m_ChildRef = "particles/powershot/spirit_breaker_charge_target_mark.vpcf"
 
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
@@ -130,7 +58,7 @@ bool m_bEndCap = false
 bool m_bDisableChild = false
 }
 ]
-bool m_bShouldSort = false
+bool m_bShouldSort = true
 bool m_bShouldBatch = false
 float m_flDepthSortBias = 0.000000
 bool m_bShouldHitboxesFallbackToRenderBounds = false

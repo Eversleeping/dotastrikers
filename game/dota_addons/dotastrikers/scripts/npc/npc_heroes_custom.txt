@@ -45,7 +45,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"270"									// Speed.
+		"MovementSpeed"				"290"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -101,7 +101,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"270"									// Speed.
+		"MovementSpeed"				"290"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -122,7 +122,7 @@
 		"Ability3"				"surge"
 		"Ability4"				"pass_me"
 		"Ability5"				"frown"
-		"Ability6"				"fissure"
+		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
 		"Ability9"				""
@@ -157,7 +157,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"270"									// Speed.
+		"MovementSpeed"				"290"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -213,7 +213,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"270"									// Speed.
+		"MovementSpeed"				"290"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
@@ -269,7 +269,7 @@
 		"RingRadius"				"70"
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
-		"MovementSpeed"				"270"									// Speed.
+		"MovementSpeed"				"290"									// Speed.
 		"MovementTurnRate"			"1.0"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.

@@ -31,7 +31,6 @@ function DotaStrikers:OnAbilityUsed( keys )
 
 				else
 					ent:AddPhysicsVelocity((dir*SLAM_FORCE + Vector(0,0,SLAM_Z)*knockbackScale))
-					--ent:AddPhysicsVelocity((dir*1900 + Vector(0,0,SLAM_Z)*knockbackScale))
 				end
 			end
 		end
@@ -57,16 +56,20 @@ function DotaStrikers:OnRefereeAttacked( keys )
 end
 
 function DotaStrikers:on_powershot_succeeded( keys )
-	print("on_powershot_succeeded")
+	--print("on_powershot_succeeded")
 	local caster = keys.caster
 	local ball = Ball.unit
+	-- occurs when invoker got his ball stolen while channeling pshot.
+	if ball.controller ~= caster then return end
+
 	local dir = caster.throw_direction
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
 	ball.controller = nil
 	ball.dontChangeFriction = true
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
-	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+	--ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
 end
@@ -233,9 +236,6 @@ end
 function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
 	caster:AddPhysicsVelocity(caster:GetForwardVector()*NINJA_JUMP_XY + Vector(0,0,NINJA_JUMP_Z))
-	if caster == Ball.unit.controller then
-		--Ball.unit:AddPhysicsVelocity(Vector(0,0,1400))
-	end
 	caster.noBounce = true
 end
 
@@ -261,4 +261,16 @@ function DotaStrikers:text_particle( keys )
 	end
 	ParticleManager:SetParticleControlEnt(caster.textParticle, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 
+end
+
+function DotaStrikers:OnCantEnterGoalPost( unit )
+	local currTime = GameRules:GetGameTime()
+	if currTime-unit.lastShieldParticleTime > .03 then
+		local pos = unit:GetAbsOrigin()
+		local fv = unit:GetForwardVector()
+		unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact_highlight01.vpcf", PATTACH_CUSTOMORIGIN, unit)
+		ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-70) + Vector(fv.x,fv.y,0)*40)
+		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
+		unit.lastShieldParticleTime = currTime
+	end
 end

@@ -39,7 +39,7 @@ ColorHex =
 
 DummyNames =
 {
-	[1] = "Bob",
+	[1] = "Myll",
 	[2] = "Steve",
 	[3] = "Nathan",
 	[4] = "Alex",
@@ -211,8 +211,10 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = GoalColliders[1]
+		hero:SetCustomHealthLabel( hero.playerName, 255, 0, 0 )
 	else
 		hero.gc = GoalColliders[2]
+		hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
 	-- Store this hero handle in this table.
@@ -680,22 +682,12 @@ function DotaStrikers:CaptureDotaStrikers()
 		--mode:SetRemoveIllusionsOnDeath( true )
 
 		-- Hide some HUD elements
-		--mode:SetHUDVisible(0, false) --Clock
-
-		--[[if not TestMoreAbilities then
-			mode:SetHUDVisible(1, false)
-			mode:SetHUDVisible(2, false)
-			mode:SetHUDVisible(6, false)
-			mode:SetHUDVisible(7, false) 
-			mode:SetHUDVisible(8, false) 
-			mode:SetHUDVisible(9, false)
-			mode:SetHUDVisible(11, false)
-			mode:SetHUDVisible(12, false)
-			mode:SetHUDVisible(5, false) --Inventory
-			Convars:SetInt("dota_render_crop_height", 0) -- Renders the bottom part of the screen
-			Convars:SetInt("dota_draw_portrait", 0)
-			mode:SetHUDVisible( DOTA_HUD_VISIBILITY_SHOP_SUGGESTEDITEMS, false )
-		end]]
+		mode:SetHUDVisible(DOTA_HUD_VISIBILITY_INVENTORY_SHOP, false)
+		mode:SetHUDVisible( DOTA_HUD_VISIBILITY_SHOP_SUGGESTEDITEMS, false )
+		mode:SetHUDVisible( DOTA_HUD_VISIBILITY_INVENTORY_QUICKBUY, false )
+		mode:SetHUDVisible( DOTA_HUD_VISIBILITY_INVENTORY_COURIER, false )
+		mode:SetHUDVisible( DOTA_HUD_VISIBILITY_INVENTORY_PROTECT, false )
+		mode:SetHUDVisible( DOTA_HUD_VISIBILITY_INVENTORY_GOLD, false )
 
 		self:OnFirstPlayerLoaded()
 	end
@@ -809,7 +801,7 @@ function DotaStrikers:InitMap()
 		BoundsColliders[i].test = function(self, unit)
 			local passTest = false
 			if unit.isBall and unit.controller == nil then
-				print("passTest")
+				--print("passTest")
 				passTest = true
 			elseif unit.isBall and unit.controller ~= nil then
 				--print("ball, controller not nil.")
@@ -858,9 +850,6 @@ function DotaStrikers:InitMap()
 				if unit:GetPlayerOwner() ~= nil then
 					ShowErrorMsg(unit, "Can't enter enemy goal post")
 				end
-
-				--ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact.vpcf", PATTACH_ABSORIGIN, unit)
-
 			elseif unit == ball then
 				passTest = false
 			elseif not gc.goalie and unit ~= ball and unit:GetTeamNumber() == gc.team then
@@ -878,21 +867,8 @@ function DotaStrikers:InitMap()
 				
 			end
 			if passTest then
-				local currTime = GameRules:GetGameTime()
-				if currTime-unit.lastShieldParticleTime > .1 then
-					--unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_lich/lich_frost_nova_sphere_1.vpcf", PATTACH_CUSTOMORIGIN, unit)
-					unit.shieldParticle = ParticleManager:CreateParticle("particles/items_fx/immunity_sphere_buff.vpcf", PATTACH_CUSTOMORIGIN, unit)
-					--unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_shell_add.vpcf", PATTACH_CUSTOMORIGIN, unit)
-					ParticleManager:SetParticleControl(unit.shieldParticle, 0, unit:GetAbsOrigin() + unit:GetForwardVector()*40)
-					
-					table.insert(unit.shieldParticles, unit.shieldParticle)
-					--print("shieldtable: " .. #unit.shieldParticles)
-					Timers:CreateTimer(.3, function()
-						ParticleManager:DestroyParticle(unit.shieldParticles[1], true)
-						table.remove(unit.shieldParticles, 1)
-					end)
-					unit.lastShieldParticleTime = currTime
-				end
+				-- this is in abilities.lua
+				DotaStrikers:OnCantEnterGoalPost(unit)
 			end
 
 			return passTest
