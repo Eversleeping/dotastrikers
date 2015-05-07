@@ -5,6 +5,8 @@ requires = {
 	'physics',
 	'constants',
 	'dotastrikers',
+	'initmap',
+	'referee',
 	'ball',
 	'myphysics',
 	'ability_proxy',
