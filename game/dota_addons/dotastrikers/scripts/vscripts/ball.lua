@@ -116,6 +116,9 @@ function Ball:Init(  )
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
 		end
+		if ball.lastController ~= ball.controller then
+			ball.lastController = ball.controller
+		end
 	end)
 
 	return ball
