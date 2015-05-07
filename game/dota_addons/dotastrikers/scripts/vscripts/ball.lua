@@ -63,7 +63,7 @@ function Ball:Init(  )
 						ball:SetPhysicsFriction(GROUND_FRICTION)
 						hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
 						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
-						ParticleManager:DestroyParticle(ball.powershot_particle, true)
+						ParticleManager:DestroyParticle(ball.powershot_particle, false)
 					else
 						--hero:EmitSound("Hero_Puck.ProjectileImpact")
 						ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))

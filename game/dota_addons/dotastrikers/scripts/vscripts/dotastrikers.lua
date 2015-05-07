@@ -211,10 +211,10 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = GoalColliders[1]
-		hero:SetCustomHealthLabel( hero.playerName, 255, 0, 0 )
+		--hero:SetCustomHealthLabel( hero.playerName, 255, 0, 0 )
 	else
 		hero.gc = GoalColliders[2]
-		hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
+		--hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
 	-- Store this hero handle in this table.
@@ -878,6 +878,7 @@ function DotaStrikers:InitMap()
 				-- if high velocity onto the goal post, do sounds/effects etc.
 				if unit.isDSHero then
 					if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD then
+						print("OnCantEnterGoalPost ThunderClapCaster")
 						unit:EmitSound("ThunderClapCaster")
 					end
 				end
