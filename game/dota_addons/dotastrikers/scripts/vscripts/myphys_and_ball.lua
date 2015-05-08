@@ -1,4 +1,4 @@
-BALL_PARTICLE_Z_OFFSET=40 --this makes the particle look nicer.
+BALL_PARTICLE_Z_OFFSET=45 --this makes the particle look nicer.
 NUM_CATCH_SOUNDS = 3
 
 GROUND_FRICTION = .04
@@ -113,10 +113,24 @@ end
 function Ball:Init(  )
 	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_NOTEAM)
 	local ball = Ball.unit
+	table.insert(DotaStrikers.colliderFilter, ball)
 	BALL = ball.unit
 	ball.isBall = true
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
 	ball.lastBounceTime = 0
+
+	function ball:SpawnParticle(  )
+		-- constantly reposition the ball particle dummy.
+		ball.particleDummy:SetAbsOrigin(Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET))
+		Timers:CreateTimer(2*NEXT_FRAME, function()
+			if not ball.ballParticle then
+				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+			end
+			local pos = ball:GetAbsOrigin()
+			ball.particleDummy:SetAbsOrigin(Vector(pos.x, pos.y, pos.z+BALL_PARTICLE_Z_OFFSET))
+			return .01
+		end)
+	end
 
 	function ball:CleanUp(  )
 		if ball.affectedByPowershot then
@@ -137,32 +151,8 @@ function Ball:Init(  )
 			ballPos.y > (Bounds.max+smoothing) or ballPos.y < (Bounds.min-smoothing)
 	end
 
-	function ball:InGoalPost(  )
-		local ballPos = ball:GetAbsOrigin()
-		local inGoalPost = true
-		for i=1,2 do
-			local gc = GoalColliders[i]
-			local corner1 = gc.corners[1]
-			local corner2 = gc.corners[3]
-			if ballPos.x > corner1.x or ballPos.x < corner2.x or ballPos.y > corner1.y or ballPos.y < corner2.y then
-				inGoalPost = false
-			end
-		end
-		return inGoalPost
-	end
-
 	ball.controller = nil
 	DotaStrikers:ApplyDSPhysics(ball)
-
-	-- constantly reposition the ball particle dummy.
-	Timers:CreateTimer(1, function()
-		if not ball.ballParticle then
-			ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
-		end
-		local pos = ball:GetAbsOrigin()
-		ball.particleDummy:SetAbsOrigin(Vector(pos.x, pos.y, pos.z+BALL_PARTICLE_Z_OFFSET))
-		return .01
-	end)
 
 	ball:OnPhysicsFrame(function(unit)
 		DotaStrikers:OnMyPhysicsFrame(ball)
@@ -245,3 +235,4 @@ function Ball:Init(  )
 
 	return ball
 end
+

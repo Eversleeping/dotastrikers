@@ -162,6 +162,7 @@ function DotaStrikers:OnNPCSpawned(keys)
 		if not ply.firstTime then
 			if not self.greetPlayers then
 				self:GreetPlayers()
+				Ball.unit:SpawnParticle()
 				self.greetPlayers = true
 			end
 
@@ -178,16 +179,27 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	--print("OnPlayersHeroFirstSpawn")
 
 	function hero:OnThink(  )
-		local heroPos = hero:GetAbsOrigin()
-		--print("heroPos: " .. VectorString(heroPos))
+		local pos = hero:GetAbsOrigin()
+		--print("pos: " .. VectorString(pos))
 		if hero.goalie then
 			-- check if actually still in goal
-			local corner1 = hero.gc.corners[1]
-			local corner2 = hero.gc.corners[2]
-			if heroPos.x > corner1.x or heroPos.x < corner2.x or heroPos.y > corner1.y or heroPos.y < corner2.y then
-				--print("goalie left net.")
+			if not IsUnitWithinGoalBounds(hero) then
+				print("goalie left net.")
 				hero.goalie = false
 				hero.gc.goalie = nil
+			end
+			if pos.x > 0 then
+				if hero:GetTeam() == DOTA_TEAM_BADGUYS then
+					hero.onOwnSide = true
+				else
+					hero.onOwnSide = false
+				end
+			else
+				if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
+					hero.onOwnSide = true
+				else
+					hero.onOwnSide = false
+				end
 			end
 		end
 	end
@@ -208,16 +220,17 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	hero.personalScore = 0
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
-		hero.gc = GoalColliders[1]
+		hero.gc = self.gcs[1]
 		--hero:SetCustomHealthLabel( hero.playerName, 255, 0, 0 )
 	else
-		hero.gc = GoalColliders[2]
+		hero.gc = self.gcs[2]
 		--hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
 	hero.isDSHero = true
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
+	table.insert(self.colliderFilter, hero)
 	self:ApplyDSPhysics(hero)
 
 	local collider = hero:AddColliderFromProfile("momentum")
@@ -654,6 +667,7 @@ function DotaStrikers:InitDotaStrikers()
 	self.direScore = 0
 
 	self.bSeenWaitForPlayers = false
+	self.colliderFilter = {}
 
 	Ball:Init()
 	Referee:Init()
