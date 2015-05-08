@@ -177,12 +177,6 @@ end
 function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	--print("OnPlayersHeroFirstSpawn")
 
-	function hero:AddDirectionalInfluence(  )
-		hero.lastMovespeedVect = hero:GetForwardVector()*hero:GetBaseMoveSpeed()
-		hero:SetPhysicsVelocity(hero:GetPhysicsVelocity() + hero.lastMovespeedVect)
-		hero.physics_directional_influence = true
-	end
-
 	function hero:OnThink(  )
 		local heroPos = hero:GetAbsOrigin()
 		--print("heroPos: " .. VectorString(heroPos))
@@ -200,6 +194,9 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	--local hero = ply:GetAssignedHero()
 	hero.base_move_speed = hero:GetBaseMoveSpeed()
+	Timers:CreateTimer(.1, function()
+		hero.spawn_pos = hero:GetAbsOrigin()
+	end)
 	hero.plyID = hero:GetPlayerID()
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
@@ -208,6 +205,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	if hero.playerName == nil or hero.playerName == "" then
 		hero.playerName = DummyNames[hero.plyID+1]
 	end
+	hero.personalScore = 0
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = GoalColliders[1]
@@ -217,11 +215,32 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		--hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
+	hero.isDSHero = true
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
 	self:ApplyDSPhysics(hero)
 
-	hero.isDSHero = true
+	local collider = hero:AddColliderFromProfile("momentum")
+	collider.radius = 90
+	collider.test = function(self, collider, collided)
+		--print("Hello.")
+		local passTest = false
+		if not IsPhysicsUnit(collided) then return false end
+		if collider.isDSHero and collided.isDSHero then
+			if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
+				local location = collider:GetAbsOrigin() + (collided:GetAbsOrigin() - collider:GetAbsOrigin())/2
+				local p = ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, collider)
+				ParticleManager:SetParticleControl(p, 0, location)
+				EmitSoundAtPosition("ThunderClapCaster", location)
+				passTest = true
+			end
+		end
+		--if passTest then print("pp collision") end
+		return passTest
+	end
+	--collider.draw = true
+	hero.personalCollider = collider
+
 	Timers:CreateTimer(.04, function()
 		if hero:GetPlayerOwner():GetAssignedHero() == nil then print("Hero still nil.") end
 		InitAbilities(hero)
@@ -471,27 +490,9 @@ function DotaStrikers:OnEntityKilled( keys )
 
 	if killedUnit:IsRealHero() then
 		--print ("KILLEDKILLER: " .. killedUnit:GetName() .. " -- " .. killerEntity:GetName())
-		if killedUnit:GetTeam() == DOTA_TEAM_BADGUYS and killerEntity:GetTeam() == DOTA_TEAM_GOODGUYS then
-			self.nRadiantKills = self.nRadiantKills + 1
-			if END_GAME_ON_KILLS and self.nRadiantKills >= KILLS_TO_END_GAME_FOR_TEAM then
-				GameRules:SetSafeToLeave( true )
-				GameRules:SetGameWinner( DOTA_TEAM_GOODGUYS )
-			end
-		elseif killedUnit:GetTeam() == DOTA_TEAM_GOODGUYS and killerEntity:GetTeam() == DOTA_TEAM_BADGUYS then
-			self.nDireKills = self.nDireKills + 1
-			if END_GAME_ON_KILLS and self.nDireKills >= KILLS_TO_END_GAME_FOR_TEAM then
-				GameRules:SetSafeToLeave( true )
-				GameRules:SetGameWinner( DOTA_TEAM_BADGUYS )
-			end
-		end
-
-		if SHOW_KILLS_ON_TOPBAR then
-			GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_BADGUYS, self.nDireKills )
-			GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_GOODGUYS, self.nRadiantKills )
-		end
+		
 	end
 
-	-- Put code here to handle when an entity gets killed
 end
 
 
@@ -607,6 +608,8 @@ function DotaStrikers:InitDotaStrikers()
 		DotaStrikers:InitMap()
 	end)
 
+	self.lastGoalTime = 0
+
 	VisionDummies = {GoodGuys = {}, BadGuys = {}}
 	local timeOffset = .03
 	-- CREATE vision dummies
@@ -630,8 +633,8 @@ function DotaStrikers:InitDotaStrikers()
 	end
 
 	-- Show the ending scoreboard immediately
-	GameRules:SetCustomGameEndDelay( 0 )
-	GameRules:SetCustomVictoryMessageDuration( 0 )
+	--GameRules:SetCustomGameEndDelay( 0 )
+	--GameRules:SetCustomVictoryMessageDuration( 0 )
 
 	self.HeroesKV = LoadKeyValues("scripts/npc/npc_heroes_custom.txt")
 	--BASE_WORM_MOVE_SPEED = self.HeroesKV["worm"]["MovementSpeed"]
@@ -647,8 +650,8 @@ function DotaStrikers:InitDotaStrikers()
 	self.vRadiant = {}
 	self.vDire = {}
 
-	self.nRadiantKills = 0
-	self.nDireKills = 0
+	self.radiantScore = 0
+	self.direScore = 0
 
 	self.bSeenWaitForPlayers = false
 
@@ -676,7 +679,7 @@ function DotaStrikers:CaptureDotaStrikers()
 		mode:SetCameraDistanceOverride( 1700 )
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
-		mode:SetTopBarTeamValuesVisible( false ) -- this needed for kill banners?
+		mode:SetTopBarTeamValuesVisible( true )
 		--mode:SetFogOfWarDisabled(true)
 		mode:SetGoldSoundDisabled( true )
 		--mode:SetRemoveIllusionsOnDeath( true )

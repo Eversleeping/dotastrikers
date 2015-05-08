@@ -1,4 +1,23 @@
+function EmitSoundAtPosition( soundName, pos )
+	local soundDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_GOODGUYS)
+	soundDummy:EmitSound(soundName)
+	soundDummy:ForceKill(true)
+end
+
+function ShowQuickMessages( linesTable, durBetweenLines )
+	for i,line in ipairs(linesTable) do
+		if i == 1 then GameRules:SendCustomMessage(line, 0, 0)
+		else
+			local delay = (i-1)*durBetweenLines
+			Timers:CreateTimer(delay, function()
+				GameRules:SendCustomMessage(line, 0, 0)
+			end)
+		end
+	end
+end
+
 function ShowErrorMsg( unit, msg )
+	if not unit:GetPlayerOwner() then return end
 	if not unit.lastErrorPopupTime or (GameRules:GetGameTime()-unit.lastErrorPopupTime > 1) then
 		FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = msg } )
 		unit.lastErrorPopupTime = GameRules:GetGameTime()

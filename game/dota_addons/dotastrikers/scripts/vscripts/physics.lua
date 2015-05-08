@@ -2716,3 +2716,27 @@ Physics:CreateColliderProfile("aaboxreflect",
       end
     end
   })
+
+--[[Physics:CreateColliderProfile("delete", 
+  {
+    type = COLLIDER_SPHERE,
+    radius = 100,
+    recollideTime = 0,
+    skipFrames = 0,
+    deleteSelf = true,
+    removeCollider = true,
+    test = function(self, collider, collided)
+      return collided.IsRealHero and collided:IsRealHero() and collider:GetTeam() ~= collided:GetTeam()
+    end,
+    action = function(self, unit, v)
+      if self.deleteSelf then
+        UTIL_Remove(unit)
+      else
+        UTIL_Remove(v)
+      end
+
+      if self.removeCollider then
+        Physics:RemoveCollider(self)
+      end
+    end
+  })]]

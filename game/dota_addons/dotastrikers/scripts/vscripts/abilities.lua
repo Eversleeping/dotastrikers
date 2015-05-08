@@ -1,7 +1,7 @@
 THROW_VELOCITY = 1300
 SURGE_TICK = .2
-SLAM_Z = 2600
-SLAM_FORCE = 1200
+SLAM_Z = 2900
+SLAM_XY = 1300
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
@@ -34,7 +34,7 @@ function DotaStrikers:OnRefereeAttacked( keys )
 	ball.controller = nil
 	ball:SetPhysicsVelocity(towardsCenter*REF_OOB_HIT_VEL)
 	local caster = keys.caster
-	Timers:CreateTimer(.06, function()
+	Timers:CreateTimer(.2, function()
 		caster:SetAbsOrigin(Vector(4000,4000,0))
 		caster:Stop()
 	end)
@@ -280,7 +280,7 @@ function DotaStrikers:slam( keys )
 			if (ent == ball and ball.controller ~= nil) or ent == hero then
 
 			else
-				ent:AddPhysicsVelocity((dir*SLAM_FORCE + Vector(0,0,SLAM_Z)*knockbackScale))
+				ent:AddPhysicsVelocity((dir*SLAM_XY + Vector(0,0,SLAM_Z)*knockbackScale))
 				affected = affected + 1
 			end
 		end

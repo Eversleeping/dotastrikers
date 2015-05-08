@@ -7,8 +7,7 @@ requires = {
 	'dotastrikers',
 	'initmap',
 	'referee',
-	'ball',
-	'myphysics',
+	'myphys_and_ball',
 	'ability_proxy',
 	'abilities',
 }

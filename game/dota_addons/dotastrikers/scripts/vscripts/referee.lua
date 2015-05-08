@@ -8,7 +8,7 @@ function Referee:Init(  )
 	function referee:GetBallInBounds(  )
 		local ball = Ball.unit
 		local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
-		local backOfBall = -400*towardsCenter + ball:GetAbsOrigin()
+		local backOfBall = -250*towardsCenter + ball:GetAbsOrigin()
 		referee:SetAbsOrigin(backOfBall)
 
 	end
