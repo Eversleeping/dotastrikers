@@ -12,7 +12,10 @@ BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
 PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
 
+BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-40
 NUM_BOUNCE_SOUNDS = 3
+
+BALL_ROUNDSTART_KICK = {250,300}
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
 	local unitPos = unit:GetAbsOrigin()
@@ -55,11 +58,6 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 					ball:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
 				end
 				ball.lastBounceTime = currTime
-				--[[if ball.affectedByPowershot then
-					ParticleManager:CreateParticle("particles/units/heroes/hero_silencer/silencer_last_word_trigger_cracks.vpcf", PATTACH_ABSORIGIN, ball)
-				else
-					ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_shadowraze_ground_cracks.vpcf", PATTACH_ABSORIGIN, ball)
-				end]]
 			elseif unit ~= ball then
 				if len3dSq > CRACK_THRESHOLD*CRACK_THRESHOLD then
 					EmitSoundAtPosition("ThunderClapCaster", unit:GetAbsOrigin())
@@ -125,6 +123,7 @@ function Ball:Init(  )
 		Timers:CreateTimer(2*NEXT_FRAME, function()
 			if not ball.ballParticle then
 				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 			end
 			local pos = ball:GetAbsOrigin()
 			ball.particleDummy:SetAbsOrigin(Vector(pos.x, pos.y, pos.z+BALL_PARTICLE_Z_OFFSET))
@@ -168,14 +167,7 @@ function Ball:Init(  )
 						hero:CastAbilityNoTarget(hero.pull_break, 0)
 					end
 					--print("new controller.")
-					if ball.affectedByPowershot then
-						ball.affectedByPowershot = false
-						ball.dontChangeFriction = false
-						ball:SetPhysicsFriction(GROUND_FRICTION)
-						hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
-						hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
-						ParticleManager:DestroyParticle(ball.powershot_particle, false)
-					else
+					if not ball.affectedByPowershot then
 						--hero:EmitSound("Hero_Puck.ProjectileImpact")
 						ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
 					end
@@ -194,16 +186,21 @@ function Ball:Init(  )
 			elseif hero == ball.controller then
 				local fv = hero:GetForwardVector()
 				-- reposition ball to in front of controller.
-				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*(BALL_COLLISION_DIST-40))
+				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
 				ball:SetForwardVector(fv)
 			end
 		end
 
 		if ball.controller ~= nil then
+			if ball.lastController ~= ball.controller then
+				print("new ball.lastController")
+				ball.lastController = ball.controller
+			end
+
 			ball.particleDummy:SetForwardVector(ball.controller:GetForwardVector())
 			-- handle when controller took the ball out of bounds
 			local isBallOutOfBounds = ball:IsBallOutOfBounds()
-			if isBallOutOfBounds and not ball.outOfBoundsProc then
+			--[[if isBallOutOfBounds and not ball.outOfBoundsProc then
 				--Timers:RemoveTimer(ball.outOfBoundsTimer)
 				ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
 					if not ball.outOfBoundsProc then return end
@@ -216,7 +213,7 @@ function Ball:Init(  )
 			elseif not isBallOutOfBounds and ball.outOfBoundsProc then
 				Timers:RemoveTimer(ball.outOfBoundsTimer)
 				ball.outOfBoundsProc = false
-			end
+			end]]
 		else
 			-- turn the facing direction of the ball for aesthetics.
 			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
@@ -226,10 +223,14 @@ function Ball:Init(  )
 				ball.lastForwardVector = ballFV
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
-		end
-		if ball.controller and ball.lastController ~= ball.controller then
-			print("new ball.lastController")
-			ball.lastController = ball.controller
+			local inGoalPost = IsUnitWithinGoalBounds( ball )
+			if inGoalPost and ballPos.x < SCORE_X_MIN then
+				--print("ballPos.z: " .. ballPos.z)
+				DotaStrikers:OnGoal("Dire")
+			elseif inGoalPost and ballPos.x > SCORE_X_MAX then
+				--print("ballPos.z: " .. ballPos.z)
+				DotaStrikers:OnGoal("Radiant")
+			end
 		end
 	end)
 

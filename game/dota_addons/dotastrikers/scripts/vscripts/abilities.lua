@@ -6,7 +6,7 @@ BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
-NINJA_JUMP_Z = 1600
+NINJA_JUMP_Z = 1300
 NINJA_JUMP_XY = 600
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
@@ -21,6 +21,8 @@ function DotaStrikers:OnAbilityUsed( keys )
 	if abilityname == "slam" then
 
 	end
+
+
 end
 
 function DotaStrikers:OnRefereeAttacked( keys )
@@ -58,6 +60,9 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
+	if not Testing then
+		caster:FindAbilityByName("powershot"):StartCooldown(10)
+	end
 end
 
 function DotaStrikers:throw_ball( keys )
@@ -224,6 +229,8 @@ function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
 	caster:AddPhysicsVelocity(caster:GetForwardVector()*NINJA_JUMP_XY + Vector(0,0,NINJA_JUMP_Z))
 	caster.noBounce = true
+
+	if Testing then keys.ability:EndCooldown() end
 end
 
 function DotaStrikers:text_particle( keys )
@@ -280,6 +287,9 @@ function DotaStrikers:slam( keys )
 			if (ent == ball and ball.controller ~= nil) or ent == hero then
 
 			else
+				if ent == ball then
+					ball.lastController = caster
+				end
 				ent:AddPhysicsVelocity((dir*SLAM_XY + Vector(0,0,SLAM_Z)*knockbackScale))
 				affected = affected + 1
 			end
@@ -302,4 +312,7 @@ function DotaStrikers:slam( keys )
 		end)
 	end)
 
+	if Testing then
+		keys.ability:EndCooldown()
+	end
 end

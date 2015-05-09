@@ -424,8 +424,8 @@ C_INIT_CreateWithinSphere C_INIT_CreateWithinSphere_8
 
 C_INIT_PositionOffset C_INIT_PositionOffset_9
 {
-	float(3) m_OffsetMin = ( 0.000000, 0.000000, 220.000000 )
-	float(3) m_OffsetMax = ( 0.000000, 0.000000, 220.000000 )
+	float(3) m_OffsetMin = ( 0.000000, 0.000000, 350.000000 )
+	float(3) m_OffsetMax = ( 0.000000, 0.000000, 350.000000 )
 	int m_nControlPointNumber = 0
 	bool m_bLocalCoords = false
 	bool m_bProportional = false

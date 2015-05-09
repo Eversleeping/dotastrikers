@@ -233,26 +233,40 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	table.insert(self.colliderFilter, hero)
 	self:ApplyDSPhysics(hero)
 
-	local collider = hero:AddColliderFromProfile("momentum")
-	collider.radius = 90
-	collider.test = function(self, collider, collided)
-		--print("Hello.")
+	local coll = hero:AddColliderFromProfile("momentum")
+	coll.radius = BALL_COLLISION_DIST
+	coll.filer = colliderFilter
+	coll.test = function(self, collider, collided)
 		local passTest = false
+		local ball = Ball.unit
+
 		if not IsPhysicsUnit(collided) then return false end
-		if collider.isDSHero and collided.isDSHero then
-			if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
-				local location = collider:GetAbsOrigin() + (collided:GetAbsOrigin() - collider:GetAbsOrigin())/2
-				local p = ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, collider)
-				ParticleManager:SetParticleControl(p, 0, location)
-				EmitSoundAtPosition("ThunderClapCaster", location)
-				passTest = true
+		local rad = (collider:GetAbsOrigin()-collided:GetAbsOrigin()):Length()
+
+		if rad <= 100 then
+			if collided.isDSHero then
+				if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
+					local location = collider:GetAbsOrigin() + (collided:GetAbsOrigin() - collider:GetAbsOrigin())/2
+					local p = ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, collider)
+					ParticleManager:SetParticleControl(p, 0, location)
+					EmitSoundAtPosition("ThunderClapCaster", location)
+					passTest = true
+				end
 			end
 		end
-		--if passTest then print("pp collision") end
+		if collided == ball and ball.affectedByPowershot then
+			ball.affectedByPowershot = false
+			ball.dontChangeFriction = false
+			ball:SetPhysicsFriction(GROUND_FRICTION)
+			--hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
+			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
+			ParticleManager:DestroyParticle(ball.powershot_particle, false)
+			passTest = true
+		end
 		return passTest
 	end
 	--collider.draw = true
-	hero.personalCollider = collider
+	hero.personalCollider = coll
 
 	Timers:CreateTimer(.04, function()
 		if hero:GetPlayerOwner():GetAssignedHero() == nil then print("Hero still nil.") end

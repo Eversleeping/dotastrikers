@@ -122,7 +122,7 @@
 		"AbilityCastPoint"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_SLARK_POUNCE"
 		"AnimationPlaybackRate"			".5"
-		"AbilityCooldown"				"0"
+		"AbilityCooldown"				"8"
 
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
@@ -330,7 +330,7 @@
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastPoint"				".2"
-		"AbilityCooldown"				"1"
+		"AbilityCooldown"				"10"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
 		"AbilityCastRange"				"720"
