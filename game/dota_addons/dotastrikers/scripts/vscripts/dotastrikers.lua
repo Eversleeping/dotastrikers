@@ -1,7 +1,8 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Bounds = {min = -920, max = 920}
-RectangleOffset = 2010-Bounds.max --750
+Bounds = {max = 1152-50}
+Bounds.min = -1*Bounds.max
+RectangleOffset = 2424-1152
 
 Ball = {}
 
@@ -235,7 +236,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	local coll = hero:AddColliderFromProfile("momentum")
 	coll.radius = BALL_COLLISION_DIST
-	coll.filer = colliderFilter
+	coll.filer = self.colliderFilter
 	coll.test = function(self, collider, collided)
 		local passTest = false
 		local ball = Ball.unit
@@ -254,13 +255,14 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 				end
 			end
 		end
-		if collided == ball and ball.affectedByPowershot then
+		if (collided == ball or collider == ball) and ball.affectedByPowershot then
 			ball.affectedByPowershot = false
 			ball.dontChangeFriction = false
 			ball:SetPhysicsFriction(GROUND_FRICTION)
 			--hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
 			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
 			ParticleManager:DestroyParticle(ball.powershot_particle, false)
+			print("affectedByPowershot collision.")
 			passTest = true
 		end
 		return passTest
@@ -628,6 +630,7 @@ function DotaStrikers:InitDotaStrikers()
 
 	GlobalDummy = CreateUnitByName("dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
+	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("dummy_passive")
 	print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
 	GroundZ = GlobalDummy:GetAbsOrigin().z
 
@@ -640,9 +643,9 @@ function DotaStrikers:InitDotaStrikers()
 	VisionDummies = {GoodGuys = {}, BadGuys = {}}
 	local timeOffset = .03
 	-- CREATE vision dummies
-	local offset = 1800 --528
+	local offset = 1600 --528
 	for y=Bounds.max, Bounds.min, -1*offset do
-		for x=Bounds.min-RectangleOffset, Bounds.max+RectangleOffset, offset do
+		for x=GOAL_X_MIN, GOAL_X_MAX, offset do
 			Timers:CreateTimer(timeOffset, function()
 				--if GridNav:IsTraversable(Vector(x,y,GlobalDummy.z)) and not GridNav:IsBlocked(Vector(x,y,GlobalDummy.z)) then
 				local goodguy = CreateUnitByName("vision_dummy", Vector(x,y,GlobalDummy.z), false, nil, nil, DOTA_TEAM_GOODGUYS)
@@ -704,7 +707,7 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 1700 )
+		mode:SetCameraDistanceOverride( 1900 )
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( true )

@@ -1,8 +1,8 @@
-GOAL_Y = 270 -- half of the y direction width of the goal post.
+GOAL_Y = 320 -- half of the y direction width of the goal post.
 TIME_TILL_NEXT_ROUND = 8
 SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 3
-GOAL_SMOOTHING = 340 -- the inwardness of the goal post.
+GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
 GOAL_Z = 480
 RECT_X_MIN = Bounds.min-RectangleOffset
 RECT_X_MAX = Bounds.max+RectangleOffset
@@ -10,11 +10,11 @@ RECT_X_MAX = Bounds.max+RectangleOffset
 GOAL_X_MIN = RECT_X_MIN-GOAL_SMOOTHING
 GOAL_X_MAX = RECT_X_MAX+GOAL_SMOOTHING
 
-SCORE_X_MIN = RECT_X_MIN-200
-SCORE_X_MAX = RECT_X_MAX+200
+SCORE_X_MIN = RECT_X_MIN-210
+SCORE_X_MAX = RECT_X_MAX+210
 
-GOAL_OUTWARDNESS = 380
-GOAL_LESSEN_SIDE = 100 -- lesses the y-length of the goal post.
+GOAL_OUTWARDNESS = 430
+GOAL_LESSEN_SIDE = 30 -- lesses the y-length of the goal post, for enemies trying access enemy goal post.
 COLLIDER_Z = 5000
 
 
@@ -36,8 +36,8 @@ function DotaStrikers:InitMap()
 		[9] = Physics:AddCollider("bounds_collider_9", Physics:ColliderFromProfile("aaboxreflect")),
 		[10] = Physics:AddCollider("bounds_collider_10", Physics:ColliderFromProfile("aaboxreflect")),
 		[11] = Physics:AddCollider("bounds_collider_11", Physics:ColliderFromProfile("aaboxreflect")),
-		[12] = Physics:AddCollider("bounds_collider_12", Physics:ColliderFromProfile("aaboxreflect")),
-		[13] = Physics:AddCollider("bounds_collider_13", Physics:ColliderFromProfile("aaboxreflect")),
+		--[12] = Physics:AddCollider("bounds_collider_12", Physics:ColliderFromProfile("aaboxreflect")),
+		--[13] = Physics:AddCollider("bounds_collider_13", Physics:ColliderFromProfile("aaboxreflect")),
 	}
 	local bcs = self.bcs
 
@@ -66,16 +66,16 @@ function DotaStrikers:InitMap()
 	-- far right, badguys FOR GOALIES
 	bcs[10].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX+GOAL_SMOOTHING, Bounds.min, colliderZ)}
 
-	-- goodguys goal post Z (height of goal post)
+	-- the top of everything
+	bcs[11].box = {Vector(GOAL_X_MAX+offset, Bounds.max+offset, colliderZ-offset), Vector(GOAL_X_MIN-offset, Bounds.min-offset, colliderZ+offset)}
+
+	--[[ goodguys goal post Z (height of goal post)
 	bcs[11].box = {Vector(GOAL_X_MIN-offset, Bounds.min-offset, GOAL_Z), Vector(SCORE_X_MIN, Bounds.max+offset, colliderZ)}
 	--bcs[11].draw=true
 
 	-- badguys goal post Z (height of goal post)
 	bcs[12].box = {Vector(GOAL_X_MAX+offset, Bounds.min-offset, GOAL_Z), Vector(SCORE_X_MAX, Bounds.max+offset, colliderZ)}
-	--bcs[12].draw=true
-
-	-- the top of everything
-	bcs[13].box = {Vector(GOAL_X_MAX+offset, Bounds.max+offset, colliderZ-offset), Vector(GOAL_X_MIN-offset, Bounds.min-offset, colliderZ+offset)}
+	--bcs[12].draw=true]]
 
 	for i,bc in ipairs(bcs) do
 		bc.test = function(self, unit)
@@ -143,7 +143,7 @@ function DotaStrikers:InitMap()
 			return passTest
 		end
 		--gc.draw=true
-		gc.filter = colliderFilter
+		gc.filter = DotaStrikers.colliderFilter
 	end
 end
 
@@ -200,7 +200,9 @@ function DotaStrikers:OnGoal(team)
 			if i == start then
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
 					hero:SetAbsOrigin(hero.spawn_pos)
+					hero:SetMana(hero:GetMaxMana())
 				end
+				ball.controller = nil
 				ball:SetAbsOrigin(Vector(0,0,GroundZ))
 			end
 			Say(nil, i .. "...", false)
@@ -213,7 +215,6 @@ function DotaStrikers:OnGoal(team)
 				hero:RemoveAbility("stun_passive")
 				hero:RemoveModifierByName("modifier_stun_passive")
 			end
-			hero:SetMana(hero:GetMaxMana())
 		end
 
 		ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))

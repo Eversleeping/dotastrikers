@@ -101,6 +101,7 @@ function Precache( context )
 	PrecacheUnitByNameSync("npc_dota_hero_ancient_apparition", context)
 	PrecacheUnitByNameSync("npc_dota_hero_omniknight", context)
 	PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
+	--PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
 end
 
 -- Create the game mode when we activate

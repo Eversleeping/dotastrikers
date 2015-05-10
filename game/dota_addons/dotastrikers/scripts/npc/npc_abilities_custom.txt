@@ -91,7 +91,7 @@
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"3000"
+		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0.0"
 		"AbilityCooldown"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
@@ -329,11 +329,11 @@
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				".2"
+		"AbilityCastPoint"				".12"
 		"AbilityCooldown"				"10"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
-		"AbilityCastRange"				"720"
+		"AbilityCastRange"				"780"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_4"
 		//"AnimationPlaybackRate"			"2"
 		
@@ -687,6 +687,12 @@
 					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
+			}
+			"modifier_flail_passive"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"OverrideAnimation"     "ACT_DOTA_FLAIL"
 			}
 		}
 	}

@@ -20,7 +20,7 @@
         "File" 		"ConsoleCommands"
         "Depth" 	"3"
     }
-    "4"
+    "5"
     {
         "File" 		"CustomError"
         "Depth" 	"99"

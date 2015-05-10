@@ -1,16 +1,17 @@
-THROW_VELOCITY = 1300
+THROW_VELOCITY = 1600
 SURGE_TICK = .2
-SLAM_Z = 2900
+SLAM_Z = 2500
 SLAM_XY = 1300
 BASE_SPEED = 380
 MAX_PULL_DURATION = 4.55
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
-NINJA_JUMP_Z = 1300
+NINJA_JUMP_Z = 1400
 NINJA_JUMP_XY = 600
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 NUM_KICK_SOUNDS = 4
+SURGE_MOVESPEED_FACTOR = 1/3
 
 function DotaStrikers:OnAbilityUsed( keys )
 	local player = EntIndexToHScript(keys.PlayerID)
@@ -114,7 +115,7 @@ function DotaStrikers:surge( keys )
 		caster:CastAbilityImmediately(phaseBoots, 0)
 		caster:RemoveItem(phaseBoots)
 
-		caster:SetBaseMoveSpeed(caster.base_move_speed + caster.base_move_speed*1/3)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	else
 		caster:RemoveAbility("surge_sprint")
 		caster:AddAbility("surge_break_sprint")
@@ -139,7 +140,7 @@ function DotaStrikers:surge_break( keys )
 		caster:RemoveAbility("surge_break")
 		caster:AddAbility("surge")
 		caster:FindAbilityByName("surge"):SetLevel(1)
-		caster:SetBaseMoveSpeed(caster.base_move_speed)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 
 	else
 		caster:RemoveAbility("surge_break_sprint")
@@ -173,7 +174,7 @@ function DotaStrikers:pull( keys )
 	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 	--caster.pullParticle = ParticleManager:CreateParticle("particles/econ/items/puck/puck_alliance_set/puck_dreamcoil_tether_aproset.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 	--ParticleManager:SetParticleControl(caster.pullParticle, 1, ball:GetAbsOrigin())
-	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball, 1, "follow_origin", ball:GetAbsOrigin(), true)
+	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 
 	caster.pull_start_time = GameRules:GetGameTime()
 	caster.pull_timer = Timers:CreateTimer(MAX_PULL_DURATION, function()

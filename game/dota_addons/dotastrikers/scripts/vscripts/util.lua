@@ -191,43 +191,84 @@ function GetIndex(list, element)
 end
 
 -- useful with GameRules:SendCustomMessage
-function ColorIt( sStr, sColor )
+function ColorIt( ... )
+	local t = {...}
+	PrintTable(t)
+	local sStr = t[1]
+	local sColor = t[2]
+
 	if sStr == nil or sColor == nil then
 		return
 	end
-
+	
+	local real = t[3]
 	--Default is cyan.
 	local color = "00FFFF"
 
-	if sColor == "green" then
-		color = "ADFF2F"
-	elseif sColor == "purple" then
-		color = "EE82EE"
-	elseif sColor == "blue" then
-		color = "00BFFF"
-	elseif sColor == "orange" then
-		color = "FFA500"
-	elseif sColor == "pink" then
-		color = "DDA0DD"
-	elseif sColor == "red" then
-		color = "FF6347"
-	elseif sColor == "cyan" then
-		color = "00FFFF"
-	elseif sColor == "yellow" then
-		color = "FFFF00"
-	elseif sColor == "brown" then
-		color = "A52A2A"
-	elseif sColor == "magenta" then
-		color = "FF00FF"
-	elseif sColor == "teal" then
-		color = "008080"
-	elseif sColor == "light_green" then
-		color = "99FF00"
-	elseif sColor == "sky_blue" then
-		color = "008080"
-	elseif sColor == "dark_green" then
-		color = "003300"
+	-- so basically, i find that some colors don't look that great in dota. so unless real==true, i'm using my own
+	-- shades of green, shades of blue, shades of red, etc.
+	if real then
+		if sColor == "green" then
+			color = "008000"
+		elseif sColor == "purple" then
+			color = "800080"
+		elseif sColor == "blue" then
+			color = "0000FF"
+		elseif sColor == "orange" then
+			color = "FFA500"
+		elseif sColor == "pink" then
+			color = "FFC0CB"
+		elseif sColor == "red" then
+			color = "FF0000"
+		elseif sColor == "cyan" then
+			color = "00FFFF"
+		elseif sColor == "yellow" then
+			color = "FFFF00"
+		elseif sColor == "brown" then
+			color = "A52A2A"
+		elseif sColor == "magenta" then
+			color = "FF00FF"
+		elseif sColor == "teal" then
+			color = "008080"
+		elseif sColor == "light_green" then
+			color = "90EE90"
+		elseif sColor == "sky_blue" then
+			color = "87CEEB"
+		elseif sColor == "dark_green" then
+			color = "006400"
+		end
+	else
+		if sColor == "green" then
+			color = "ADFF2F"
+		elseif sColor == "purple" then
+			color = "EE82EE"
+		elseif sColor == "blue" then
+			color = "00BFFF"
+		elseif sColor == "orange" then
+			color = "FFA500"
+		elseif sColor == "pink" then
+			color = "DDA0DD"
+		elseif sColor == "red" then
+			color = "FF6347"
+		elseif sColor == "cyan" then
+			color = "00FFFF"
+		elseif sColor == "yellow" then
+			color = "FFFF00"
+		elseif sColor == "brown" then
+			color = "A52A2A"
+		elseif sColor == "magenta" then
+			color = "FF00FF"
+		elseif sColor == "teal" then
+			color = "008080"
+		elseif sColor == "light_green" then
+			color = "99FF00"
+		elseif sColor == "sky_blue" then
+			color = "008080"
+		elseif sColor == "dark_green" then
+			color = "003300"
+		end
 	end
+
 	return "<font color='#" .. color .. "'>" .. sStr .. "</font>"
 end
 
@@ -325,7 +366,7 @@ function PrintTable(t, indent, done)
 	end
 end
 
--- Colors
+-- Used for the Say function.
 COLOR_NONE = '\x06'
 COLOR_GRAY = '\x06'
 COLOR_GREY = '\x06'

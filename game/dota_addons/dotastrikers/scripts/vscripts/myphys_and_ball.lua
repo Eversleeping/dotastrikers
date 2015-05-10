@@ -3,7 +3,7 @@ NUM_CATCH_SOUNDS = 3
 
 GROUND_FRICTION = .04
 AIR_FRICTION = .02
-GRAVITY = -2900
+GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
 BALL_COLLISION_DIST = 120
 BOUNCE_MULTIPLIER = .9
@@ -15,7 +15,8 @@ PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
 BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-30
 NUM_BOUNCE_SOUNDS = 3
 
-BALL_ROUNDSTART_KICK = {250,300}
+BALL_ROUNDSTART_KICK = {230,280}
+CONTROLLER_MOVESPEED_FACTOR = 1/5
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
 	local unitPos = unit:GetAbsOrigin()
@@ -98,13 +99,18 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			--if unit == Ball.unit then print("Changing ball friciton.") end
 			unit:SetPhysicsFriction(AIR_FRICTION)
 		end
+		if not unit:HasModifier("modifier_flail_passive") and not unit.noBounce and ball.controller ~= unit then
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_flail_passive", {})
+		end
 
 	else
 		if not unit.dontChangeFriction and unit:GetPhysicsFriction() ~= GROUND_FRICTION then
 			--if unit == Ball.unit then print("Changing ball friciton.") end
 			unit:SetPhysicsFriction(GROUND_FRICTION)
 		end
-
+		if unit:HasModifier("modifier_flail_passive") then
+			unit:RemoveModifierByName("modifier_flail_passive")
+		end
 	end
 end
 
@@ -189,12 +195,24 @@ function Ball:Init(  )
 				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
 				ball:SetForwardVector(fv)
 			end
+			-- reset the movespeed if this guy isn't the ball handler anymore.
+			if hero.slowedByBall then
+				hero:SetBaseMoveSpeed(hero:GetBaseMoveSpeed() + hero.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+				hero.slowedByBall = false
+			end
 		end
 
 		if ball.controller ~= nil then
 			if ball.lastController ~= ball.controller then
 				print("new ball.lastController")
 				ball.lastController = ball.controller
+			end
+
+			-- slow the movespeed of the controller if we haven't already.
+			local cont = ball.controller
+			if not cont.slowedByBall then
+				cont:SetBaseMoveSpeed(cont:GetBaseMoveSpeed() - cont.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+				cont.slowedByBall = true
 			end
 
 			ball.particleDummy:SetForwardVector(ball.controller:GetForwardVector())
@@ -223,12 +241,10 @@ function Ball:Init(  )
 				ball.lastForwardVector = ballFV
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
-			local inGoalPost = IsUnitWithinGoalBounds( ball )
-			if inGoalPost and ballPos.x < SCORE_X_MIN then
-				--print("ballPos.z: " .. ballPos.z)
+			ballPos = ball:GetAbsOrigin()
+			if ballPos.x < SCORE_X_MIN and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Dire")
-			elseif inGoalPost and ballPos.x > SCORE_X_MAX then
-				--print("ballPos.z: " .. ballPos.z)
+			elseif ballPos.x > SCORE_X_MAX and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Radiant")
 			end
 		end
