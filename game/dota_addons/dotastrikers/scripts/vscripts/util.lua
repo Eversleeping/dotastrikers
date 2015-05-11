@@ -1,3 +1,17 @@
+function GetTeammates( hero )
+	local teammates = {}
+	for i=0,9 do
+		local ply = PlayerResource:GetPlayer(i)
+			if ply then
+			local hero2 = ply:GetAssignedHero()
+			if hero2 and hero2:GetTeam() == hero:GetTeam() and hero2 ~= hero then
+				table.insert(teammates, hero2)
+			end
+		end
+	end
+	return teammates
+end
+
 function EmitSoundAtPosition( soundName, pos )
 	local soundDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_GOODGUYS)
 	soundDummy:EmitSound(soundName)
@@ -193,14 +207,13 @@ end
 -- useful with GameRules:SendCustomMessage
 function ColorIt( ... )
 	local t = {...}
-	PrintTable(t)
 	local sStr = t[1]
 	local sColor = t[2]
 
 	if sStr == nil or sColor == nil then
 		return
 	end
-	
+
 	local real = t[3]
 	--Default is cyan.
 	local color = "00FFFF"
@@ -283,6 +296,12 @@ function IsPointWithinSquare(p, center, halfLength)
 		return true
 	end
 	return false
+end
+
+function IsPointWithinCube(p, center, halfLength)
+	return (p.x > center.x-halfLength and p.x < center.x+halfLength) and 
+		(p.y > center.y-halfLength and p.y < center.y+halfLength) and
+		(p.z > center.z-halfLength and p.z < center.z+halfLength)
 end
 
 function circle_circle_collision(p1Origin, p2Origin, p1Radius, p2Radius)

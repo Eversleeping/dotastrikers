@@ -20,15 +20,6 @@
 
 "CustomEvents"
 {
-    // Stat collection
-    "stat_collection_part"
-    {
-        "data"          "string"
-    }
-
-    "stat_collection_send"
-    {
-    }
     "custom_error_show"
     {
         "player_ID"     "short"

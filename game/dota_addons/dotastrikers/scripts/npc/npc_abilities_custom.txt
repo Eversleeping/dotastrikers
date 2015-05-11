@@ -5,58 +5,6 @@
 {
 	"Version"		"1"
 
-	"fissure"
-	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_IGNORE_BACKSWING"
-		"BaseClass"						"earthshaker_fissure"
-
-		// Casting
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"1400"
-		"AbilityCastPoint"				"0"
-
-		// Time		
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCooldown"				"0"
-		"AbilityDuration"				"9999"
-
-		// Damage.
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityDamage"					"0"
-
-		// Cost
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityManaCost"				"0"		
-
-		// Special
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilitySpecial"
-		{
-			"01"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"fissure_range"				"1400"
-			}
-			"02"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"fissure_duration"			"9999"
-			}
-			"03"
-			{
-				"var_type"					"FIELD_INTEGER"
-				"fissure_radius"				"0" //225
-			}
-			"04"
-			{
-				"var_type"					"FIELD_FLOAT"
-				"stun_duration"				"0"
-			}
-		}
-	}
-
 	"powershot_channel"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_CHANNELLED"
@@ -137,7 +85,7 @@
 		}
 	}
 
-	"surge_sprint"
+	"super_sprint"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
@@ -146,7 +94,7 @@
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"0"
+		"AbilityCooldown"				"5"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
 		
@@ -158,9 +106,22 @@
 				"Function"				"surge"
 			}
 		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"40"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_recovery_rate"		"10"
+			}
+		}
 	}
 
-	"surge_break_sprint"
+	"super_sprint_break"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
@@ -233,7 +194,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"surge"
+		"AbilityTextureName"			"slardar_sprint"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
@@ -248,6 +209,24 @@
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge"
+			}
+		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"movespeed_increase"		"33"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"20"
+			}
+			"03"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_recovery_rate"		"10"
 			}
 		}
 	}
@@ -330,7 +309,7 @@
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastPoint"				".12"
-		"AbilityCooldown"				"10"
+		"AbilityCooldown"				"15"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
 		"AbilityCastRange"				"780"
@@ -433,7 +412,7 @@
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"3000"
+		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0.0"
 		"AbilityCooldown"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
@@ -447,62 +426,6 @@
 				"Target"				"POINT"
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"throw_ball"
-			}
-
-		}
-	}
-  
-	"phase_off"
-	{
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
-		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"phase_off"
-		"MaxLevel"						"1"
-
-		// Stats
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"3000"
-		"AbilityCastPoint"				"0.0"
-		"AbilityCooldown"				"0.0"
-		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
-
-		"AbilityManaCost"				"0"
-		
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"Target"				"CASTER"
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"phase_off"
-			}
-
-		}
-	}
-
-	"phase_on"
-	{
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
-		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"phase_on"
-		"MaxLevel"						"1"
-
-		// Stats
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"3000"
-		"AbilityCastPoint"				"0.0"
-		"AbilityCooldown"				"2.0"
-		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
-
-		"AbilityManaCost"				"50"
-		
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"Target"				"CASTER"
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"phase_on"
 			}
 
 		}
@@ -693,6 +616,12 @@
 				"Passive"                        "1"
 				"IsHidden"                       "1"    
 				"OverrideAnimation"     "ACT_DOTA_FLAIL"
+			}
+			"modifier_ball_controller"
+			{
+				"Passive"                        "1"
+				//"IsHidden"                       "0"  
+				"TextureName"      "earth_spirit_rolling_boulder"
 			}
 		}
 	}

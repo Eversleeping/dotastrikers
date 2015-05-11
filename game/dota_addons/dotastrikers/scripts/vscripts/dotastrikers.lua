@@ -6,10 +6,6 @@ RectangleOffset = 2424-1152
 
 Ball = {}
 
-if not Testing then
-  statcollection.addStats({ modID = 'XXXXXXXXXXXXXXXXXXX' })
-end
-
 ColorStr = 
 {	-- This is plyID+1
 	[1] = "blue",
@@ -176,6 +172,7 @@ function DotaStrikers:OnNPCSpawned(keys)
 	end
 end
 
+-- replaces OnHeroInGame
 function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	--print("OnPlayersHeroFirstSpawn")
 
@@ -185,7 +182,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		if hero.goalie then
 			-- check if actually still in goal
 			if not IsUnitWithinGoalBounds(hero) then
-				print("goalie left net.")
+				--print("goalie left net.")
 				hero.goalie = false
 				hero.gc.goalie = nil
 			end
@@ -233,6 +230,10 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	table.insert(self.vHeroes, hero)
 	table.insert(self.colliderFilter, hero)
 	self:ApplyDSPhysics(hero)
+
+	if hero:GetClassname() == "npc_dota_hero_antimage" then
+		hero.isSprinter = true
+	end
 
 	local coll = hero:AddColliderFromProfile("momentum")
 	coll.radius = BALL_COLLISION_DIST
@@ -283,14 +284,17 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 		if hero.surgeOn then
 			if currMana <= 0 then
-				if hero:GetClassname() ~= "npc_dota_hero_antimage" then
+				if not hero.isSprinter then
 					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
 				else
-					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break_sprint"), 0)
-					manaDrainInterval = SURGE_TICK*40
+					hero:CastAbilityNoTarget(hero:FindAbilityByName("super_sprint_break"), 0)
 				end
 			end
+			if hero.isSprinter then
+				manaDrainInterval = SURGE_TICK*40
+			end
 			hero:SetMana(currMana - manaDrainInterval)
+			--print("draining " .. manaDrainInterval .. " mana")
 		else
 			if not (currMana >= maxMana) then
 				hero:SetMana(currMana + manaGainInterval)
@@ -707,7 +711,7 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 1900 )
+		mode:SetCameraDistanceOverride( 1800 )
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( true )

@@ -7,7 +7,6 @@ GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
 BALL_COLLISION_DIST = 120
 BOUNCE_MULTIPLIER = .9
-PULL_ACCEL_FORCE = 2300
 BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
 PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
@@ -60,10 +59,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 				end
 				ball.lastBounceTime = currTime
 			elseif unit ~= ball then
-				if len3dSq > CRACK_THRESHOLD*CRACK_THRESHOLD then
-					EmitSoundAtPosition("ThunderClapCaster", unit:GetAbsOrigin())
-					ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
-				end
+				TryPlayCracks(unit)
 			end
 		end
 
@@ -196,15 +192,19 @@ function Ball:Init(  )
 				ball:SetForwardVector(fv)
 			end
 			-- reset the movespeed if this guy isn't the ball handler anymore.
-			if hero.slowedByBall then
+			if ball.controller ~= hero and hero.slowedByBall then
 				hero:SetBaseMoveSpeed(hero:GetBaseMoveSpeed() + hero.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+				if hero:HasModifier("modifier_ball_controller") then
+					hero:RemoveModifierByName("modifier_ball_controller")
+				end
+
 				hero.slowedByBall = false
 			end
 		end
 
 		if ball.controller ~= nil then
 			if ball.lastController ~= ball.controller then
-				print("new ball.lastController")
+				--print("new ball.lastController")
 				ball.lastController = ball.controller
 			end
 
@@ -212,6 +212,9 @@ function Ball:Init(  )
 			local cont = ball.controller
 			if not cont.slowedByBall then
 				cont:SetBaseMoveSpeed(cont:GetBaseMoveSpeed() - cont.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+				if not cont:HasModifier("modifier_ball_controller") then
+					GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, cont, "modifier_ball_controller", {})
+				end
 				cont.slowedByBall = true
 			end
 
@@ -253,3 +256,15 @@ function Ball:Init(  )
 	return ball
 end
 
+function TryPlayCracks( unit )
+	local ground_thresh = 30
+	local currTime = GameRules:GetGameTime()
+	local unitPos = unit:GetAbsOrigin()
+	if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD and (not unit.lastCrackTime or currTime-unit.lastCrackTime > .3) then
+		EmitSoundAtPosition("ThunderClapCaster", unitPos)
+		if unitPos.z < (GroundZ + ground_thresh) then
+			ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
+		end
+		unit.lastCrackTime = currTime
+	end
+end

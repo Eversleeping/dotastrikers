@@ -1,22 +1,22 @@
-GOAL_Y = 320 -- half of the y direction width of the goal post.
+GOAL_Y = 290 -- half of the y direction width of the goal post.
 TIME_TILL_NEXT_ROUND = 8
 SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 3
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
-GOAL_Z = 480
+GOAL_Z = 470
 RECT_X_MIN = Bounds.min-RectangleOffset
 RECT_X_MAX = Bounds.max+RectangleOffset
 -- these are for the whole goal post (everywhere the goalie can move)
 GOAL_X_MIN = RECT_X_MIN-GOAL_SMOOTHING
 GOAL_X_MAX = RECT_X_MAX+GOAL_SMOOTHING
 
-SCORE_X_MIN = RECT_X_MIN-210
-SCORE_X_MAX = RECT_X_MAX+210
+SCORE_X_MAX = RECT_X_MAX+270
+SCORE_X_MIN = -1*SCORE_X_MAX
 
-GOAL_OUTWARDNESS = 430
-GOAL_LESSEN_SIDE = 30 -- lesses the y-length of the goal post, for enemies trying access enemy goal post.
+GOAL_OUTWARDNESS = 400
+GOAL_LESSEN_SIDE = 20 -- lesses the y-length of the goal post (for goalies), helps with model clipping into fences.
+GC_INCREASE_SIDE = 30 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 5000
-
 
 function DotaStrikers:InitMap()
 	local ball = Ball.unit
@@ -36,8 +36,8 @@ function DotaStrikers:InitMap()
 		[9] = Physics:AddCollider("bounds_collider_9", Physics:ColliderFromProfile("aaboxreflect")),
 		[10] = Physics:AddCollider("bounds_collider_10", Physics:ColliderFromProfile("aaboxreflect")),
 		[11] = Physics:AddCollider("bounds_collider_11", Physics:ColliderFromProfile("aaboxreflect")),
-		--[12] = Physics:AddCollider("bounds_collider_12", Physics:ColliderFromProfile("aaboxreflect")),
-		--[13] = Physics:AddCollider("bounds_collider_13", Physics:ColliderFromProfile("aaboxreflect")),
+		[12] = Physics:AddCollider("bounds_collider_12", Physics:ColliderFromProfile("aaboxreflect")),
+		[13] = Physics:AddCollider("bounds_collider_13", Physics:ColliderFromProfile("aaboxreflect")),
 	}
 	local bcs = self.bcs
 
@@ -46,13 +46,16 @@ function DotaStrikers:InitMap()
 	bcs[2].box = {Vector(RECT_X_MAX+offset, Bounds.min, 0), Vector(RECT_X_MIN-offset, Bounds.min-offset, colliderZ)}
 	-- upper right, badguys goal
 	bcs[3].box = {Vector(RECT_X_MAX+offset, Bounds.max+offset, 0), Vector(RECT_X_MAX, GOAL_Y-GOAL_LESSEN_SIDE, colliderZ)}
+	--bcs[3].draw=true
 	-- lower right, badguys goal
 	bcs[4].box = {Vector(RECT_X_MAX+offset, Bounds.min-offset, 0), Vector(RECT_X_MAX, -1*GOAL_Y+GOAL_LESSEN_SIDE, colliderZ)}
-
+	--bcs[4].draw=true
 	-- upper left, goodguys goal
 	bcs[5].box = {Vector(RECT_X_MIN-offset, Bounds.max+offset, 0), Vector(RECT_X_MIN, GOAL_Y-GOAL_LESSEN_SIDE, colliderZ)}
+	--bcs[5].draw=true
 	-- lower left, goodguys goal
 	bcs[6].box = {Vector(RECT_X_MIN-offset, Bounds.min-offset, 0), Vector(RECT_X_MIN, -1*GOAL_Y+GOAL_LESSEN_SIDE, colliderZ)}
+	--bcs[6].draw=true
 
 	-- far left, goodguys (to prevent non-goalies from entering area.)
 	bcs[7].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN, Bounds.min, colliderZ)}
@@ -69,13 +72,11 @@ function DotaStrikers:InitMap()
 	-- the top of everything
 	bcs[11].box = {Vector(GOAL_X_MAX+offset, Bounds.max+offset, colliderZ-offset), Vector(GOAL_X_MIN-offset, Bounds.min-offset, colliderZ+offset)}
 
-	--[[ goodguys goal post Z (height of goal post)
-	bcs[11].box = {Vector(GOAL_X_MIN-offset, Bounds.min-offset, GOAL_Z), Vector(SCORE_X_MIN, Bounds.max+offset, colliderZ)}
-	--bcs[11].draw=true
+	-- top of radiant goal post, ball reflector
+	bcs[12].box = {Vector(SCORE_X_MIN-offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MIN, GOAL_Y, colliderZ)}
 
-	-- badguys goal post Z (height of goal post)
-	bcs[12].box = {Vector(GOAL_X_MAX+offset, Bounds.min-offset, GOAL_Z), Vector(SCORE_X_MAX, Bounds.max+offset, colliderZ)}
-	--bcs[12].draw=true]]
+	-- top of dire goal post, ball reflector
+	bcs[13].box = {Vector(SCORE_X_MAX+offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MAX, GOAL_Y, colliderZ)}
 
 	for i,bc in ipairs(bcs) do
 		bc.test = function(self, unit)
@@ -91,10 +92,12 @@ function DotaStrikers:InitMap()
 
 	local gcs = self.gcs
 
-	gcs[1].box = {Vector(RECT_X_MIN+GOAL_OUTWARDNESS, -1*GOAL_Y, 0), Vector(RECT_X_MIN-offset, GOAL_Y, colliderZ)}
-	gcs[2].box = {Vector(RECT_X_MAX-GOAL_OUTWARDNESS, -1*GOAL_Y, 0), Vector(RECT_X_MAX+offset, GOAL_Y, colliderZ)}
+	gcs[1].box = {Vector(RECT_X_MIN+GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MIN-offset, GOAL_Y+GC_INCREASE_SIDE, colliderZ)}
+	gcs[2].box = {Vector(RECT_X_MAX-GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MAX+offset, GOAL_Y+GC_INCREASE_SIDE, colliderZ)}
 	gcs[1].team = DOTA_TEAM_GOODGUYS
 	gcs[2].team = DOTA_TEAM_BADGUYS
+	--gcs[1].draw=true
+	--gcs[2].draw=true
 
 	for _,gc in ipairs(gcs) do
 		gc.test = function ( self, unit )
@@ -128,16 +131,13 @@ function DotaStrikers:InitMap()
 				end
 				
 			end
+			-- done with calculating passTest value.
+
 			if passTest then
-				DotaStrikers:OnCantEnterGoalPost(unit) -- this is in abilities.lua
+				DotaStrikers:OnCantEnter(unit)
 				-- if high velocity onto the goal post, do sounds/effects etc.
 				if unit.isDSHero then
-					if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD then
-						EmitSoundAtPosition("ThunderClapCaster", unit:GetAbsOrigin())
-						if unit.currPos.z < (GroundZ + 10) then
-							ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
-						end
-					end
+					TryPlayCracks(unit)
 				end
 			end
 			return passTest
@@ -275,7 +275,15 @@ function OnBoundsCollision( self, unit, bc, i )
 		return false
 	end
 
-	if bc.name == "bounds_collider_11" or bc.name == "bounds_collider_12" or bc.name == "bounds_collider_13" then
+	if bc.name == "bounds_collider_12" or bc.name == "bounds_collider_13" then
+		if isBall then
+			DotaStrikers:OnCantEnter(unit)
+
+			return true
+		end
+	end
+
+	if bc.name == "bounds_collider_11" then
 		return true
 	end
 
@@ -287,6 +295,9 @@ function OnBoundsCollision( self, unit, bc, i )
 
 	if bc.name == "bounds_collider_9" or bc.name == "bounds_collider_10" then
 		if unit.goalie or isBall then
+			if unit.isAboveGround then
+				DotaStrikers:OnCantEnter(unit)
+			end
 			return true
 		end
 	end
@@ -295,12 +306,25 @@ function OnBoundsCollision( self, unit, bc, i )
 	if isBall and passTest and not ball.controller and not ball.affectedByPowershot then
 		unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
 	elseif unit.isDSHero and passTest then
-		if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD then
-			EmitSoundAtPosition("ThunderClapCaster", unitPos)
-			if unitPos.z < (GroundZ + 10) then
-				ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
-			end
+		TryPlayCracks(unit)
+	end
+	if passTest then
+		if unit.isAboveGround then
+			DotaStrikers:OnCantEnter(unit)
 		end
 	end
+
 	return passTest
+end
+
+function DotaStrikers:OnCantEnter( unit )
+	local currTime = GameRules:GetGameTime()
+	if not unit.lastShieldParticleTime or currTime-unit.lastShieldParticleTime > .03 then
+		local pos = unit:GetAbsOrigin()
+		local fv = unit:GetForwardVector()
+		unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact_highlight01.vpcf", PATTACH_CUSTOMORIGIN, unit)
+		ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-70) + Vector(fv.x,fv.y,0)*40)
+		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
+		unit.lastShieldParticleTime = currTime
+	end
 end

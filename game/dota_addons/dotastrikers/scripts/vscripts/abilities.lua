@@ -8,6 +8,10 @@ PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
 NINJA_JUMP_Z = 1400
 NINJA_JUMP_XY = 600
+PULL_ACCEL_FORCE = 2500
+SPRINT_ACCEL = 800
+SPRINT_INITIAL_FORCE = 800
+SPRINT_COOLDOWN = 5
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 NUM_KICK_SOUNDS = 4
@@ -75,7 +79,12 @@ function DotaStrikers:throw_ball( keys )
 
 	local point = keys.target_points[1]
 	local ballPos = ball:GetAbsOrigin()
-	local dir = (Vector(point.x,point.y,ballPos.z)-ballPos):Normalized()
+	-- if caster is above ground, give the ball more of a push in z direction.
+	local newTargetPoint = Vector(point.x,point.y,ballPos.z)
+	--[[if caster.isAboveGround then
+		newTargetPoint = Vector(point.x,point.y,ballPos.z+500)
+	end]]
+	local dir = (newTargetPoint-ballPos):Normalized()
 
 	if keys.ability:GetAbilityName() == "powershot" then
 		-- begin the channeling portion
@@ -117,19 +126,41 @@ function DotaStrikers:surge( keys )
 
 		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	else
-		caster:RemoveAbility("surge_sprint")
-		caster:AddAbility("surge_break_sprint")
-		caster:FindAbilityByName("surge_break_sprint"):SetLevel(1)
+		caster:RemoveAbility("super_sprint")
+		caster:AddAbility("super_sprint_break")
+		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
 
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		--caster.dontChangeFriction = true
 		--caster:SetPhysicsFriction(0)
 		--caster:AddPhysicsVelocity(caster:GetForwardVector()*400)
-		caster:AddPhysicsAcceleration(caster:GetForwardVector()*800)
+		caster.sprint_fv = caster:GetForwardVector()
+		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
+		caster:AddPhysicsAcceleration(caster.sprint_fv*SPRINT_ACCEL)
+		caster:EmitSound("Hero_Weaver.Shukuchi")
 
+		-- ensure the sprinter is moving somewhere.
+		Timers:RemoveTimer(caster.sprintTimer)
+		caster.sprintTimer = Timers:CreateTimer(function()
+			if not caster:HasAbility("super_sprint_break") then
+				return
+			end
+			local currPos = caster:GetAbsOrigin()
+			if not caster.lastPos then
+				caster.lastPos = Vector(8000,8000,0)
+			end
+
+			local distTraveled = (currPos-caster.lastPos):Length()
+			print("distTraveled: " .. distTraveled)
+			if distTraveled ~= 0 and distTraveled < 20 then
+				caster:CastAbilityImmediately(caster:FindAbilityByName("super_sprint_break"), 0)
+				caster.lastPos = Vector(8000,8000,0)
+			end
+
+			caster.lastPos = currPos
+			return .1
+		end)
 	end
-
-
 end
 
 function DotaStrikers:surge_break( keys )
@@ -143,25 +174,31 @@ function DotaStrikers:surge_break( keys )
 		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 
 	else
-		caster:RemoveAbility("surge_break_sprint")
-		caster:AddAbility("surge_sprint")
-		caster:FindAbilityByName("surge_sprint"):SetLevel(1)
-		--[[caster.dontChangeFriction = false
-		if caster.isAboveGround then
-			caster:SetPhysicsFriction(AIR_FRICTION)
+		caster:RemoveAbility("super_sprint_break")
+		caster:AddAbility("super_sprint")
+		local super_sprint = caster:FindAbilityByName("super_sprint")
+		super_sprint:SetLevel(1)
+		caster:SetPhysicsAcceleration(BASE_ACCELERATION)
+		if not Testing then
+			super_sprint:StartCooldown(SPRINT_COOLDOWN)
 		else
-			caster:SetPhysicsFriction(GROUND_FRICTION)
-		end]]
-
+			super_sprint:EndCooldown()
+			caster:SetMana(caster:GetMaxMana())
+		end
+		--caster:EmitSound("Hero_Slardar.MovementSprint")
 	end
-
 	ParticleManager:DestroyParticle(caster.surgeParticle, false)
-
-
 end
 
 function DotaStrikers:pull( keys )
 	local caster = keys.caster
+
+	-- cant cast pull while being ball controller.
+	if caster == Ball.unit.controller then
+		ShowErrorMsg(caster, "Can't cast Pull as the ball controller")
+		return
+	end
+
 	caster.isUsingPull = true
 	caster:RemoveAbility("pull")
 	caster:AddAbility("pull_break")
@@ -208,7 +245,7 @@ function DotaStrikers:pull_break( keys )
 	--caster:AddPhysicsVelocity(1000*dirToBall)
 
 	-- determine cooldown to set
-	local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
+	--[[local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
 	if timeDiff < 1.5 then
 		pullAbility:StartCooldown(10)
 	elseif timeDiff < 2.5 then
@@ -219,7 +256,8 @@ function DotaStrikers:pull_break( keys )
 		pullAbility:StartCooldown(25)
 	else
 		pullAbility:StartCooldown(30)
-	end
+	end]]
+	pullAbility:StartCooldown(15)
 	if Testing then
 		pullAbility:EndCooldown()
 	end
@@ -244,30 +282,40 @@ function DotaStrikers:text_particle( keys )
 		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
 	end
 
+	-- remove the current text particle above the caster, if any. to avoid clutter
 	if caster.textParticle then
-		ParticleManager:DestroyParticle(caster.textParticle, true)
+		if type(caster.textParticle) == "table" then
+			for i,v in ipairs(caster.textParticle) do
+				ParticleManager:DestroyParticle(v, true)
+			end
+		else
+			ParticleManager:DestroyParticle(caster.textParticle, true)
+		end
 		caster.textParticle = nil
 	end
-	caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
-	if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
-		ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))
+
+	if abilName == "pass_me" then
+		local parts = {}
+		local teammates = GetTeammates(caster)
+		local part = ParticleManager:CreateParticleForPlayer("particles/pass_me/legion_commander_duel_victory_text.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
+		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
+		table.insert(parts, part)
+		for i,hero2 in ipairs(teammates) do
+			part = ParticleManager:CreateParticleForPlayer("particles/pass_me/legion_commander_duel_victory_text.vpcf", PATTACH_OVERHEAD_FOLLOW, hero2, hero2:GetPlayerOwner())
+			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
+			table.insert(parts, part)
+		end
+		caster.textParticle = parts
 	else
-		ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(255,0,0))
+		caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
+		if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
+			ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))
+		else
+			ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(255,0,0))
+		end
+		ParticleManager:SetParticleControlEnt(caster.textParticle, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 	end
-	ParticleManager:SetParticleControlEnt(caster.textParticle, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 
-end
-
-function DotaStrikers:OnCantEnterGoalPost( unit )
-	local currTime = GameRules:GetGameTime()
-	if currTime-unit.lastShieldParticleTime > .03 then
-		local pos = unit:GetAbsOrigin()
-		local fv = unit:GetForwardVector()
-		unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact_highlight01.vpcf", PATTACH_CUSTOMORIGIN, unit)
-		ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-70) + Vector(fv.x,fv.y,0)*40)
-		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
-		unit.lastShieldParticleTime = currTime
-	end
 end
 
 function DotaStrikers:slam( keys )
