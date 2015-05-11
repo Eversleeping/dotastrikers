@@ -3,7 +3,6 @@ requires = {
 	'util',
 	'timers',
 	'physics',
-	'constants',
 	'dotastrikers',
 	'initmap',
 	'referee',

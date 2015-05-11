@@ -1,5 +1,12 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
+Testing = false
+NEXT_FRAME = .033
+--TestMoreAbilities = false
+OutOfWorldVector = Vector(5000, 5000, -200)
+DrawDebug = false
+UseCursorStream = false
+
 Bounds = {max = 1152-50}
 Bounds.min = -1*Bounds.max
 RectangleOffset = 2424-1152
