@@ -1,7 +1,7 @@
 GOAL_Y = 290 -- half of the y direction width of the goal post.
-TIME_TILL_NEXT_ROUND = 8
+TIME_TILL_NEXT_ROUND = 7
 SCORE_TO_WIN = 13
-NUM_ROUNDEND_SOUNDS = 3
+NUM_ROUNDEND_SOUNDS = 11
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
 GOAL_Z = 510
 RECT_X_MIN = Bounds.min-RectangleOffset

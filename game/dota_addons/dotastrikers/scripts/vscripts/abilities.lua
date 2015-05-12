@@ -26,7 +26,6 @@ BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 KICK_BALL_Z_PUSH = 280
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
-NUM_KICK_SOUNDS = 4
 SURGE_MOVESPEED_FACTOR = 1/3
 
 function DotaStrikers:OnAbilityUsed( keys )

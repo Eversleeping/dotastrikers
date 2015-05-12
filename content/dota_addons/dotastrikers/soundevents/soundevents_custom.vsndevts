@@ -112,6 +112,462 @@
     }
 }
 
+"Round_End11"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End11.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.600000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.600000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End10"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End10.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End9"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End9.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End8"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End8.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End7"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End7.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End6"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End6.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End5"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End5.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_End4"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/Round_End4.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
 "Round_End3"
 {
     "operator_stacks"
@@ -133,11 +589,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -190,11 +646,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -247,11 +703,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -848,6 +1304,230 @@
         }
     }
 }
+"Bounce4"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/bounce4.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Bounce5"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/bounce5.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Bounce6"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/bounce6.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Bounce7"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/bounce7.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
 "Catch1"
 {
     "operator_stacks"
@@ -977,6 +1657,230 @@
                         "value"
                         {
                             "value0"        "sounds/catch3.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Catch4"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/catch4.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Catch5"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/catch5.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Catch6"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/catch6.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+"Catch7"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/catch7.vsnd"
                         }
                     }
                     "volume_min"
