@@ -3,7 +3,7 @@ TIME_TILL_NEXT_ROUND = 8
 SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 3
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
-GOAL_Z = 470
+GOAL_Z = 510
 RECT_X_MIN = Bounds.min-RectangleOffset
 RECT_X_MAX = Bounds.max+RectangleOffset
 -- these are for the whole goal post (everywhere the goalie can move)
@@ -16,13 +16,12 @@ SCORE_X_MIN = -1*SCORE_X_MAX
 GOAL_OUTWARDNESS = 400
 GOAL_LESSEN_SIDE = 20 -- lesses the y-length of the goal post (for goalies), helps with model clipping into fences.
 GC_INCREASE_SIDE = 30 -- increases the y-length of the goal collider. 
-COLLIDER_Z = 5000
+COLLIDER_Z = 15000
 
 function DotaStrikers:InitMap()
 	local ball = Ball.unit
 
 	local offset = 3000
-	local colliderZ = COLLIDER_Z
 
 	self.bcs = {
 		[1] = Physics:AddCollider("bounds_collider_1", Physics:ColliderFromProfile("aaboxreflect")),
@@ -42,41 +41,42 @@ function DotaStrikers:InitMap()
 	local bcs = self.bcs
 
 	-- top and bottom big colliders
-	bcs[1].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MIN-offset, Bounds.max+offset, colliderZ)}
-	bcs[2].box = {Vector(RECT_X_MAX+offset, Bounds.min, 0), Vector(RECT_X_MIN-offset, Bounds.min-offset, colliderZ)}
+	bcs[1].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MIN-offset, Bounds.max+offset, COLLIDER_Z)}
+	bcs[2].box = {Vector(RECT_X_MAX+offset, Bounds.min, 0), Vector(RECT_X_MIN-offset, Bounds.min-offset, COLLIDER_Z)}
 	-- upper right, badguys goal
-	bcs[3].box = {Vector(RECT_X_MAX+offset, Bounds.max+offset, 0), Vector(RECT_X_MAX, GOAL_Y-GOAL_LESSEN_SIDE, colliderZ)}
+	bcs[3].box = {Vector(RECT_X_MAX+offset, Bounds.max+offset, 0), Vector(RECT_X_MAX, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[3].draw=true
 	-- lower right, badguys goal
-	bcs[4].box = {Vector(RECT_X_MAX+offset, Bounds.min-offset, 0), Vector(RECT_X_MAX, -1*GOAL_Y+GOAL_LESSEN_SIDE, colliderZ)}
+	bcs[4].box = {Vector(RECT_X_MAX+offset, Bounds.min-offset, 0), Vector(RECT_X_MAX, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[4].draw=true
 	-- upper left, goodguys goal
-	bcs[5].box = {Vector(RECT_X_MIN-offset, Bounds.max+offset, 0), Vector(RECT_X_MIN, GOAL_Y-GOAL_LESSEN_SIDE, colliderZ)}
+	bcs[5].box = {Vector(RECT_X_MIN-offset, Bounds.max+offset, 0), Vector(RECT_X_MIN, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[5].draw=true
 	-- lower left, goodguys goal
-	bcs[6].box = {Vector(RECT_X_MIN-offset, Bounds.min-offset, 0), Vector(RECT_X_MIN, -1*GOAL_Y+GOAL_LESSEN_SIDE, colliderZ)}
+	bcs[6].box = {Vector(RECT_X_MIN-offset, Bounds.min-offset, 0), Vector(RECT_X_MIN, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[6].draw=true
 
 	-- far left, goodguys (to prevent non-goalies from entering area.)
-	bcs[7].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN, Bounds.min, colliderZ)}
+	bcs[7].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN, Bounds.min, COLLIDER_Z)}
 
 	-- far right, badguys (to prevent non-goalies from entering area.)
-	bcs[8].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX, Bounds.min, colliderZ)}
+	bcs[8].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX, Bounds.min, COLLIDER_Z)}
 
 	-- far left, goodguys FOR GOALIES
-	bcs[9].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN-GOAL_SMOOTHING, Bounds.min, colliderZ)}
+	bcs[9].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN-GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
 
 	-- far right, badguys FOR GOALIES
-	bcs[10].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX+GOAL_SMOOTHING, Bounds.min, colliderZ)}
+	bcs[10].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX+GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
 
 	-- the top of everything
-	bcs[11].box = {Vector(GOAL_X_MAX+offset, Bounds.max+offset, colliderZ-offset), Vector(GOAL_X_MIN-offset, Bounds.min-offset, colliderZ+offset)}
+	local this_offset = 2*offset
+	bcs[11].box = {Vector(GOAL_X_MAX+this_offset, Bounds.max+this_offset, COLLIDER_Z-this_offset), Vector(GOAL_X_MIN-this_offset, Bounds.min-this_offset, COLLIDER_Z+this_offset)}
 
 	-- top of radiant goal post, ball reflector
-	bcs[12].box = {Vector(SCORE_X_MIN-offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MIN, GOAL_Y, colliderZ)}
+	bcs[12].box = {Vector(SCORE_X_MIN-offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MIN, GOAL_Y, COLLIDER_Z)}
 
 	-- top of dire goal post, ball reflector
-	bcs[13].box = {Vector(SCORE_X_MAX+offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MAX, GOAL_Y, colliderZ)}
+	bcs[13].box = {Vector(SCORE_X_MAX+offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MAX, GOAL_Y, COLLIDER_Z)}
 
 	for i,bc in ipairs(bcs) do
 		bc.test = function(self, unit)
@@ -92,8 +92,8 @@ function DotaStrikers:InitMap()
 
 	local gcs = self.gcs
 
-	gcs[1].box = {Vector(RECT_X_MIN+GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MIN-offset, GOAL_Y+GC_INCREASE_SIDE, colliderZ)}
-	gcs[2].box = {Vector(RECT_X_MAX-GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MAX+offset, GOAL_Y+GC_INCREASE_SIDE, colliderZ)}
+	gcs[1].box = {Vector(RECT_X_MIN+GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MIN-offset, GOAL_Y+GC_INCREASE_SIDE, COLLIDER_Z)}
+	gcs[2].box = {Vector(RECT_X_MAX-GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MAX+offset, GOAL_Y+GC_INCREASE_SIDE, COLLIDER_Z)}
 	gcs[1].team = DOTA_TEAM_GOODGUYS
 	gcs[2].team = DOTA_TEAM_BADGUYS
 	--gcs[1].draw=true
@@ -176,33 +176,42 @@ function DotaStrikers:OnGoal(team)
 	end
 
 	local lines = {
-		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
+		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol, true) .. "!!!"
 
 	}
 
 	ShowQuickMessages(lines, .2)
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
+	ball.dontChangeFriction = true
+	ball:SetPhysicsFriction(GROUND_FRICTION*3)
+	CleanUp(ball)
 
 	for _,hero in ipairs(DotaStrikers.vHeroes) do
-		CleanUpHero(hero)
+		CleanUp(hero)
 		if not hero:HasAbility("stun_passive") then
 			hero:AddAbility("stun_passive")
 			hero:FindAbilityByName("stun_passive"):SetLevel(1)
 		end
 	end
 
-	ball:CleanUp()
-
-	local start = 5
+	local start = 3
 	ShowCenterMsg(lastController.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
 	for i=start,1,-1 do
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
+				ball:SetPhysicsVelocity(Vector(0,0,0))
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
 					hero:SetAbsOrigin(hero.spawn_pos)
-					hero:SetMana(hero:GetMaxMana())
+					hero:SetMana(0)
+					-- make them all face the ball (looks nicer)
+					Timers:CreateTimer(.06, function()
+						hero:SetForwardVector((ball:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized())
+						hero:SetMana(hero:GetMaxMana())
+					end)
 				end
 				ball.controller = nil
+				ball.dontChangeFriction = false
+				ball:SetPhysicsFriction(GROUND_FRICTION)
 				ball:SetAbsOrigin(Vector(0,0,GroundZ))
 			end
 			Say(nil, i .. "...", false)
@@ -233,20 +242,33 @@ end
 	if team == DOTA_TEAM_GOODGUYS then
 end]]
 
-function CleanUpHero( hero )
-	hero:SetPhysicsAcceleration(BASE_ACCELERATION)
-	hero:SetPhysicsVelocity(Vector(0,0,0))
-	hero.dontChangeFriction = false
-	hero:SetPhysicsFriction(GROUND_FRICTION)
+function CleanUp( unit )
+	if unit.isDSHero then
+		local hero = unit
+		hero:SetPhysicsAcceleration(BASE_ACCELERATION)
+		hero:SetPhysicsVelocity(Vector(0,0,0))
+		hero.dontChangeFriction = false
+		hero:SetPhysicsFriction(GROUND_FRICTION)
 
-	if hero.isUsingPull then
-		if hero:HasAbility("pull_break") then
-			hero:CastAbilityImmediately(hero:FindAbilityByName("pull_break"), 0)
+		if hero.isUsingPull then
+			if hero:HasAbility("pull_break") then
+				hero:CastAbilityImmediately(hero:FindAbilityByName("pull_break"), 0)
+			end
 		end
+	elseif unit.isBall then
+		print("cleanup ball.")
+		local ball = Ball.unit
+		if ball.affectedByPowershot then
+			ball.affectedByPowershot = false
+			--ball.dontChangeFriction = false
+			ParticleManager:DestroyParticle(ball.powershot_particle, false)
+			ball.affectedByPowershot = false
+		end
+		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
+		--ball:SetPhysicsVelocity(Vector(0,0,0))
+		--ball:SetPhysicsFriction(GROUND_FRICTION)
 	end
-
 end
-
 
 function IsUnitWithinGoalBounds( unit )
 	local pos = unit:GetAbsOrigin()
@@ -306,7 +328,7 @@ function OnBoundsCollision( self, unit, bc, i )
 	if isBall and passTest and not ball.controller and not ball.affectedByPowershot then
 		unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
 	elseif unit.isDSHero and passTest then
-		TryPlayCracks(unit)
+		TryPlayCracks(unit, nil, true)
 	end
 	if passTest then
 		if unit.isAboveGround then

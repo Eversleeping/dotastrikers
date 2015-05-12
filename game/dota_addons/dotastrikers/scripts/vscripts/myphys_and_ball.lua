@@ -1,8 +1,8 @@
 BALL_PARTICLE_Z_OFFSET=45 --this makes the particle look nicer.
 NUM_CATCH_SOUNDS = 3
 
-GROUND_FRICTION = .04
-AIR_FRICTION = .02
+GROUND_FRICTION = .035
+AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
 BALL_COLLISION_DIST = 120
@@ -25,7 +25,6 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	local len3dSq = Length3DSq(currVel)
 	local currTime = GameRules:GetGameTime()
 	unit.velocityMagnitude = len3dSq
-	--unit.velocityDir = 
 
 	if unitPos.z > (GroundZ+20) and not unit.isAboveGround then
 		unit.isAboveGround = true
@@ -64,6 +63,9 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 		if unit.noBounce then
+			if unit.isUsingJump then
+				unit.isUsingJump = false
+			end
 			unit.noBounce = false
 		end
 
@@ -84,7 +86,11 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			-- it's imba is the puller already has the pull and she's using pull.
 			if ball.controller ~= unit then
 				local dirToBall = (Ball.unit:GetAbsOrigin() - unit:GetAbsOrigin()):Normalized()
-				unit:SetPhysicsAcceleration(BASE_ACCELERATION + dirToBall*PULL_ACCEL_FORCE)
+				-- remove the current pull acceleration.
+				unit:SetPhysicsAcceleration(unit:GetPhysicsAcceleration()-unit.currPullAccel)
+				unit.currPullAccel = dirToBall*PULL_ACCEL_FORCE
+				-- add the new one
+				unit:SetPhysicsAcceleration(unit:GetPhysicsAcceleration()+unit.currPullAccel)
 			end
 		end
 	end
@@ -119,6 +125,12 @@ function Ball:Init(  )
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
 	ball.lastBounceTime = 0
 
+	-- this is for black holes.
+	ball.last_bh_accels = {}
+	for i=0,9 do
+		ball.last_bh_accels[i] = Vector(0,0,0)
+	end
+
 	function ball:SpawnParticle(  )
 		-- constantly reposition the ball particle dummy.
 		ball.particleDummy:SetAbsOrigin(Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET))
@@ -133,18 +145,6 @@ function Ball:Init(  )
 		end)
 	end
 
-	function ball:CleanUp(  )
-		if ball.affectedByPowershot then
-			ball.affectedByPowershot = false
-			ball.dontChangeFriction = false
-			ParticleManager:DestroyParticle(ball.powershot_particle, false)
-			ball.affectedByPowershot = false
-		end
-		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
-		ball:SetPhysicsVelocity(Vector(0,0,0))
-		ball:SetPhysicsFriction(GROUND_FRICTION)
-	end
-
 	function ball:IsBallOutOfBounds()
 		local ballPos = ball:GetAbsOrigin()
 		local smoothing = 20
@@ -156,9 +156,14 @@ function Ball:Init(  )
 	DotaStrikers:ApplyDSPhysics(ball)
 
 	ball:OnPhysicsFrame(function(unit)
+		-- don't perform velocity calculations on the ball if it has a controller.
+		if ball.controller then
+			ball:SetPhysicsVelocity(Vector(0,0,0))
+		end
+
 		DotaStrikers:OnMyPhysicsFrame(ball)
 		local ballPos = ball:GetAbsOrigin()
-
+		--print("ball vel: " .. VectorString(ball:GetPhysicsVelocity()))
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
 			local collision = (hero:GetAbsOrigin()-ballPos):Length() <= BALL_COLLISION_DIST
 			--if collision then print ("collision.") end
@@ -240,7 +245,7 @@ function Ball:Init(  )
 			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
 			local ballFV = ball.particleDummy:GetForwardVector()
 
-			if ball.bStarted and ball.velocityMagnitude > 100*100 and ballFV ~= ball.lastForwardVector then
+			if ball.bStarted and ball.velocityMagnitude > 150*150 and ballFV ~= ball.lastForwardVector then
 				ball.lastForwardVector = ballFV
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
@@ -256,15 +261,83 @@ function Ball:Init(  )
 	return ball
 end
 
-function TryPlayCracks( unit )
+function TryPlayCracks( ... )
+	local t = {...}
+	local unit = t[1]
+	local location = t[2]
+	local checkFence = t[3]
 	local ground_thresh = 30
 	local currTime = GameRules:GetGameTime()
 	local unitPos = unit:GetAbsOrigin()
+	local soundPlayed = false
 	if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD and (not unit.lastCrackTime or currTime-unit.lastCrackTime > .3) then
-		EmitSoundAtPosition("ThunderClapCaster", unitPos)
 		if unitPos.z < (GroundZ + ground_thresh) then
-			ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
+			if not location then
+				ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
+			else
+				ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, unit)
+				ParticleManager:SetParticleControl(p, 0, location)
+			end
+			if checkFence then
+				EmitSoundAtPosition("fence_smash_2", unitPos)
+				--print("playfence")
+				soundPlayed = true
+			end
+		end
+		if not soundPlayed then
+			EmitSoundAtPosition("ThunderClapCaster", unitPos)
 		end
 		unit.lastCrackTime = currTime
 	end
+end
+
+function Components:Init( unit )
+	unit.vel_components = {}
+	unit.accel_components = {}
+	local dummy_dump = Vector(4500,-3900,0)
+
+	function unit:VelComponent( ... )
+		local t = {...}
+		local velocityVector = t[1]
+		local name = t[2]
+
+		local possibleExisting = unit.vel_components[name]
+		if possibleExisting and IsValidEntity(possibleExisting) then
+			possibleExisting:RemoveSelf()
+			unit.vel_components[name] = nil
+		end
+
+		local component = CreateUnitByName("dummy", dummy_dump, false, nil, nil, DOTA_TEAM_GOODGUYS)
+		Physics:Unit(component)
+		component:SetPhysicsVelocity(velocityVector)
+		unit.vel_components[name] = component
+	end
+
+	function unit:AccelComponent( ... )
+		local t = {...}
+		local accelerationVector = t[1]
+		local name = t[2]
+
+
+
+	end
+
+	function unit:GetVelComponent( name )
+		if not unit.vel_components[name] or not IsValidEntity(unit.vel_components[name]) then return end
+
+		return unit.vel_components[name]:GetPhysicsVelocity()
+	end
+
+	unit.component_timer = Timers:CreateTimer(function()
+		for name,dummy in pairs(unit.vel_components) do
+			-- ensure the frictions and accelerations are the same as its parent
+			dummy:SetPhysicsFriction(unit:GetPhysicsFriction())
+			dummy:SetPhysicsAcceleration(unit:GetPhysicsAcceleration())
+			-- make the dummy stay in 1 place
+			dummy:SetAbsOrigin(dummy_dump)
+		end
+
+		return .01
+	end)
+
 end

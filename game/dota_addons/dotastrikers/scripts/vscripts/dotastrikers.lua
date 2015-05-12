@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NEXT_FRAME = .033
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -12,6 +12,7 @@ Bounds.min = -1*Bounds.max
 RectangleOffset = 2424-1152
 
 Ball = {}
+Components = {}
 
 ColorStr = 
 {	-- This is plyID+1
@@ -237,9 +238,22 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	table.insert(self.vHeroes, hero)
 	table.insert(self.colliderFilter, hero)
 	self:ApplyDSPhysics(hero)
+	-- my components lib to control velocities better
+	Components:Init(hero)
 
-	if hero:GetClassname() == "npc_dota_hero_antimage" then
+	-- this is for black holes.
+	hero.last_bh_accels = {}
+	for i=0,9 do
+		hero.last_bh_accels[i] = Vector(0,0,0)
+	end
+
+	local classname = hero:GetClassname()
+	if classname == "npc_dota_hero_antimage" then
 		hero.isSprinter = true
+	elseif classname == "npc_dota_hero_slark" then
+		hero.isNinja = true
+	elseif classname == "npc_dota_hero_enigma" then
+		hero.bh_targets = {}
 	end
 
 	local coll = hero:AddColliderFromProfile("momentum")
@@ -255,15 +269,12 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		if rad <= 100 then
 			if collided.isDSHero then
 				if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
-					local location = collider:GetAbsOrigin() + (collided:GetAbsOrigin() - collider:GetAbsOrigin())/2
-					local p = ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, collider)
-					ParticleManager:SetParticleControl(p, 0, location)
-					EmitSoundAtPosition("ThunderClapCaster", location)
+					TryPlayCracks(collider)
 					passTest = true
 				end
 			end
 		end
-		if (collided == ball or collider == ball) and ball.affectedByPowershot then
+		if collided == ball and ball.affectedByPowershot then
 			ball.affectedByPowershot = false
 			ball.dontChangeFriction = false
 			ball:SetPhysicsFriction(GROUND_FRICTION)
@@ -291,10 +302,12 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 		if hero.surgeOn then
 			if currMana <= 0 then
-				if not hero.isSprinter then
-					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
-				else
+				if hero.isSprinter then
 					hero:CastAbilityNoTarget(hero:FindAbilityByName("super_sprint_break"), 0)
+				elseif hero.isNinja then
+					hero:CastAbilityNoTarget(hero:FindAbilityByName("ninja_invis_sprint_break"), 0)
+				else
+					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
 				end
 			end
 			if hero.isSprinter then
@@ -338,14 +351,15 @@ end
 function DotaStrikers:GreetPlayers(  )
 	local lines = 
 	{
-		[1] = ColorIt("Welcome to ", "green") .. ColorIt("DotaStrikers! ", "magenta") .. ColorIt("v0.1", "blue"),
-		[2] = ColorIt("Developer: ", "green") .. ColorIt("Myll", "orange")
+		[1] = "Welcome to " .. ColorIt("Dota Strikers!!", "green"),
+		[2] = "This is a " .. ColorIt("Football", "yellow") .. " game. When you have the ball, press " .. ColorIt("W", "orange") .. " to kick, and " .. ColorIt("E", "orange") .. " to sprint!",
+		[3] = "Some heros have special abilities. Use " .. ColorIt("Q", "orange") .. " to use your hero's special ability!",
+		[4] = "Press " .. ColorIt("D", "orange") .. " and " .. ColorIt("F", "orange") .. " to make your hero say stuff!",
+		[5] = ColorIt("GOOD LUCK, HAVE FUN!!", "pink"),
 	}
 
-	Timers:CreateTimer(4, function()
-		for i,line in ipairs(lines) do
-			GameRules:SendCustomMessage(line, 0, 0)
-		end
+	Timers:CreateTimer(2, function()
+		ShowQuickMessages( lines, 2 )
 	end)
 end
 
@@ -639,9 +653,9 @@ function DotaStrikers:InitDotaStrikers()
 		[5] = "Reverse",
 	}]]
 
-	GlobalDummy = CreateUnitByName("dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
+	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
-	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("dummy_passive")
+	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
 	print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
 	GroundZ = GlobalDummy:GetAbsOrigin().z
 

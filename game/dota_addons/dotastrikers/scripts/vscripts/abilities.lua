@@ -1,17 +1,29 @@
-THROW_VELOCITY = 1600
+THROW_VELOCITY = 1700
 SURGE_TICK = .2
-SLAM_Z = 2500
-SLAM_XY = 1300
-BASE_SPEED = 380
+SLAM_Z = 2100
+SLAM_XY = 1100
 MAX_PULL_DURATION = 4.55
+
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
+
 NINJA_JUMP_Z = 1400
-NINJA_JUMP_XY = 600
+NINJA_JUMP_XY = 900
+
 PULL_ACCEL_FORCE = 2500
+
 SPRINT_ACCEL = 800
 SPRINT_INITIAL_FORCE = 800
 SPRINT_COOLDOWN = 5
+
+BH_RADIUS = 500
+BH_DURATION = 6
+BH_FORCE_MAX = 6000
+BH_FORCE_MIN = 2000
+BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
+--BH_COOLDOWN = 11
+
+KICK_BALL_Z_PUSH = 280
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 NUM_KICK_SOUNDS = 4
@@ -26,8 +38,6 @@ function DotaStrikers:OnAbilityUsed( keys )
 	if abilityname == "slam" then
 
 	end
-
-
 end
 
 function DotaStrikers:OnRefereeAttacked( keys )
@@ -61,8 +71,7 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	ball.dontChangeFriction = true
 	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
-	--ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
-	ball.powershot_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
 	if not Testing then
@@ -79,20 +88,22 @@ function DotaStrikers:throw_ball( keys )
 
 	local point = keys.target_points[1]
 	local ballPos = ball:GetAbsOrigin()
-	-- if caster is above ground, give the ball more of a push in z direction.
-	local newTargetPoint = Vector(point.x,point.y,ballPos.z)
-	--[[if caster.isAboveGround then
-		newTargetPoint = Vector(point.x,point.y,ballPos.z+500)
-	end]]
-	local dir = (newTargetPoint-ballPos):Normalized()
+	local casterPos = caster:GetAbsOrigin()
+	local targetpoint_at_ball_z = Vector(point.x,point.y,ballPos.z)
+
+	local dir = (targetpoint_at_ball_z-ballPos):Normalized()
 
 	if keys.ability:GetAbilityName() == "powershot" then
 		-- begin the channeling portion
 		caster.throw_direction = dir
 		caster:CastAbilityNoTarget(caster:FindAbilityByName("powershot_channel"), 0)
 	else
-		--ball.controller:EmitSound("Hero_Puck.Attack")
-		ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
+		-- if caster is above ground, give the ball more of a push in z direction.
+		if caster.isAboveGround then
+			ball:AddPhysicsVelocity(dir*THROW_VELOCITY + Vector(0,0,KICK_BALL_Z_PUSH))
+		else
+			ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
+		end
 		ball:EmitSound("Kick" .. RandomInt(1, NUM_KICK_SOUNDS))
 		ball.controller = nil
 	end
@@ -104,12 +115,50 @@ function DotaStrikers:surge( keys )
 
 	-- apply effects
 	--particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf
-	--particles/units/heroes/hero_spirit_breaker/spirit_breaker_haste_owner.vpcf
-	--particles/generic_gameplay/rune_haste_owner.vpcf
-	--caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	-- use this 1 for DH
-	--
-	if caster:GetClassname() ~= "npc_dota_hero_antimage" then
+	if caster.isSprinter then
+		caster:RemoveAbility("super_sprint")
+		caster:AddAbility("super_sprint_break")
+		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
+
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster.sprint_fv = caster:GetForwardVector()
+		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
+		caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL
+		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
+		caster:EmitSound("Hero_Weaver.Shukuchi")
+
+		--caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
+
+		-- ensure the sprinter is moving somewhere.
+		Timers:RemoveTimer(caster.sprintTimer)
+		caster.sprintTimer = Timers:CreateTimer(function()
+			if not caster:HasAbility("super_sprint_break") then
+				return
+			end
+			local currPos = caster:GetAbsOrigin()
+			if not caster.lastPos then
+				caster.lastPos = Vector(8000,8000,0)
+			end
+
+			local distTraveled = (currPos-caster.lastPos):Length()
+			--print("distTraveled: " .. distTraveled)
+			if distTraveled ~= 0 and distTraveled < 20 then
+				caster:CastAbilityImmediately(caster:FindAbilityByName("super_sprint_break"), 0)
+				caster.lastPos = Vector(8000,8000,0)
+			end
+
+			caster.lastPos = currPos
+			return .1
+		end)
+	elseif caster.isNinja then
+		caster:RemoveAbility("ninja_invis_sprint")
+		caster:AddAbility("ninja_invis_sprint_break")
+		caster:FindAbilityByName("ninja_invis_sprint_break"):SetLevel(1)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/ninja_invis_sprint/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster:EmitSound("Hero_BountyHunter.WindWalk")
+		ParticleManager:CreateParticle("particles/units/heroes/hero_bounty_hunter/bounty_hunter_windwalk.vpcf", PATTACH_ABSORIGIN, caster)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+	else
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
@@ -125,41 +174,6 @@ function DotaStrikers:surge( keys )
 		caster:RemoveItem(phaseBoots)
 
 		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
-	else
-		caster:RemoveAbility("super_sprint")
-		caster:AddAbility("super_sprint_break")
-		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
-
-		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-		--caster.dontChangeFriction = true
-		--caster:SetPhysicsFriction(0)
-		--caster:AddPhysicsVelocity(caster:GetForwardVector()*400)
-		caster.sprint_fv = caster:GetForwardVector()
-		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
-		caster:AddPhysicsAcceleration(caster.sprint_fv*SPRINT_ACCEL)
-		caster:EmitSound("Hero_Weaver.Shukuchi")
-
-		-- ensure the sprinter is moving somewhere.
-		Timers:RemoveTimer(caster.sprintTimer)
-		caster.sprintTimer = Timers:CreateTimer(function()
-			if not caster:HasAbility("super_sprint_break") then
-				return
-			end
-			local currPos = caster:GetAbsOrigin()
-			if not caster.lastPos then
-				caster.lastPos = Vector(8000,8000,0)
-			end
-
-			local distTraveled = (currPos-caster.lastPos):Length()
-			print("distTraveled: " .. distTraveled)
-			if distTraveled ~= 0 and distTraveled < 20 then
-				caster:CastAbilityImmediately(caster:FindAbilityByName("super_sprint_break"), 0)
-				caster.lastPos = Vector(8000,8000,0)
-			end
-
-			caster.lastPos = currPos
-			return .1
-		end)
 	end
 end
 
@@ -167,27 +181,40 @@ function DotaStrikers:surge_break( keys )
 	local caster = keys.caster
 	caster.surgeOn = false
 
-	if caster:GetClassname() ~= "npc_dota_hero_antimage" then
-		caster:RemoveAbility("surge_break")
-		caster:AddAbility("surge")
-		caster:FindAbilityByName("surge"):SetLevel(1)
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
-
-	else
+	if caster.isSprinter then
 		caster:RemoveAbility("super_sprint_break")
 		caster:AddAbility("super_sprint")
 		local super_sprint = caster:FindAbilityByName("super_sprint")
 		super_sprint:SetLevel(1)
-		caster:SetPhysicsAcceleration(BASE_ACCELERATION)
+		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
 		if not Testing then
 			super_sprint:StartCooldown(SPRINT_COOLDOWN)
 		else
 			super_sprint:EndCooldown()
 			caster:SetMana(caster:GetMaxMana())
 		end
+		--[[if caster:HasModifier("modifier_rune_haste") then
+			caster:RemoveModifierByName("modifier_rune_haste")
+		end]]
 		--caster:EmitSound("Hero_Slardar.MovementSprint")
+	elseif caster.isNinja then
+		caster:RemoveAbility("ninja_invis_sprint_break")
+		caster:AddAbility("ninja_invis_sprint")
+		local ninja_invis_sprint = caster:FindAbilityByName("ninja_invis_sprint")
+		ninja_invis_sprint:SetLevel(1)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+		if caster:HasModifier("modifier_ninja_invis") then
+			caster:RemoveModifierByName("modifier_ninja_invis")
+		end
+	else
+		caster:RemoveAbility("surge_break")
+		caster:AddAbility("surge")
+		caster:FindAbilityByName("surge"):SetLevel(1)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	end
-	ParticleManager:DestroyParticle(caster.surgeParticle, false)
+	if caster.surgeParticle then
+		ParticleManager:DestroyParticle(caster.surgeParticle, false)
+	end
 end
 
 function DotaStrikers:pull( keys )
@@ -199,6 +226,7 @@ function DotaStrikers:pull( keys )
 		return
 	end
 
+	caster.currPullAccel = Vector(0,0,0)
 	caster.isUsingPull = true
 	caster:RemoveAbility("pull")
 	caster:AddAbility("pull_break")
@@ -238,7 +266,7 @@ function DotaStrikers:pull_break( keys )
 	Timers:RemoveTimer(caster.pull_timer)
 
 	-- revert acceleration
-	caster:SetPhysicsAcceleration(BASE_ACCELERATION)
+	caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.currPullAccel)
 
 	-- give hero one final push
 	--local dirToBall = (Ball.unit:GetAbsOrigin() - caster:GetAbsOrigin()):Normalized()
@@ -268,6 +296,7 @@ function DotaStrikers:ninja_jump( keys )
 	local caster = keys.caster
 	caster:AddPhysicsVelocity(caster:GetForwardVector()*NINJA_JUMP_XY + Vector(0,0,NINJA_JUMP_Z))
 	caster.noBounce = true
+	caster.isUsingJump = true
 
 	if Testing then keys.ability:EndCooldown() end
 end
@@ -363,5 +392,99 @@ function DotaStrikers:slam( keys )
 
 	if Testing then
 		keys.ability:EndCooldown()
+	end
+end
+
+function DotaStrikers:black_hole( keys )
+	local caster = keys.caster
+	local ball = Ball.unit
+	local point = keys.target_points[1]
+	local casterID = caster:GetPlayerID()
+
+	caster.bh_particle = ParticleManager:CreateParticle("particles/black_hole/enigma_blackhole.vpcf", PATTACH_CUSTOMORIGIN, caster)
+	ParticleManager:SetParticleControl(caster.bh_particle, 0, point)
+
+	-- adjust the z level of the point
+	point = Vector(point.x,point.y,point.z+(BH_RADIUS/2))
+
+	local time_quantum = .033
+	--local ents = Entities:FindAllInSphere(point, BH_RADIUS)
+	caster.bh_timer = Timers:CreateTimer(function()
+		OnBHThink(caster, point, casterID, ball)
+		return time_quantum
+	end)
+
+	caster.bh_max_growth_endtime = GameRules:GetGameTime()+BH_TIME_TILL_MAX_GROWTH
+	caster.bh_growth_interval = (BH_FORCE_MAX/BH_TIME_TILL_MAX_GROWTH)*time_quantum
+	caster.bh_endtime = GameRules:GetGameTime() + BH_DURATION
+	caster.bh_curr_force = 700
+
+	-- end timer
+	Timers:CreateTimer(BH_DURATION, function()
+		Timers:RemoveTimer(caster.bh_timer)
+		ParticleManager:DestroyParticle(caster.bh_particle, false)
+
+		for i,hero in ipairs(DotaStrikers.colliderFilter) do
+			if hero ~= caster then
+				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
+				hero.last_bh_accels[casterID] = Vector(0,0,0)
+			end
+		end
+
+		--hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()+hero.last_bh_accels[casterID])
+	end)
+
+	if Testing then
+		keys.ability:EndCooldown()
+	end
+end
+
+function OnBHThink( caster, point, casterID, ball )
+	local currTime = GameRules:GetGameTime()
+
+	-- increase the force
+	--[[if currTime < caster.bh_max_growth_endtime then
+		caster.bh_curr_force = caster.bh_curr_force + caster.bh_growth_interval
+		print(caster.bh_curr_force)
+	else
+		caster.bh_curr_force = BH_FORCE_MAX
+	end]]
+	caster.bh_curr_force = BH_FORCE_MAX
+
+	for i,hero in ipairs(DotaStrikers.colliderFilter) do
+		--print("hi.")
+		if hero ~= caster then
+			--print("Point: " .. VectorString(point))
+			local p1 = hero:GetAbsOrigin()
+			local pID = 20 -- 20 is the ball
+			if hero ~= ball then
+				pID = hero:GetPlayerID()
+			end
+			--print("len: " .. (point-p1):Length())
+			local len = (point-p1):Length()
+			local force = (len/BH_RADIUS)*caster.bh_curr_force
+			if force < BH_FORCE_MIN then
+				force = BH_FORCE_MIN
+			end
+			if len <= (BH_RADIUS) then
+				--print(hero:GetClassname() .. " is in the BH.")
+				if not caster.bh_targets[pID] then
+					caster.bh_targets[pID] = true
+				end
+				-- apply delta acceleration
+				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
+				local dir = (point-p1):Normalized()
+				hero.last_bh_accels[casterID] = dir*force
+				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()+hero.last_bh_accels[casterID])
+			else
+				if hero.last_bh_accels[casterID] ~= Vector(0,0,0) then
+					hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
+					hero.last_bh_accels[casterID] = Vector(0,0,0)
+				end
+				if caster.bh_targets[pID] then
+					caster.bh_targets[pID] = false
+				end
+			end
+		end
 	end
 end

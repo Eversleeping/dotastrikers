@@ -5,6 +5,35 @@
 {
 	"Version"		"1"
 
+	"black_hole"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_AOE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"enigma_black_hole"
+		"MaxLevel"						"1"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"2000"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"11"
+		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
+		"AOERadius"						"250" // half of BH_RADIUS
+
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"Target"				"POINT"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"black_hole"
+			}
+
+		}
+	}
+
 	"powershot_channel"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_CHANNELLED"
@@ -40,7 +69,7 @@
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
-		"AbilityCastPoint"				"0.0"
+		"AbilityCastPoint"				"0"
 		"AbilityCooldown"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
 
@@ -58,6 +87,100 @@
 		}
 	}
 
+	"ninja_invis_sprint_break"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"ninja_invis_sprint_break"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge_break"
+			}
+		}
+	}
+
+	"ninja_invis_sprint"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"clinkz_wind_walk"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
+		
+		"precache"
+		{
+			"particle"		"particles\units\heroes\hero_pugna\pugna_decrepify.vpcf"
+			
+		}
+
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"movespeed_increase"		"33"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"20"
+			}
+			"03"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_recovery_rate"		"10"
+			}
+		}
+
+		"OnSpellStart"
+		{
+			"ApplyModifier"
+			{
+				"ModifierName"	"modifier_ninja_invis"
+				"Target" 		"CASTER"
+			}
+
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_ninja_invis"
+			{
+				"EffectName"		"particles\units\heroes\hero_pugna\pugna_decrepify.vpcf"
+				"EffectAttachType"	"follow_overhead"
+				"TextureName"     	"slark_dark_pact"
+				"States"
+				{
+					"MODIFIER_STATE_INVISIBLE"		"MODIFIER_STATE_VALUE_ENABLED"
+				}
+				
+			}
+		}
+
+	}
+
 	"ninja_jump"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
@@ -72,8 +195,8 @@
 		"AnimationPlaybackRate"			".5"
 		"AbilityCooldown"				"8"
 
-		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
 		
 		"OnSpellStart"
 		{
@@ -106,6 +229,7 @@
 				"Function"				"surge"
 			}
 		}
+
 		"AbilitySpecial"
 		{
 			"01"
@@ -125,7 +249,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"centaur_stampede"
+		"AbilityTextureName"			"super_sprint_break"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
@@ -611,6 +735,31 @@
 					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
+		}
+	}
+  
+	"global_dummy_passive"
+	{
+		"AbilityBehavior" 			"DOTA_ABILITY_BEHAVIOR_PASSIVE"
+		"BaseClass" 					"ability_datadriven"
+		"AbilityTextureName"            "rubick_empty1"
+		"MaxLevel"                      "1"
+
+		"Modifiers"
+		{
+			"modifier_dummy_passive"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"States"
+				{
+					"MODIFIER_STATE_INVULNERABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
+				}
+			}
 			"modifier_flail_passive"
 			{
 				"Passive"                        "1"
@@ -625,7 +774,7 @@
 			}
 		}
 	}
-  
+
     "dotastrikers_empty1"
 	{
 		// General

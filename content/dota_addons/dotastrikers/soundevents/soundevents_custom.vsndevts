@@ -1,3 +1,117 @@
+"fence_smash_2"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/ambient/tut_fencesmash_small.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"fence_smash_1"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "value0"        "sounds/ambient/tut_fencesmash.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
 "Round_End3"
 {
     "operator_stacks"
@@ -190,11 +304,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.400000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.700000"
                     }
                     "pitch_min"
                     {
@@ -214,11 +328,15 @@
                     }
                     "soundlevel_min"
                     {
-                        "value"     "100.000000"
+                        "value"     "75.000000"
                     }
                     "soundlevel_max"
                     {
-                        "value"     "100.000000"
+                        "value"     "75.000000"
+                    }
+                    "distance_max"
+                    {
+                        "value"     "9999.000000"
                     }
                 }
             }
@@ -247,11 +365,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -303,11 +421,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -359,11 +477,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -415,11 +533,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -471,11 +589,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -527,11 +645,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -583,11 +701,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -639,11 +757,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -695,11 +813,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -751,11 +869,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -807,11 +925,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {
@@ -863,11 +981,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "volume_max"
                     {
-                        "value"     "1.000000"
+                        "value"     "0.800000"
                     }
                     "pitch_min"
                     {

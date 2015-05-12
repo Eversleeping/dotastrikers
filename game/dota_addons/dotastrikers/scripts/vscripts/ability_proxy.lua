@@ -37,3 +37,11 @@ end
 function slam( keys )
 	DotaStrikers:slam(keys)
 end
+
+function ninja_invis_sprint( keys )
+	DotaStrikers:ninja_invis_sprint(keys)
+end
+
+function black_hole( keys )
+	DotaStrikers:black_hole(keys)
+end
