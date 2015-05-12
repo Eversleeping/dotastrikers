@@ -16,10 +16,10 @@ SPRINT_ACCEL = 800
 SPRINT_INITIAL_FORCE = 800
 SPRINT_COOLDOWN = 5
 
-BH_RADIUS = 500
+BH_RADIUS = 420
 BH_DURATION = 6
-BH_FORCE_MAX = 6000
-BH_FORCE_MIN = 2000
+BH_FORCE_MAX = 5000
+BH_FORCE_MIN = 3000
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
@@ -115,6 +115,7 @@ function DotaStrikers:surge( keys )
 	-- apply effects
 	--particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf
 	if caster.isSprinter then
+		print("super_sprint active.")
 		caster:RemoveAbility("super_sprint")
 		caster:AddAbility("super_sprint_break")
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
@@ -181,6 +182,7 @@ function DotaStrikers:surge_break( keys )
 	caster.surgeOn = false
 
 	if caster.isSprinter then
+		print("super_sprint removed.")
 		caster:RemoveAbility("super_sprint_break")
 		caster:AddAbility("super_sprint")
 		local super_sprint = caster:FindAbilityByName("super_sprint")
@@ -201,7 +203,9 @@ function DotaStrikers:surge_break( keys )
 		caster:AddAbility("ninja_invis_sprint")
 		local ninja_invis_sprint = caster:FindAbilityByName("ninja_invis_sprint")
 		ninja_invis_sprint:SetLevel(1)
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+		-- we need to add 1 apparently because going back and forth between the values decreases the movespeed
+		-- by 1 each time. No idea why.
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR+1)
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
@@ -209,7 +213,7 @@ function DotaStrikers:surge_break( keys )
 		caster:RemoveAbility("surge_break")
 		caster:AddAbility("surge")
 		caster:FindAbilityByName("surge"):SetLevel(1)
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR+1)
 	end
 	if caster.surgeParticle then
 		ParticleManager:DestroyParticle(caster.surgeParticle, false)
@@ -399,12 +403,15 @@ function DotaStrikers:black_hole( keys )
 	local ball = Ball.unit
 	local point = keys.target_points[1]
 	local casterID = caster:GetPlayerID()
-
-	caster.bh_particle = ParticleManager:CreateParticle("particles/black_hole/enigma_blackhole.vpcf", PATTACH_CUSTOMORIGIN, caster)
-	ParticleManager:SetParticleControl(caster.bh_particle, 0, point)
+	local bh_z = BH_RADIUS*.7
 
 	-- adjust the z level of the point
-	point = Vector(point.x,point.y,point.z+(BH_RADIUS/2))
+	point = Vector(point.x,point.y,point.z+bh_z)
+
+	--particles/black_hole/enigma_blackhole.vpcf
+	caster.bh_particle = ParticleManager:CreateParticle("particles/black_hole/enigma_blackhole.vpcf", PATTACH_CUSTOMORIGIN, caster)
+	ParticleManager:SetParticleControl(caster.bh_particle, 0, point)
+	EmitSoundAtPosition("Hero_Enigma.Black_Hole", point, BH_DURATION)
 
 	local time_quantum = .033
 	--local ents = Entities:FindAllInSphere(point, BH_RADIUS)
@@ -422,6 +429,7 @@ function DotaStrikers:black_hole( keys )
 	Timers:CreateTimer(BH_DURATION, function()
 		Timers:RemoveTimer(caster.bh_timer)
 		ParticleManager:DestroyParticle(caster.bh_particle, false)
+		EmitSoundAtPosition("Hero_Enigma.Black_Hole.Stop", point)
 
 		for i,hero in ipairs(DotaStrikers.colliderFilter) do
 			if hero ~= caster then
@@ -466,11 +474,9 @@ function OnBHThink( caster, point, casterID, ball )
 				force = BH_FORCE_MIN
 			end
 			if len <= (BH_RADIUS) then
-				--print(hero:GetClassname() .. " is in the BH.")
 				if not caster.bh_targets[pID] then
 					caster.bh_targets[pID] = true
 				end
-				-- apply delta acceleration
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
 				local dir = (point-p1):Normalized()
 				hero.last_bh_accels[casterID] = dir*force

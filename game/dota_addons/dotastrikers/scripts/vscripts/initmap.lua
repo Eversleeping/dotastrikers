@@ -155,6 +155,7 @@ function DotaStrikers:OnGoal(team)
 	end
 	DotaStrikers.lastGoalTime = currTime
 	print("OnGoal")
+	RoundOver = true
 	local ball = Ball.unit
 	local lastController = ball.lastController
 	lastController.personalScore = lastController.personalScore + 1
@@ -176,42 +177,72 @@ function DotaStrikers:OnGoal(team)
 	end
 
 	local lines = {
-		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol, true) .. "!!!"
+		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
 
 	}
 
 	ShowQuickMessages(lines, .2)
+
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
+
 	ball.dontChangeFriction = true
+
 	ball:SetPhysicsFriction(GROUND_FRICTION*3)
+
 	CleanUp(ball)
 
+	-- hero is going to activate the surge/sprint break ability at this point. we cant silence or stun him yet.
 	for _,hero in ipairs(DotaStrikers.vHeroes) do
-		CleanUp(hero)
-		if not hero:HasAbility("stun_passive") then
-			hero:AddAbility("stun_passive")
-			hero:FindAbilityByName("stun_passive"):SetLevel(1)
-		end
+		hero:SetMana(2)
 	end
+
+	Timers:CreateTimer(.06, function()
+		for _,hero in ipairs(DotaStrikers.vHeroes) do
+			CleanUp(hero)
+			--print("accel: " .. VectorString(hero:GetPhysicsAcceleration()))
+			AddStun(hero)
+			AddSilence(hero)
+		end
+	end)
 
 	local start = 3
 	ShowCenterMsg(lastController.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
 	for i=start,1,-1 do
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
-				ball:SetPhysicsVelocity(Vector(0,0,0))
+				--ball:SetPhysicsVelocity(Vector(0,0,0))
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
-					hero:SetAbsOrigin(hero.spawn_pos)
-					hero:SetMana(0)
+					AddEndgameRoot(hero)
+					RemoveStun(hero)
+
+					-- NOTE: make sure to do all physics stop BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
+					hero.dontChangeFriction = false
+					hero:SetPhysicsFriction(GROUND_FRICTION)
+					hero:StopPhysicsSimulation()
+
+					if hero:HasModifier("modifier_flail_passive") then
+						hero:RemoveModifierByName("modifier_flail_passive")
+					end
+
+					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
+
 					-- make them all face the ball (looks nicer)
 					Timers:CreateTimer(.06, function()
 						hero:SetForwardVector((ball:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized())
 						hero:SetMana(hero:GetMaxMana())
+						Timers:CreateTimer(.06, function()
+							AddStun(hero)
+							RemoveEndgameRoot(hero)
+							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
+						end)
 					end)
+
 				end
 				ball.controller = nil
 				ball.dontChangeFriction = false
 				ball:SetPhysicsFriction(GROUND_FRICTION)
+				ball:StopPhysicsSimulation()
+
 				ball:SetAbsOrigin(Vector(0,0,GroundZ))
 			end
 			Say(nil, i .. "...", false)
@@ -220,13 +251,15 @@ function DotaStrikers:OnGoal(team)
 
 	Timers:CreateTimer(TIME_TILL_NEXT_ROUND, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
-			if hero:HasAbility("stun_passive") then
-				hero:RemoveAbility("stun_passive")
-				hero:RemoveModifierByName("modifier_stun_passive")
-			end
+			RemoveStun(hero)
+			RemoveSilence(hero)
+			hero:StartPhysicsSimulation()
+			hero:SetPhysicsAcceleration(BASE_ACCELERATION)
+			hero:SetPhysicsVelocity(Vector(0,0,0))
 		end
-
-		ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
+		ball:StartPhysicsSimulation()
+		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
+		ball:SetPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 
 		Say(nil, "PLAY!!", false)
 	end)
@@ -245,28 +278,18 @@ end]]
 function CleanUp( unit )
 	if unit.isDSHero then
 		local hero = unit
-		hero:SetPhysicsAcceleration(BASE_ACCELERATION)
-		hero:SetPhysicsVelocity(Vector(0,0,0))
-		hero.dontChangeFriction = false
-		hero:SetPhysicsFriction(GROUND_FRICTION)
-
 		if hero.isUsingPull then
 			if hero:HasAbility("pull_break") then
 				hero:CastAbilityImmediately(hero:FindAbilityByName("pull_break"), 0)
 			end
 		end
 	elseif unit.isBall then
-		print("cleanup ball.")
 		local ball = Ball.unit
 		if ball.affectedByPowershot then
 			ball.affectedByPowershot = false
-			--ball.dontChangeFriction = false
 			ParticleManager:DestroyParticle(ball.powershot_particle, false)
 			ball.affectedByPowershot = false
 		end
-		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
-		--ball:SetPhysicsVelocity(Vector(0,0,0))
-		--ball:SetPhysicsFriction(GROUND_FRICTION)
 	end
 end
 
@@ -348,5 +371,43 @@ function DotaStrikers:OnCantEnter( unit )
 		ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-70) + Vector(fv.x,fv.y,0)*40)
 		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
 		unit.lastShieldParticleTime = currTime
+	end
+end
+
+function AddStun( hero )
+	if not hero:HasAbility("stun_passive") then
+		hero:AddAbility("stun_passive")
+		hero:FindAbilityByName("stun_passive"):SetLevel(1)
+	end
+end
+
+function RemoveStun( hero )
+	if hero:HasAbility("stun_passive") then
+		hero:RemoveAbility("stun_passive")
+		hero:RemoveModifierByName("modifier_stun_passive")
+	end
+end
+
+function AddSilence( hero )
+	if not hero:HasModifier("modifier_endround_silenced_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_silenced_passive", {})
+	end
+end
+
+function RemoveSilence( hero )
+	if hero:HasModifier("modifier_endround_silenced_passive") then
+		hero:RemoveModifierByName("modifier_endround_silenced_passive")
+	end
+end
+
+function AddEndgameRoot( hero )
+	if not hero:HasModifier("modifier_endround_rooted_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_rooted_passive", {})
+	end
+end
+
+function RemoveEndgameRoot( hero )
+	if hero:HasModifier("modifier_endround_rooted_passive") then
+		hero:RemoveModifierByName("modifier_endround_rooted_passive")
 	end
 end

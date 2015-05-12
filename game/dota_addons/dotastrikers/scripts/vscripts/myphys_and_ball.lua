@@ -14,7 +14,7 @@ NUM_BOUNCE_SOUNDS = 5
 NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
 
-BALL_ROUNDSTART_KICK = {230,280}
+BALL_ROUNDSTART_KICK = {230,260}
 CONTROLLER_MOVESPEED_FACTOR = 1/5
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
@@ -271,19 +271,20 @@ function TryPlayCracks( ... )
 	local unitPos = unit:GetAbsOrigin()
 	local soundPlayed = false
 	if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD and (not unit.lastCrackTime or currTime-unit.lastCrackTime > .3) then
-		if unitPos.z < (GroundZ + ground_thresh) then
-			if not location then
-				ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
-			else
-				ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, unit)
-				ParticleManager:SetParticleControl(p, 0, location)
-			end
-			if checkFence then
-				EmitSoundAtPosition("fence_smash_2", unitPos)
-				--print("playfence")
-				soundPlayed = true
-			end
+		--if unitPos.z < (GroundZ + ground_thresh) then
+		if not location then
+			ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
+		else
+			ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_CUSTOMORIGIN, unit)
+			ParticleManager:SetParticleControl(p, 0, location)
 		end
+		--end
+
+		if checkFence then
+			EmitSoundAtPosition("fence_smash_2", unitPos)
+			soundPlayed = true
+		end
+
 		if not soundPlayed then
 			EmitSoundAtPosition("ThunderClapCaster", unitPos)
 		end

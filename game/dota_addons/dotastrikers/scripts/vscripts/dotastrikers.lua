@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = true
+Testing = false
 NEXT_FRAME = .033
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -110,9 +110,15 @@ function DotaStrikers:PlayerSay( keys )
 	if txt == nil or txt == "" then
 		return
 	end
-
-  -- At this point we have valid text from a player.
-	--print("P" .. ply .. " wrote: " .. keys.text)
+	--print("txt: " .. txt)
+	if txt == "pancamera" then
+		PlayerResource:SetCameraTarget(ply:GetPlayerID(), Ball.unit)
+		--print("pancamera")
+	end
+	if txt == "pancamera_off" then
+		PlayerResource:SetCameraTarget(ply:GetPlayerID(), nil)
+		--print("pancamera")
+	end
 end
 
 -- Cleanup a player when they leave
@@ -233,6 +239,20 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		--hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
+	--[[Timers:CreateTimer(function()
+		print(VectorString(hero:GetPlayerOwner():GetAbsOrigin()))
+		local vect = hero:GetPlayerOwner():GetAbsOrigin()
+		local newVect = RotatePosition(vect, QAngle(30,0,0), Vector(0,0,0))
+		DebugDrawCircle(Vector(newVect.x, newVect.y, GroundZ+1), Vector(255,0,0), 30, 30, false, .03)
+		return .01
+	end)]]
+	Timers:CreateTimer(function()
+		if hero.isSprinter then
+			--print(VectorString(hero:GetPhysicsAcceleration()))
+		end
+		return .01
+	end)
+
 	hero.isDSHero = true
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
@@ -303,11 +323,17 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		if hero.surgeOn then
 			if currMana <= 0 then
 				if hero.isSprinter then
-					hero:CastAbilityNoTarget(hero:FindAbilityByName("super_sprint_break"), 0)
+					if hero:HasAbility("super_sprint_break") then
+						hero:CastAbilityNoTarget(hero:FindAbilityByName("super_sprint_break"), 0)
+					end
 				elseif hero.isNinja then
-					hero:CastAbilityNoTarget(hero:FindAbilityByName("ninja_invis_sprint_break"), 0)
+					if hero:HasAbility("ninja_invis_sprint_break") then
+						hero:CastAbilityNoTarget(hero:FindAbilityByName("ninja_invis_sprint_break"), 0)
+					end
 				else
-					hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
+					if hero:HasAbility("surge_break") then
+						hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
+					end
 				end
 			end
 			if hero.isSprinter then
@@ -656,8 +682,11 @@ function DotaStrikers:InitDotaStrikers()
 	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
-	print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
+	--print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
 	GroundZ = GlobalDummy:GetAbsOrigin().z
+
+	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
+	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
 
 	Timers:CreateTimer(.06, function()
 		DotaStrikers:InitMap()

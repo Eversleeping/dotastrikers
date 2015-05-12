@@ -12,10 +12,21 @@ function GetTeammates( hero )
 	return teammates
 end
 
-function EmitSoundAtPosition( soundName, pos )
+function EmitSoundAtPosition( ... )
+	local t = {...}
+	local soundName = t[1]
+	local pos = t[2]
+	local duration = t[3]
 	local soundDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_GOODGUYS)
 	soundDummy:EmitSound(soundName)
-	soundDummy:ForceKill(true)
+	if not duration then
+		soundDummy:ForceKill(true)
+	else
+		Timers:CreateTimer(duration, function()
+			soundDummy:StopSound(soundName)
+			soundDummy:ForceKill(true)
+		end)
+	end
 end
 
 function ShowQuickMessages( linesTable, durBetweenLines )
@@ -262,7 +273,7 @@ function ColorIt( ... )
 		elseif sColor == "pink" then
 			color = "DDA0DD"
 		elseif sColor == "red" then
-			color = "FF6347"
+			color = "FF0033"
 		elseif sColor == "cyan" then
 			color = "00FFFF"
 		elseif sColor == "yellow" then
