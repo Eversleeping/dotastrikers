@@ -3,6 +3,7 @@ requires = {
 	'util',
 	'timers',
 	'physics',
+	--'newphysics',
 	'dotastrikers',
 	'initmap',
 	'referee',

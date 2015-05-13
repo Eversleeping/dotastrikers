@@ -115,7 +115,6 @@ function DotaStrikers:surge( keys )
 	-- apply effects
 	--particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf
 	if caster.isSprinter then
-		print("super_sprint active.")
 		caster:RemoveAbility("super_sprint")
 		caster:AddAbility("super_sprint_break")
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
@@ -125,6 +124,18 @@ function DotaStrikers:surge( keys )
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
 		caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
+
+		--[[local component = caster:PhysicsComponent("super_sprint")
+		component:SetPhysicsAcceleration(caster.sprint_accel)
+		component:OnPhysicsFrame(function(param)
+			if component:GetPhysicsFriction() ~= caster:GetPhysicsFriction() then
+				component:SetPhysicsFriction(caster:GetPhysicsFriction())
+				--local dir = caster:GetPhysicsVelocity():Normalized()
+				--component:SetPhysicsVelocity()
+			end
+		end)
+		caster.super_sprint_component = component]]
+
 		caster:EmitSound("Hero_Weaver.Shukuchi")
 
 		--caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
@@ -182,12 +193,16 @@ function DotaStrikers:surge_break( keys )
 	caster.surgeOn = false
 
 	if caster.isSprinter then
-		print("super_sprint removed.")
 		caster:RemoveAbility("super_sprint_break")
 		caster:AddAbility("super_sprint")
 		local super_sprint = caster:FindAbilityByName("super_sprint")
 		super_sprint:SetLevel(1)
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
+
+		--[[ remove most of the vel gained from that sprint
+		local comp = caster.super_sprint_component
+		local compVel = comp:GetPhysicsVelocity()]]
+
 		if not Testing then
 			super_sprint:StartCooldown(SPRINT_COOLDOWN)
 		else

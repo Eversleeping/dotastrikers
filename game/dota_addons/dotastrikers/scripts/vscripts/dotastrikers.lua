@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NEXT_FRAME = .033
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)

@@ -293,52 +293,47 @@ function TryPlayCracks( ... )
 end
 
 function Components:Init( unit )
-	unit.vel_components = {}
-	unit.accel_components = {}
-	local dummy_dump = Vector(4500,-3900,0)
+	unit.physics_components = {}
+	self.dummy_dump = Vector(-4500,-3900,0)
+	local dummy_dump = self.dummy_dump
+	local components = unit.physics_components
 
-	function unit:VelComponent( ... )
+	function unit:PhysicsComponent( ... )
 		local t = {...}
 		local velocityVector = t[1]
 		local name = t[2]
 
-		local possibleExisting = unit.vel_components[name]
+		if type(velocityVector) ~= "userdata" then
+			name = t[1]
+			velocityVector = Vector(0,0,0)
+		end
+
+		local possibleExisting = components[name]
 		if possibleExisting and IsValidEntity(possibleExisting) then
 			possibleExisting:RemoveSelf()
-			unit.vel_components[name] = nil
+			components[name] = nil
 		end
 
 		local component = CreateUnitByName("dummy", dummy_dump, false, nil, nil, DOTA_TEAM_GOODGUYS)
 		Physics:Unit(component)
 		component:SetPhysicsVelocity(velocityVector)
-		unit.vel_components[name] = component
-	end
+		components[name] = component
 
-	function unit:AccelComponent( ... )
-		local t = {...}
-		local accelerationVector = t[1]
-		local name = t[2]
-
-
-
-	end
-
-	function unit:GetVelComponent( name )
-		if not unit.vel_components[name] or not IsValidEntity(unit.vel_components[name]) then return end
-
-		return unit.vel_components[name]:GetPhysicsVelocity()
-	end
-
-	unit.component_timer = Timers:CreateTimer(function()
-		for name,dummy in pairs(unit.vel_components) do
-			-- ensure the frictions and accelerations are the same as its parent
-			dummy:SetPhysicsFriction(unit:GetPhysicsFriction())
-			dummy:SetPhysicsAcceleration(unit:GetPhysicsAcceleration())
+		component:OnPhysicsFrame(function(x)
 			-- make the dummy stay in 1 place
-			dummy:SetAbsOrigin(dummy_dump)
+			component:SetAbsOrigin(dummy_dump)
+		end)
+
+		function component:RemoveComponent(  )
+			if not component or not IsValidEntity(component) then return end
+			components:ForceKill(true)
+			components[name] = nil
 		end
 
-		return .01
-	end)
+		return component
+	end
+end
 
+function Components:SetDummyDumpVector( vec )
+	self.dummy_dump = vec
 end
