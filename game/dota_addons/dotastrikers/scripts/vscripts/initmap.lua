@@ -14,8 +14,8 @@ SCORE_X_MAX = RECT_X_MAX+270
 SCORE_X_MIN = -1*SCORE_X_MAX
 
 GOAL_OUTWARDNESS = 400
-GOAL_LESSEN_SIDE = 20 -- lesses the y-length of the goal post (for goalies), helps with model clipping into fences.
-GC_INCREASE_SIDE = 30 -- increases the y-length of the goal collider. 
+GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), helps with model clipping into fences.
+GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 15000
 
 function DotaStrikers:InitMap()
@@ -110,24 +110,25 @@ function DotaStrikers:InitMap()
 				-- if the unit isn't the ball and there's a goalie in there, collision occurs.
 				passTest = true
 				if unit:GetTeamNumber() == gc.team then
-					ShowErrorMsg(unit, "Your team already has a goalie")
+					ShowErrorMsg(unit, "#already_has_goalie")
 				else
-					ShowErrorMsg(unit, "Can't enter enemy goal post")
+					ShowErrorMsg(unit, "#cant_enter_enemy_goal_post")
 				end
 			elseif unit == ball then
 				passTest = false
 			elseif not gc.goalie and unit ~= ball and unit:GetTeamNumber() == gc.team then
 				-- if there's nobody in the goal and the unit isn't the ball and he's on the same team as this goal post, then let the unit in.
-				--print("new goalie in net.")
+				print("new goalie")
 				gc.goalie = unit
 				unit.goalie = true
+				unit.timeBecameGoalie = GameRules:GetGameTime()
 				passTest = false
 			else
 				passTest = true
 				-- people can't enter enemy goal posts.
 				if unit:GetTeamNumber() ~= gc.team then
 					--print("cant enter")
-					ShowErrorMsg(unit, "Can't enter enemy goal post")
+					ShowErrorMsg(unit, "#cant_enter_enemy_goal_post")
 				end
 				
 			end
@@ -157,8 +158,8 @@ function DotaStrikers:OnGoal(team)
 	print("OnGoal")
 	RoundOver = true
 	local ball = Ball.unit
-	local lastController = ball.lastController
-	lastController.personalScore = lastController.personalScore + 1
+	local scorer = ball.lastMovedBy
+	scorer.personalScore = scorer.personalScore + 1
 
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
@@ -202,17 +203,20 @@ function DotaStrikers:OnGoal(team)
 	end
 
 	local lines = {
-		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
+		[1] = ColorIt(scorer.playerName, scorer.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
 
 	}
+	
 	ShowQuickMessages(lines, .2)
+
+	RoundInProgress = false
 
 	if GameOver then
 		return
 	end
 
 	local start = 3
-	ShowCenterMsg(lastController.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
+	ShowCenterMsg(scorer.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
 	for i=start,1,-1 do
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
@@ -244,7 +248,7 @@ function DotaStrikers:OnGoal(team)
 						end)
 					end)
 				end
-				
+
 				ball.controller = nil
 				ball.dontChangeFriction = false
 				ball:SetPhysicsFriction(GROUND_FRICTION)
@@ -269,6 +273,7 @@ function DotaStrikers:OnGoal(team)
 		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
 		ball:SetPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 
+		RoundInProgress = true
 		Say(nil, "PLAY!!", false)
 	end)
 end
@@ -308,18 +313,23 @@ function CleanUp( unit )
 	end
 end
 
-function IsUnitWithinGoalBounds( unit )
+function GetGoalUnitIsWithin( unit )
 	local pos = unit:GetAbsOrigin()
-	if pos.x < (RECT_X_MIN-5) or pos.x > (RECT_X_MAX+5) and pos.z < GOAL_Z then
-		return true
+	if pos.x < (RECT_X_MIN-5) then
+		return DOTA_TEAM_GOODGUYS
+	elseif pos.x > (RECT_X_MAX+5) then
+		return DOTA_TEAM_BADGUYS
 	end
 
-	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS) and (pos.y > -1*GOAL_Y and pos.y < GOAL_Y) and pos.z < GOAL_Z then
-		return true
-	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS) and (pos.y > -1*GOAL_Y and pos.y < GOAL_Y) and pos.z < GOAL_Z then
-		return true
+	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE-10
+	local goal_pos = GOAL_Y+GC_INCREASE_SIDE+10
+
+	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+		return DOTA_TEAM_GOODGUYS
+	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+		return DOTA_TEAM_BADGUYS
 	end
-	return false
+	return nil
 end
 
 function OnBoundsCollision( self, unit, bc, i )

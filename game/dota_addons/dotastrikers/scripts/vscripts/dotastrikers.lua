@@ -102,6 +102,7 @@ function DotaStrikers:PlayerSay( keys )
 	local ply = keys.ply
 	local hero = ply:GetAssignedHero()
 	local txt = keys.text
+	local ball = Ball.unit
 
 	if keys.teamOnly then
 		-- This text was team-only.
@@ -118,6 +119,9 @@ function DotaStrikers:PlayerSay( keys )
 	if txt == "pancamera_off" then
 		PlayerResource:SetCameraTarget(ply:GetPlayerID(), nil)
 		--print("pancamera")
+	end
+	if txt == "ball_controller" then
+		if ball.controller == nil then print ("ball controller is nil.") end
 	end
 end
 
@@ -195,23 +199,25 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		--print("pos: " .. VectorString(pos))
 		if hero.goalie then
 			-- check if actually still in goal
-			if not IsUnitWithinGoalBounds(hero) then
-				--print("goalie left net.")
+			-- for the goalie, there is no z limit
+			if not GetGoalUnitIsWithin( hero ) then
 				hero.goalie = false
 				hero.gc.goalie = nil
+				hero.ballGoalieProc = false
 			end
-			if pos.x > 0 then
-				if hero:GetTeam() == DOTA_TEAM_BADGUYS then
-					hero.onOwnSide = true
-				else
-					hero.onOwnSide = false
-				end
+		end
+
+		if pos.x > 0 then
+			if hero:GetTeam() == DOTA_TEAM_BADGUYS then
+				hero.onOwnSide = true
 			else
-				if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
-					hero.onOwnSide = true
-				else
-					hero.onOwnSide = false
-				end
+				hero.onOwnSide = false
+			end
+		else
+			if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
+				hero.onOwnSide = true
+			else
+				hero.onOwnSide = false
 			end
 		end
 	end
@@ -239,13 +245,6 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		--hero:SetCustomHealthLabel( hero.playerName, 0, 0, 255 )
 	end
 
-	--[[Timers:CreateTimer(function()
-		if hero.isSprinter then
-			--print(VectorString(hero:GetPhysicsAcceleration()))
-		end
-		return .01
-	end)]]
-
 	-- mark the hero as a dota strikers hero.
 	hero.isDSHero = true
 
@@ -254,7 +253,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	table.insert(self.colliderFilter, hero)
 
-	self:ApplyDSPhysics(hero)
+	self:SetupPhysicsSettings(hero)
 
 	-- my components lib to control velocities better
 	Components:Init(hero)
@@ -346,7 +345,6 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 			end
 		end
-
 		return SURGE_TICK
 	end)
 
@@ -357,7 +355,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 end
 
-function DotaStrikers:ApplyDSPhysics( unit )
+function DotaStrikers:SetupPhysicsSettings( unit )
 	Physics:Unit(unit)
 	unit:Hibernate(false)
 	unit:FollowNavMesh (false)
@@ -387,6 +385,8 @@ function DotaStrikers:GreetPlayers(  )
 	Timers:CreateTimer(2, function()
 		ShowQuickMessages( lines, 2 )
 	end)
+
+	RoundInProgress = true
 end
 
 -- An entity somewhere has been hurt.  This event fires very often with many units so don't do too many expensive
@@ -670,15 +670,6 @@ function DotaStrikers:InitDotaStrikers()
 	self.m_TeamColors[8] = { 5, 110, 50 } -- 7:109:44
 	self.m_TeamColors[9] = { 130, 80, 5 } -- 124:75:6
 
-	--[[self.runeTypes =
-	{
-		[1] = "Goo_Bomb",
-		[2] = "Fiery_Jaw", 
-		[3] = "Segment_Bomb",
-		[4] = "Crypt_Craving",
-		[5] = "Reverse",
-	}]]
-
 	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
@@ -688,7 +679,12 @@ function DotaStrikers:InitDotaStrikers()
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
 
+	Referee = CreateUnitByName("npc_dota_hero_omniknight", Vector(4000,4000,0), true, nil, nil, DOTA_TEAM_NEUTRALS)
+
 	Timers:CreateTimer(.06, function()
+		Referee:FindAbilityByName("referee_passive"):SetLevel(1)
+		Referee:SetCustomHealthLabel( "Referee", 255, 0, 0 )
+
 		DotaStrikers:InitMap()
 	end)
 
@@ -741,7 +737,6 @@ function DotaStrikers:InitDotaStrikers()
 	self.colliderFilter = {}
 
 	Ball:Init()
-	Referee:Init()
 
 	-- Main thinker
 	Timers:CreateTimer(function()
@@ -831,15 +826,4 @@ function DotaStrikers:ExampleConsoleCommand()
 		end
 	end
 	--print( '*********************************************' )
-end
-
-DotaStrikersHero = {}
--- pass in regular dota hero, make it a DS hero.
-function DotaStrikersHero:Init(hero)
-	local heroName = hero:GetUnitName()
-	if heroName == "npc_dota_hero_antimage" then
-
-	elseif heroName == "npc_dota_hero_spectre" then
-
-	end
 end

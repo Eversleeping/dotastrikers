@@ -6,7 +6,6 @@ requires = {
 	--'newphysics',
 	'dotastrikers',
 	'initmap',
-	'referee',
 	'myphys_and_ball',
 	'ability_proxy',
 	'abilities',

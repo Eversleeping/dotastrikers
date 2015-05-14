@@ -5,6 +5,31 @@
 {
 	"Version"		"1"
 
+	"goalie_jump"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"slark_pounce"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"8"
+
+		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"goalie_jump"
+			}
+		}
+	}
+
 	"tackle"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
@@ -270,6 +295,22 @@
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge"
 			}
+			"ApplyModifier"
+			{
+				"ModifierName"	"modifier_haste_anim"
+				"Target" 		"CASTER"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_haste_anim"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+		
+				"OverrideAnimation"     "ACT_DOTA_RUN"
+			}
 		}
 
 		"AbilitySpecial"
@@ -306,6 +347,11 @@
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge_break"
+			}
+			"RemoveModifier"
+			{
+				"ModifierName"	"modifier_haste_anim"
+				"Target" 		"CASTER"
 			}
 		}
 	}
@@ -714,9 +760,9 @@
 				"States"
 				{
 					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
+					//"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					//"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_FLYING"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
 				"OnAttackLanded"

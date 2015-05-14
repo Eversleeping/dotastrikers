@@ -14,14 +14,14 @@ PULL_ACCEL_FORCE = 2300
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL = 600
+SPRINT_ACCEL = 1200
 SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 5
 
 BH_RADIUS = 420
 BH_DURATION = 6
-BH_FORCE_MAX = 5000
-BH_FORCE_MIN = 3000
+BH_FORCE_MAX = 6000
+BH_FORCE_MIN = 3700
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
@@ -51,14 +51,24 @@ function DotaStrikers:OnRefereeAttacked( keys )
 
 	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
 	--print("towardsCenter: " .. VectorString(towardsCenter))
+
 	ball.controlledByRef = true
+
+	-- ball is going out of hands of the ref
 	ball.controller = nil
+
+	ball.lastMovedBy = Referee
+
 	ball:SetPhysicsVelocity(towardsCenter*REF_OOB_HIT_VEL)
+
 	local caster = keys.caster
+
+	-- reset pos of ref
 	Timers:CreateTimer(.2, function()
 		caster:SetAbsOrigin(Vector(4000,4000,0))
 		caster:Stop()
 	end)
+
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
@@ -74,8 +84,13 @@ function DotaStrikers:on_powershot_succeeded( keys )
 	ball.dontChangeFriction = true
 	ball:SetPhysicsFriction(0)
 	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
+
 	ball.affectedByPowershot = true
+
+	ball.lastMovedBy = caster
+
 	ball.controller = nil
 
 	if not Testing then
@@ -108,7 +123,11 @@ function DotaStrikers:throw_ball( keys )
 		else
 			ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
 		end
+
 		ball:EmitSound("Kick" .. RandomInt(1, NUM_KICK_SOUNDS))
+
+		ball.lastMovedBy = caster
+
 		ball.controller = nil
 	end
 end
@@ -143,15 +162,34 @@ function DotaStrikers:surge( keys )
 
 		caster:EmitSound("Hero_Weaver.Shukuchi")
 
-		--caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
+		-- root hero so the haste movespeed doesn't influence him
+		AddEndgameRoot(caster)
+
+		-- this is for animation purposes. We also needed to add "OverrideAnimation" "ACT_DOTA_RUN" in the super_sprint ability for this to work.
+		-- because the rooted sets movespeed to 0, which causes ACT_DOTA_RUN to never be called.
+		caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
+
+		caster.sprint_timer = Timers:CreateTimer(function()
+			if not caster:HasAbility("super_sprint_break") then
+				--caster.sprint_accel = Vector(0,0,0)
+				return
+			end
+			-- remove curr accel
+			caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
+			caster.sprint_accel = caster:GetForwardVector()*SPRINT_ACCEL
+			caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
+
+			return .01
+		end)
 
 		-- ensure the sprinter is moving somewhere.
-		Timers:RemoveTimer(caster.sprintTimer)
-		caster.sprintTimer = Timers:CreateTimer(function()
+		caster.dist_check_timer = Timers:CreateTimer(function()
 			if not caster:HasAbility("super_sprint_break") then
 				return
 			end
+
 			local currPos = caster:GetAbsOrigin()
+
 			if not caster.lastPos then
 				caster.lastPos = Vector(8000,8000,0)
 			end
@@ -166,6 +204,7 @@ function DotaStrikers:surge( keys )
 			caster.lastPos = currPos
 			return .1
 		end)
+
 	elseif caster.isNinja then
 		caster:RemoveAbility("ninja_invis_sprint")
 		caster:AddAbility("ninja_invis_sprint_break")
@@ -202,6 +241,9 @@ function DotaStrikers:surge_break( keys )
 		caster:AddAbility("super_sprint")
 		local super_sprint = caster:FindAbilityByName("super_sprint")
 		super_sprint:SetLevel(1)
+
+		Timers:RemoveTimer(caster.sprint_timer)
+		Timers:RemoveTimer(caster.dist_check_timer)
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
 
 		--[[ remove most of the vel gained from that sprint
@@ -214,9 +256,11 @@ function DotaStrikers:surge_break( keys )
 			super_sprint:EndCooldown()
 			caster:SetMana(caster:GetMaxMana())
 		end
-		--[[if caster:HasModifier("modifier_rune_haste") then
+		if caster:HasModifier("modifier_rune_haste") then
 			caster:RemoveModifierByName("modifier_rune_haste")
-		end]]
+			RemoveEndgameRoot(caster)
+		end
+
 		--caster:EmitSound("Hero_Slardar.MovementSprint")
 	elseif caster.isNinja then
 		caster:RemoveAbility("ninja_invis_sprint_break")
@@ -389,7 +433,8 @@ function DotaStrikers:slam( keys )
 
 			else
 				if ent == ball then
-					ball.lastController = caster
+					--ball.lastController = caster
+					ball.lastMovedBy = caster
 				end
 				ent:AddPhysicsVelocity((dir*SLAM_XY + Vector(0,0,SLAM_Z)*knockbackScale))
 				affected = affected + 1
@@ -494,6 +539,9 @@ function OnBHThink( caster, point, casterID, ball )
 				local dir = (point-p1):Normalized()
 				hero.last_bh_accels[casterID] = dir*force
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()+hero.last_bh_accels[casterID])
+				if hero == ball then
+					ball.lastMovedBy = caster
+				end
 			else
 				if hero.last_bh_accels[casterID] ~= Vector(0,0,0) then
 					hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])

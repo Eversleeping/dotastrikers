@@ -14,6 +14,8 @@ NUM_BOUNCE_SOUNDS = 5
 NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
 
+BALL_HOG_DURATION = 7
+
 BALL_ROUNDSTART_KICK = {170,210}
 CONTROLLER_MOVESPEED_FACTOR = 1/5
 
@@ -176,7 +178,7 @@ function Ball:Init(  )
 	end
 
 	ball.controller = nil
-	DotaStrikers:ApplyDSPhysics(ball)
+	DotaStrikers:SetupPhysicsSettings(ball)
 
 	ball:OnPhysicsFrame(function(unit)
 		-- don't perform velocity calculations on the ball if it has a controller.
@@ -185,115 +187,164 @@ function Ball:Init(  )
 		end
 
 		DotaStrikers:OnMyPhysicsFrame(ball)
+		DotaStrikers:OnBallPhysicsFrame(ball)
+	end)
+	return ball
+end
 
-		local ballPos = ball:GetAbsOrigin()
-		--print("ball vel: " .. VectorString(ball:GetPhysicsVelocity()))
-		for _,hero in ipairs(DotaStrikers.vHeroes) do
-			local collision = (hero:GetAbsOrigin()-ballPos):Length() <= BALL_COLLISION_DIST
-			--if collision then print ("collision.") end
-			if hero ~= ball.controller and collision then
-				if not hero.ballProc then
-					ball:SetPhysicsVelocity(Vector(0,0,0))
-					if hero.isUsingPull then
-						hero:CastAbilityNoTarget(hero.pull_break, 0)
-					end
-					--print("new controller.")
-					if not ball.affectedByPowershot then
-						--hero:EmitSound("Hero_Puck.ProjectileImpact")
-						ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
-					end
+function DotaStrikers:OnBallPhysicsFrame( ball )
+	local ballPos = ball:GetAbsOrigin()
 
-					if hero == Referee.unit then
-						Referee.unit:MoveToTargetToAttack(ball)
-					else
-						ball.controller = hero
-					end
-					hero.ballProc = true
+	--if not RoundInProgress then return end
+
+	for _,hero in ipairs(DotaStrikers.vHeroes) do
+		local collision = (hero:GetAbsOrigin()-ballPos):Length() <= BALL_COLLISION_DIST
+		if hero ~= ball.controller and collision then
+			if not hero.ballProc then
+				-- new controller
+				ball:SetPhysicsVelocity(Vector(0,0,0))
+				if hero.isUsingPull then
+					hero:CastAbilityNoTarget(hero.pull_break, 0)
 				end
-			elseif hero ~= ball.controller and not collision then
-				if hero.ballProc then
-					hero.ballProc = false
+				if not ball.affectedByPowershot then
+					ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
 				end
-			elseif hero == ball.controller then
-				local fv = hero:GetForwardVector()
-				-- reposition ball to in front of controller.
-				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
-				ball:SetForwardVector(fv)
+
+				if hero == Referee.unit then
+					Referee.unit:MoveToTargetToAttack(ball)
+
+				else
+					ball.controller = hero
+				end
+				hero.ballProc = true
 			end
-			-- reset the movespeed if this guy isn't the ball handler anymore.
-			if ball.controller ~= hero and hero.slowedByBall then
-				hero:SetBaseMoveSpeed(hero:GetBaseMoveSpeed() + hero.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
-				if hero:HasModifier("modifier_ball_controller") then
-					hero:RemoveModifierByName("modifier_ball_controller")
-				end
-
-				hero.slowedByBall = false
+		elseif hero ~= ball.controller and not collision then
+			if hero.ballProc then
+				hero.ballProc = false
 			end
+		elseif hero == ball.controller then
+			local fv = hero:GetForwardVector()
+			-- reposition ball to in front of controller.
+			ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
+			ball:SetForwardVector(fv)
+		end
+		-- reset the movespeed if this guy isn't the ball handler anymore.
+		if ball.controller ~= hero and hero.slowedByBall then
+			hero:SetBaseMoveSpeed(hero:GetBaseMoveSpeed() + hero.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			if hero:HasModifier("modifier_ball_controller") then
+				hero:RemoveModifierByName("modifier_ball_controller")
+			end
+			hero.slowedByBall = false
+		end
+	end
+
+	-- treat the referee ball controller separately
+	if ball.controller == Referee then
+		ball.lastController = Referee
+
+	elseif ball.controller ~= nil then
+		-- it's nice to update this
+		ballPos = ball:GetAbsOrigin()
+
+		if ball.lastController ~= ball.controller then
+			--print("new ball.lastController")
+			ball.lastController = ball.controller
 		end
 
-		if ball.controller ~= nil then
-			if ball.lastController ~= ball.controller then
-				--print("new ball.lastController")
-				ball.lastController = ball.controller
+		-- slow the movespeed of the controller if we haven't already.
+		local cont = ball.controller
+		if not cont.slowedByBall then
+			cont:SetBaseMoveSpeed(cont:GetBaseMoveSpeed() - cont.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			if not cont:HasModifier("modifier_ball_controller") then
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, cont, "modifier_ball_controller", {})
 			end
+			cont.slowedByBall = true
+		end
 
-			-- slow the movespeed of the controller if we haven't already.
-			local cont = ball.controller
-			if not cont.slowedByBall then
-				cont:SetBaseMoveSpeed(cont:GetBaseMoveSpeed() - cont.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
-				if not cont:HasModifier("modifier_ball_controller") then
-					GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, cont, "modifier_ball_controller", {})
-				end
-				cont.slowedByBall = true
-			end
+		ball:SetForwardVector(ball.controller:GetForwardVector())
 
-			ball.particleDummy:SetForwardVector(ball.controller:GetForwardVector())
-			-- handle when controller took the ball out of bounds
-			local isBallOutOfBounds = ball:IsBallOutOfBounds()
-			--[[if isBallOutOfBounds and not ball.outOfBoundsProc then
-				--Timers:RemoveTimer(ball.outOfBoundsTimer)
-				ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
-					if not ball.outOfBoundsProc then return end
-					print("Referee.unit:GetBallInBounds()")
-					Referee.unit:GetBallInBounds()
-				end)
-				-- show error msg
-				ShowErrorMsg(ball.controller, "Ball is out of bounds")
-				ball.outOfBoundsProc = true
-			elseif not isBallOutOfBounds and ball.outOfBoundsProc then
-				Timers:RemoveTimer(ball.outOfBoundsTimer)
-				ball.outOfBoundsProc = false
-			end]]
+		-- handle when controller took the ball out of bounds
+		--local isBallOutOfBounds = ball:IsBallOutOfBounds()
+		--[[if isBallOutOfBounds and not ball.outOfBoundsProc then
+			--Timers:RemoveTimer(ball.outOfBoundsTimer)
+			ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
+				if not ball.outOfBoundsProc then return end
+				print("Referee.unit:GetBallInBounds()")
+				Referee.unit:GetBallInBounds()
+			end)
+			-- show error msg
+			ShowErrorMsg(ball.controller, "Ball is out of bounds")
+			ball.outOfBoundsProc = true
+		elseif not isBallOutOfBounds and ball.outOfBoundsProc then
+			Timers:RemoveTimer(ball.outOfBoundsTimer)
+			ball.outOfBoundsProc = false
+		end]]
 
-		else
-			-- turn the facing direction of the ball for aesthetics.
-			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
-			local ballFV = ball.particleDummy:GetForwardVector()
+	else -- ball.controller is nil
+		-- turn the facing direction of the ball for aesthetics.
+		local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
+		local ballFV = ball:GetForwardVector()
 
-			if ball.bStarted and ball.velocityMagnitude > 150*150 and ballFV ~= ball.lastForwardVector then
-				ball.lastForwardVector = ballFV
-				ball.particleDummy:SetForwardVector(ballVelocityDir)
-			end
+		if ball.bStarted and ball.velocityMagnitude > 150*150 and ballFV ~= ball.lastForwardVector then
+			ball.lastForwardVector = ballFV
+			ball:SetForwardVector(ballVelocityDir)
+		end
 
-			ballPos = ball:GetAbsOrigin()
+		ballPos = ball:GetAbsOrigin()
+		
+		if ball.lastMovedBy ~= Referee then
 			if ballPos.x < SCORE_X_MIN and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Dire")
 			elseif ballPos.x > SCORE_X_MAX and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Radiant")
 			end
-			if not ball.isRotating then
-
-			end
 		end
+	end
 
-		-- move the ball particle dummy, so ball particle displays above ground.
-		ball.particleDummy:SetAbsOrigin(Vector(ballPos.x, ballPos.y, ballPos.z+BALL_PARTICLE_Z_OFFSET))
+	-- Do ball hog logic
+	local goal = GetGoalUnitIsWithin( ball )
+	if not ball.current_goal and goal then
+		ball.timeBecameInGoal = GameRules:GetGameTime()
+		ball.current_goal = goal -- team number
+		local thisGoal = goal
+		--print("starting hog_timer")
+		--Timers:RemoveTimer(ball.hog_timer)
+		ball.hog_timer = Timers:CreateTimer(BALL_HOG_DURATION, function()
+			if not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress then return end
+			-- if ball has controller, make sure the controller is on the same team as this goal before knocking the ball away.
+			if ball.controller and ball.controller:GetTeam() ~= thisGoal then return end
 
-		ball:Rotate()
-		ball.lastPos = ballPos
-	end)
+			local cTime = GameRules:GetGameTime()
+			if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION then
+				DotaStrikers:GetBallInBounds()
+			end
+		end)
 
-	return ball
+		-- if the ball has a controller (the goalie), warn him beforehand.
+		ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
+			if not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress then return end
+			if not ball.controller or ball.controller:GetTeam() ~= thisGoal then return end
+
+			local cTime = GameRules:GetGameTime()
+			if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION/2 then
+				ShowErrorMsg(ball.controller, "#goalie_ball_hog_warning")
+			end
+		end)
+	elseif ball.current_goal and not goal then
+		-- ball is no longer within a goal.
+		ball.current_goal = nil
+	end
+
+	-- rotate the ball depending if it's not moving or what
+	ball:Rotate()
+
+	ball.lastPos = ballPos
+
+	-- move the ball particle dummy, so ball particle displays above ground.
+	ball.particleDummy:SetAbsOrigin(Vector(ballPos.x, ballPos.y, ballPos.z+BALL_PARTICLE_Z_OFFSET))
+
+	ball.particleDummy:SetForwardVector(ball:GetForwardVector())
+	--print("rotating.")
 end
 
 function TryPlayCracks( ... )
@@ -396,3 +447,18 @@ else
 		end
 	end
 end]]
+
+function DotaStrikers:GetBallInBounds(  )
+	local ball = Ball.unit
+	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
+	local backOfBall = -250*towardsCenter + ball:GetAbsOrigin()
+	Referee:SetAbsOrigin(backOfBall)
+	local thisController = ball.controller
+	ball.controller = Referee
+	Timers:CreateTimer(.06, function()
+		if thisController == ball.controller then
+			print("still same controller.")
+			--return .1
+		end
+	end)
+end
