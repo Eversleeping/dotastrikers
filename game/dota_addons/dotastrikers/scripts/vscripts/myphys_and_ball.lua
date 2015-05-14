@@ -3,18 +3,18 @@ GROUND_FRICTION = .035
 AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
-BALL_COLLISION_DIST = 120
+BALL_COLLISION_DIST = 130
 BOUNCE_MULTIPLIER = .9
 BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
 PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
 
-BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-30
+BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-10
 NUM_BOUNCE_SOUNDS = 5
 NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
 
-BALL_ROUNDSTART_KICK = {230,260}
+BALL_ROUNDSTART_KICK = {170,210}
 CONTROLLER_MOVESPEED_FACTOR = 1/5
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
@@ -113,6 +113,8 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if unit:HasModifier("modifier_flail_passive") then
 			unit:RemoveModifierByName("modifier_flail_passive")
 		end
+
+
 	end
 end
 
@@ -124,6 +126,8 @@ function Ball:Init(  )
 	ball.isBall = true
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
 	ball.lastBounceTime = 0
+	ball.lastPos = Vector(0,0,GroundZ)
+	ball.isRotating = false
 
 	-- this is for black holes.
 	ball.last_bh_accels = {}
@@ -134,14 +138,11 @@ function Ball:Init(  )
 	function ball:SpawnParticle(  )
 		-- constantly reposition the ball particle dummy.
 		ball.particleDummy:SetAbsOrigin(Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET))
-		Timers:CreateTimer(2*NEXT_FRAME, function()
+		Timers:CreateTimer(.066, function()
 			if not ball.ballParticle then
 				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 				ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 			end
-			local pos = ball:GetAbsOrigin()
-			ball.particleDummy:SetAbsOrigin(Vector(pos.x, pos.y, pos.z+BALL_PARTICLE_Z_OFFSET))
-			return .01
 		end)
 	end
 
@@ -150,6 +151,28 @@ function Ball:Init(  )
 		local smoothing = 20
 		return ballPos.x > (Bounds.max+RectangleOffset+smoothing) or ballPos.x < (Bounds.min-RectangleOffset-smoothing) or 
 			ballPos.y > (Bounds.max+smoothing) or ballPos.y < (Bounds.min-smoothing)
+	end
+
+	function ball:Rotate(  )
+		if not ball.ballParticle then return end
+		local vel_for_max_rotation = 900*900
+		local vel_for_zero_rotation = 20*20
+		local cp_value_for_max_rotation = -60
+		local new_cp_value = ball.velocityMagnitude*(cp_value_for_max_rotation/vel_for_max_rotation)
+		if (ball:GetAbsOrigin()-ball.lastPos):Length() < 1 then
+			if ball.rotateStarted then
+				--DebugDrawBox(ball:GetAbsOrigin(), Vector(-8,-8,0), Vector(8,8,1), 255, 0, 0, 100, 30)
+				ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,0))
+				ball.rotateStarted = false
+			end
+		else
+			if not ball.rotateStarted then
+				if not ball.controller then
+					ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,-70))
+					ball.rotateStarted = true
+				end
+			end
+		end
 	end
 
 	ball.controller = nil
@@ -162,6 +185,7 @@ function Ball:Init(  )
 		end
 
 		DotaStrikers:OnMyPhysicsFrame(ball)
+
 		local ballPos = ball:GetAbsOrigin()
 		--print("ball vel: " .. VectorString(ball:GetPhysicsVelocity()))
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
@@ -240,6 +264,7 @@ function Ball:Init(  )
 				Timers:RemoveTimer(ball.outOfBoundsTimer)
 				ball.outOfBoundsProc = false
 			end]]
+
 		else
 			-- turn the facing direction of the ball for aesthetics.
 			local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
@@ -249,13 +274,23 @@ function Ball:Init(  )
 				ball.lastForwardVector = ballFV
 				ball.particleDummy:SetForwardVector(ballVelocityDir)
 			end
+
 			ballPos = ball:GetAbsOrigin()
 			if ballPos.x < SCORE_X_MIN and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Dire")
 			elseif ballPos.x > SCORE_X_MAX and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Radiant")
 			end
+			if not ball.isRotating then
+
+			end
 		end
+
+		-- move the ball particle dummy, so ball particle displays above ground.
+		ball.particleDummy:SetAbsOrigin(Vector(ballPos.x, ballPos.y, ballPos.z+BALL_PARTICLE_Z_OFFSET))
+
+		ball:Rotate()
+		ball.lastPos = ballPos
 	end)
 
 	return ball
@@ -337,3 +372,27 @@ end
 function Components:SetDummyDumpVector( vec )
 	self.dummy_dump = vec
 end
+
+
+-- ball shouldn't rotate if it has a controller.
+--[[if ball.isRotating then
+	if ball.controller then
+		ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,0))
+		ball.isRotating = false
+	else
+		if not ball.isAboveGround and ball.velocityMagnitude < 150*150 then
+			ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,0))
+			ball.isRotating = false
+		end
+	end
+else
+	if ball.isAboveGround then
+		ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,-60))
+		ball.isRotating = true
+	else
+		if ball.velocityMagnitude > 150*150 then
+			ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,-60))
+			ball.isRotating = true
+		end
+	end
+end]]

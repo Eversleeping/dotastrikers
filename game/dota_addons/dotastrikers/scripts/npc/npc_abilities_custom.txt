@@ -5,6 +5,29 @@
 {
 	"Version"		"1"
 
+	"tackle"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"bloodseeker_bloodrage"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"10"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"tackle"
+			}
+		}
+	}
+
 	"black_hole"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_AOE"
@@ -16,7 +39,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"2000"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"11"
+		"AbilityCooldown"				"20"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
 		"AOERadius"						"250" // half of BH_RADIUS
 
@@ -30,7 +53,19 @@
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"black_hole"
 			}
-
+		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"radius"					"420"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"duration"					"6"
+			}
 		}
 	}
 
@@ -47,7 +82,7 @@
 		"AbilityCooldown"				"0"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
-		"AbilityChannelTime"			".5"
+		"AbilityChannelTime"			".35"
 		
 		"OnChannelSucceeded"
 		{
@@ -83,7 +118,14 @@
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"throw_ball"
 			}
-
+		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"channel_time"				"0.35"
+			}
 		}
 	}
 
@@ -422,6 +464,14 @@
 				"Function"				"pull"
 			}
 		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"max_duration"					"4.55"
+			}
+		}
 	}
 
 	"slam"
@@ -446,6 +496,14 @@
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"slam"
+			}
+		}
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"radius"					"780"
 			}
 		}
 	}
@@ -639,19 +697,6 @@
 		}
 	}
 
-	"endround_silenced_passive"
-	{
-		"BaseClass"             		"ability_datadriven"
-		"MaxLevel" 						"1"
-	
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_PASSIVE"
-		
-		"Modifiers"
-		{
-
-		}
-	}
-
 	"referee_passive"
 	{
 		"BaseClass"             		"ability_datadriven"
@@ -730,7 +775,7 @@
 				"States"
 				{
 					//"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_FLYING"			"MODIFIER_STATE_VALUE_ENABLED"
+					//"MODIFIER_STATE_FLYING"			"MODIFIER_STATE_VALUE_ENABLED"
 					//"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}

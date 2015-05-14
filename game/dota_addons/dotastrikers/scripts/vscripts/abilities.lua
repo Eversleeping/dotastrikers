@@ -2,18 +2,20 @@ THROW_VELOCITY = 1700
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1100
-MAX_PULL_DURATION = 4.55
 
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
+PSHOT_COOLDOWN = 10
 
 NINJA_JUMP_Z = 1400
-NINJA_JUMP_XY = 900
+NINJA_JUMP_XY = 800
 
-PULL_ACCEL_FORCE = 2500
+PULL_ACCEL_FORCE = 2300
+PULL_MAX_DURATION = 4.55
+PULL_COOLDOWN = 15
 
-SPRINT_ACCEL = 800
-SPRINT_INITIAL_FORCE = 800
+SPRINT_ACCEL = 600
+SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 5
 
 BH_RADIUS = 420
@@ -22,6 +24,9 @@ BH_FORCE_MAX = 5000
 BH_FORCE_MIN = 3000
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
+
+TACKLE_DURATION = .3
+TACKLE_FORCE = 800
 
 KICK_BALL_Z_PUSH = 280
 
@@ -66,15 +71,15 @@ function DotaStrikers:on_powershot_succeeded( keys )
 
 	local dir = caster.throw_direction
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
-	ball.controller = nil
 	ball.dontChangeFriction = true
-	ball.affectedByPowershot = true
 	ball:SetPhysicsFriction(0)
 	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
+	ball.affectedByPowershot = true
+	ball.controller = nil
 
 	if not Testing then
-		caster:FindAbilityByName("powershot"):StartCooldown(10)
+		caster:FindAbilityByName("powershot"):StartCooldown(PSHOT_COOLDOWN)
 	end
 end
 
@@ -260,7 +265,7 @@ function DotaStrikers:pull( keys )
 	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 
 	caster.pull_start_time = GameRules:GetGameTime()
-	caster.pull_timer = Timers:CreateTimer(MAX_PULL_DURATION, function()
+	caster.pull_timer = Timers:CreateTimer(PULL_MAX_DURATION, function()
 		--caster.pull_duration = caster.pull_duration + .5
 		if caster.isUsingPull then
 			caster:CastAbilityNoTarget(caster.pull_break, 0)
@@ -303,7 +308,7 @@ function DotaStrikers:pull_break( keys )
 	else
 		pullAbility:StartCooldown(30)
 	end]]
-	pullAbility:StartCooldown(15)
+	pullAbility:StartCooldown(PULL_COOLDOWN)
 	if Testing then
 		pullAbility:EndCooldown()
 	end
@@ -391,13 +396,6 @@ function DotaStrikers:slam( keys )
 			end
 		end
 	end
-	--[[if affected == 0 then
-		hero:EmitSound("Hero_EarthShaker.IdleSlam")
-	elseif affected == 1 then
-		hero:EmitSound("Hero_EarthShaker.EchoSlamSmall")
-	else
-		hero:EmitSound("Hero_EarthShaker.EchoSlam")
-	end]]
 
 	local echoDummy = CreateUnitByName("dummy", hero:GetAbsOrigin(), false, nil, nil, DOTA_TEAM_NEUTRALS)
 	local slamDummyAbil = echoDummy:FindAbilityByName("slam_dummy")
@@ -506,5 +504,40 @@ function OnBHThink( caster, point, casterID, ball )
 				end
 			end
 		end
+	end
+end
+
+function DotaStrikers:tackle( keys )
+	local caster = keys.caster
+	local ball = Ball.unit
+	local point = keys.target_points[1]
+	caster.isUsingTackle = true
+	caster.tackle_end_time = GameRules:GetGameTime() + TACKLE_DURATION
+	AddEndgameRoot(caster)
+
+	-- move order to turn the unit
+	ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
+		Position = point, Queue = false})
+
+	caster.tackleTimer = Timers:CreateTimer(function()
+		if GameRules:GetGameTime() > caster.tackle_end_time then
+
+			caster.isUsingTackle = false
+			RemoveEndgameRoot(caster)
+			return nil
+		end
+		local fv = caster:GetForwardVector()
+		local newForce = fv*TACKLE_FORCE
+		
+		local velDir = caster:GetPhysicsVelocity():Normalized()
+		
+
+		return .01
+	end)
+
+
+
+	if Testing then
+		keys.ability:EndCooldown()
 	end
 end

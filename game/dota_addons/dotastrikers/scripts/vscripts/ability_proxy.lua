@@ -45,3 +45,7 @@ end
 function black_hole( keys )
 	DotaStrikers:black_hole(keys)
 end
+
+function tackle( keys )
+	DotaStrikers:tackle(keys)
+end

@@ -57,14 +57,6 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 		},
 		ParticleChildrenInfo_t
 		{
-			string m_ChildRef = "particles/ball/espirit_rollingboulder_proj.vpcf"
-			bool m_bPreventNameBasedLookup = false
-			float m_flDelay = 0.000000
-			bool m_bEndCap = false
-			bool m_bDisableChild = false
-		},
-		ParticleChildrenInfo_t
-		{
 			string m_ChildRef = "particles/ball/espirit_rollingboulder_smoke.vpcf"
 			bool m_bPreventNameBasedLookup = false
 			float m_flDelay = 0.000000
@@ -178,7 +170,8 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 		&C_OP_RemapScalarOnceTimed_12,
 		&C_OP_SetCPOrientationToDirection_13,
 		&C_OP_SetSingleControlPointPosition_14,
-		&C_OP_SetSingleControlPointPosition_15
+		&C_OP_SetSingleControlPointPosition_15,
+		&C_OP_RemapCPtoScalar_0
 	]
 	CParticleOperatorInstance*[] m_Renderers = 
 	[
@@ -226,7 +219,7 @@ C_OP_RampScalarLinearSimple C_OP_RampScalarLinearSimple_0
 	int m_nOpTimeScaleSeed = 0
 	float m_flOpTimeScaleMin = 1.000000
 	float m_flOpTimeScaleMax = 1.000000
-	bool m_bDisableOperator = false
+	bool m_bDisableOperator = true
 	int m_nOpEndCapState = 1
 	int m_nOpScaleCP = -1
 	string m_Notes = ""
@@ -432,7 +425,7 @@ C_OP_PositionLock C_OP_PositionLock_11
 	float m_flEndTime_max = 1.000000
 	float m_flEndTime_exp = 1.000000
 	float m_flRange = 0.000000
-	float m_flJumpThreshold = 512.000000
+	float m_flJumpThreshold = 0.000000
 	float m_flPrevPosScale = 1.000000
 	bool m_bLockRot = false
 	float m_flOpStartFadeInTime = 0.000000
@@ -514,7 +507,7 @@ C_OP_SetSingleControlPointPosition C_OP_SetSingleControlPointPosition_14
 	bool m_bUseWorldLocation = false
 	bool m_bSetOnce = false
 	int m_nCP1 = 7
-	float(3) m_vecCP1Pos = ( 0.000000, 0.000000, 160.000000 )
+	float(3) m_vecCP1Pos = ( 0.000000, 0.000000, 0.000000 )
 	int m_nHeadLocation = 0
 	float m_flOpStartFadeInTime = 0.000000
 	float m_flOpEndFadeInTime = 0.000000
@@ -541,8 +534,42 @@ C_OP_SetSingleControlPointPosition C_OP_SetSingleControlPointPosition_15
 	bool m_bUseWorldLocation = false
 	bool m_bSetOnce = false
 	int m_nCP1 = 8
-	float(3) m_vecCP1Pos = ( 0.000000, 0.000000, 160.000000 )
+	float(3) m_vecCP1Pos = ( 0.000000, 0.000000, 0.000000 )
 	int m_nHeadLocation = 3
+	float m_flOpStartFadeInTime = 0.000000
+	float m_flOpEndFadeInTime = 0.000000
+	float m_flOpStartFadeOutTime = 0.000000
+	float m_flOpEndFadeOutTime = 0.000000
+	float m_flOpFadeOscillatePeriod = 0.000000
+	float m_flOpTimeOffsetMin = 0.000000
+	float m_flOpTimeOffsetMax = 0.000000
+	int m_nOpTimeOffsetSeed = 0
+	int m_nOpStrengthScaleSeed = 0
+	float m_flOpStrengthMinScale = 1.000000
+	float m_flOpStrengthMaxScale = 1.000000
+	int m_nOpTimeScaleSeed = 0
+	float m_flOpTimeScaleMin = 1.000000
+	float m_flOpTimeScaleMax = 1.000000
+	bool m_bDisableOperator = false
+	int m_nOpEndCapState = -1
+	int m_nOpScaleCP = -1
+	string m_Notes = ""
+}
+
+C_OP_RemapCPtoScalar C_OP_RemapCPtoScalar_0
+{
+	int m_nCPInput = 11
+	int m_nFieldOutput = 5
+	int m_nField = 3
+	float m_flInputMin = 0.000000
+	float m_flInputMax = -100.000000
+	float m_flOutputMin = 0.000000
+	float m_flOutputMax = -10.000000
+	float m_flStartTime = -1.000000
+	float m_flEndTime = -1.000000
+	float m_flInterpRate = 0.000000
+	bool m_bScaleInitialRange = false
+	bool m_bScaleCurrent = false
 	float m_flOpStartFadeInTime = 0.000000
 	float m_flOpEndFadeInTime = 0.000000
 	float m_flOpStartFadeOutTime = 0.000000
@@ -571,7 +598,7 @@ C_OP_RenderModels C_OP_RenderModels_16
 	[
 		ModelReference_t
 		{
-			string m_model = "models/particle/cracked_boulder_v2.vmdl"
+			string m_model = "models/particle/cracked_boulder.vmdl"
 			float m_flRelativeProbabilityOfSpawn = 1.000000
 		}
 	]
@@ -697,8 +724,8 @@ C_INIT_CreateWithinSphere C_INIT_CreateWithinSphere_19
 
 C_INIT_RandomRadius C_INIT_RandomRadius_20
 {
-	float m_flRadiusMin = 0.340000
-	float m_flRadiusMax = 0.340000
+	float m_flRadiusMin = 0.300000
+	float m_flRadiusMax = 0.300000
 	float m_flRadiusRandExponent = 0.400000
 	bool m_bRunForParentApplyKillList = true
 	float m_flOpStartFadeInTime = 0.000000
@@ -770,7 +797,7 @@ C_INIT_RandomRotationSpeed C_INIT_RandomRotationSpeed_22
 	int m_nOpTimeScaleSeed = 0
 	float m_flOpTimeScaleMin = 1.000000
 	float m_flOpTimeScaleMax = 1.000000
-	bool m_bDisableOperator = false
+	bool m_bDisableOperator = true
 	int m_nOpEndCapState = -1
 	int m_nOpScaleCP = -1
 	string m_Notes = ""

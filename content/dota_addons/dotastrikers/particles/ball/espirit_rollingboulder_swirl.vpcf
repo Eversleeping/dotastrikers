@@ -464,8 +464,8 @@ C_OP_RenderSprites C_OP_RenderSprites_10
 
 C_INIT_RandomRadius C_INIT_RandomRadius_11
 {
-	float m_flRadiusMin = 46.512501
-	float m_flRadiusMax = 72.199997
+	float m_flRadiusMin = 80.000000
+	float m_flRadiusMax = 120.000000
 	float m_flRadiusRandExponent = 0.400000
 	bool m_bRunForParentApplyKillList = true
 	float m_flOpStartFadeInTime = 0.000000
@@ -545,8 +545,8 @@ C_INIT_RandomLifeTime C_INIT_RandomLifeTime_13
 
 C_INIT_CreateWithinSphere C_INIT_CreateWithinSphere_14
 {
-	float m_fRadiusMin = 0.200000
-	float m_fRadiusMax = 24.000000
+	float m_fRadiusMin = 0.500000
+	float m_fRadiusMax = 20.000000
 	float(3) m_vecDistanceBias = ( 1.000000, 1.000000, 1.000000 )
 	float(3) m_vecDistanceBiasAbs = ( 0.000000, 0.000000, 0.500000 )
 	int m_nControlPointNumber = 4

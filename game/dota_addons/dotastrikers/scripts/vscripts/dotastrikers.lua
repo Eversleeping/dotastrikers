@@ -240,24 +240,22 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	end
 
 	--[[Timers:CreateTimer(function()
-		print(VectorString(hero:GetPlayerOwner():GetAbsOrigin()))
-		local vect = hero:GetPlayerOwner():GetAbsOrigin()
-		local newVect = RotatePosition(vect, QAngle(30,0,0), Vector(0,0,0))
-		DebugDrawCircle(Vector(newVect.x, newVect.y, GroundZ+1), Vector(255,0,0), 30, 30, false, .03)
-		return .01
-	end)]]
-	Timers:CreateTimer(function()
 		if hero.isSprinter then
 			--print(VectorString(hero:GetPhysicsAcceleration()))
 		end
 		return .01
-	end)
+	end)]]
 
+	-- mark the hero as a dota strikers hero.
 	hero.isDSHero = true
+
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
+
 	table.insert(self.colliderFilter, hero)
+
 	self:ApplyDSPhysics(hero)
+
 	-- my components lib to control velocities better
 	Components:Init(hero)
 
@@ -302,6 +300,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
 			ParticleManager:DestroyParticle(ball.powershot_particle, false)
 			print("affectedByPowershot collision.")
+			ball.controller = collider
 			passTest = true
 		end
 		return passTest
@@ -361,6 +360,7 @@ end
 function DotaStrikers:ApplyDSPhysics( unit )
 	Physics:Unit(unit)
 	unit:Hibernate(false)
+	unit:FollowNavMesh (false)
 	unit:SetNavCollisionType(PHYSICS_NAV_NOTHING)
 	unit:SetGroundBehavior(PHYSICS_GROUND_ABOVE)
 	-- gravity

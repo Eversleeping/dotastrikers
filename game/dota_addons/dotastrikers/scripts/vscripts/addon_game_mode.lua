@@ -22,6 +22,7 @@ function Precache( context )
 	-- It it likely that precaching a single particle system will precache all of its children, but this may not be guaranteed
 	--PrecacheResource("particle", "particles/econ/generic/generic_aoe_explosion_sphere_1/generic_aoe_explosion_sphere_1.vpcf", context)
 	PrecacheResource("particle_folder", "particles/ball", context)
+	PrecacheResource("particle_folder", "particles/ball2", context)
 	PrecacheResource("particle_folder", "particles/pass_me", context)
 	PrecacheResource("particle_folder", "particles/thunderclap", context)
 	PrecacheResource("particle_folder", "particles/frowns", context)

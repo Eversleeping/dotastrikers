@@ -160,29 +160,6 @@ function DotaStrikers:OnGoal(team)
 	local lastController = ball.lastController
 	lastController.personalScore = lastController.personalScore + 1
 
-	local winningTeamCol = "green"
-	if team == "Dire" then
-		winningTeamCol = "red"
-		self.direScore = self.direScore + 1
-		GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_BADGUYS, self.direScore )
-		if self.direScore >= SCORE_TO_WIN then
-			DotaStrikers:OnWonGame("Dire")
-		end
-	else
-		self.radiantScore = self.radiantScore + 1
-		GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_GOODGUYS, self.radiantScore )
-		if self.radiantScore >= SCORE_TO_WIN then
-			DotaStrikers:OnWonGame("Radiant")
-		end
-	end
-
-	local lines = {
-		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
-
-	}
-
-	ShowQuickMessages(lines, .2)
-
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
 	ball.dontChangeFriction = true
@@ -205,6 +182,35 @@ function DotaStrikers:OnGoal(team)
 		end
 	end)
 
+	-- Check if game over.
+	local winningTeamCol = "green"
+	if team == "Dire" then
+		winningTeamCol = "red"
+		self.direScore = self.direScore + 1
+		GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_BADGUYS, self.direScore )
+		if self.direScore >= SCORE_TO_WIN then
+			DotaStrikers:OnWonGame(DOTA_TEAM_BADGUYS)
+			GameOver = true
+		end
+	else
+		self.radiantScore = self.radiantScore + 1
+		GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_GOODGUYS, self.radiantScore )
+		if self.radiantScore >= SCORE_TO_WIN then
+			DotaStrikers:OnWonGame(DOTA_TEAM_GOODGUYS)
+			GameOver = true
+		end
+	end
+
+	local lines = {
+		[1] = ColorIt(lastController.playerName, lastController.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
+
+	}
+	ShowQuickMessages(lines, .2)
+
+	if GameOver then
+		return
+	end
+
 	local start = 3
 	ShowCenterMsg(lastController.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
 	for i=start,1,-1 do
@@ -215,7 +221,7 @@ function DotaStrikers:OnGoal(team)
 					AddEndgameRoot(hero)
 					RemoveStun(hero)
 
-					-- NOTE: make sure to do all physics stop BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
+					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
 					hero:SetPhysicsFriction(GROUND_FRICTION)
 					hero:StopPhysicsSimulation()
@@ -224,6 +230,7 @@ function DotaStrikers:OnGoal(team)
 						hero:RemoveModifierByName("modifier_flail_passive")
 					end
 
+					-- return heroes back to their spawn positions.
 					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
 
 					-- make them all face the ball (looks nicer)
@@ -236,14 +243,15 @@ function DotaStrikers:OnGoal(team)
 							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
 						end)
 					end)
-
 				end
+				
 				ball.controller = nil
 				ball.dontChangeFriction = false
 				ball:SetPhysicsFriction(GROUND_FRICTION)
-				ball:StopPhysicsSimulation()
-
 				ball:SetAbsOrigin(Vector(0,0,GroundZ))
+				Timers:CreateTimer(.03, function()
+					ball:StopPhysicsSimulation()
+				end)
 			end
 			Say(nil, i .. "...", false)
 		end)
@@ -265,8 +273,15 @@ function DotaStrikers:OnGoal(team)
 	end)
 end
 
-function DotaStrikers:OnWonGame( winningTeam )
-	ShowCenterMsg(winningTeam .. " WINS!", 4 )
+function DotaStrikers:OnWonGame( nWinningTeam )
+	local sWinningTeam = "Radiant"
+	if nWinningTeam == DOTA_TEAM_BADGUYS then
+		sWinningTeam = "Dire"
+	end
+	ShowCenterMsg(sWinningTeam .. " WINS!", 4 )
+
+	GameRules:SetGameWinner( nWinningTeam )
+	GameRules:SetSafeToLeave( true )
 	-- TODO: show popup with elo rating change
 
 end
