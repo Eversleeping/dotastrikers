@@ -247,6 +247,8 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 
 	-- mark the hero as a dota strikers hero.
 	hero.isDSHero = true
+	--Referee:SetControllableByPlayer(hero:GetPlayerID(), true)
+
 
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
@@ -265,17 +267,41 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	end
 
 	local classname = hero:GetClassname()
+	--print("classname: " .. classname)
+	local heroes_kv_name = "sprint"
 	if classname == "npc_dota_hero_antimage" then
 		hero.isSprinter = true
 	elseif classname == "npc_dota_hero_slark" then
 		hero.isNinja = true
+		heroes_kv_name = "ninja"
 	elseif classname == "npc_dota_hero_enigma" then
+		hero.isEnigma = true
 		hero.bh_targets = {}
+		heroes_kv_name = "black_hole"
+	-- why it's a capital I, i have no idea.
+	elseif classname == "npc_dota_hero_Invoker" then
+		hero.isPowershot = true
+		heroes_kv_name = "powershot"
+	elseif classname == "npc_dota_hero_earthshaker" then
+		hero.isSlam = true
+		heroes_kv_name = "slam"
+	elseif classname == "npc_dota_hero_wisp" then
+		hero.isWisp = true
+		heroes_kv_name = "pull"
+	elseif classname == "npc_dota_hero_bloodseeker" then
+		hero.isTackle = true
+		heroes_kv_name = "tackle"
 	end
+	hero.heroes_kv_name = heroes_kv_name
+	--print("heroes_kv_name: " .. heroes_kv_name)
+
+	-- this is useful in between rounds, swapping ability bars. it's in initmap.lua
+	self:GetRoundAbils(hero)
 
 	local coll = hero:AddColliderFromProfile("momentum")
 	coll.radius = BALL_COLLISION_DIST
 	coll.filer = self.colliderFilter
+	coll.elasticity = 1
 	coll.test = function(self, collider, collided)
 		local passTest = false
 		local ball = Ball.unit
@@ -291,15 +317,17 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 				end
 			end
 		end
-		if collided == ball and ball.affectedByPowershot then
-			ball.affectedByPowershot = false
+		if collided == ball and ball.pshotInvoke then
 			ball.dontChangeFriction = false
+
 			ball:SetPhysicsFriction(GROUND_FRICTION)
-			--hero:AddPhysicsVelocity((hero:GetAbsOrigin()-ball:GetAbsOrigin()):Normalized()*PSHOT_ONHIT_VEL)
+
 			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
+
 			ParticleManager:DestroyParticle(ball.powershot_particle, false)
-			print("affectedByPowershot collision.")
-			ball.controller = collider
+
+			ball.pshotInvoke = false
+
 			passTest = true
 		end
 		return passTest
@@ -670,6 +698,8 @@ function DotaStrikers:InitDotaStrikers()
 	self.m_TeamColors[8] = { 5, 110, 50 } -- 7:109:44
 	self.m_TeamColors[9] = { 130, 80, 5 } -- 124:75:6
 
+
+
 	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
@@ -679,11 +709,23 @@ function DotaStrikers:InitDotaStrikers()
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
 
-	Referee = CreateUnitByName("npc_dota_hero_omniknight", Vector(4000,4000,0), true, nil, nil, DOTA_TEAM_NEUTRALS)
+	RefereeSpawnPos = Vector(2780,1550,GroundZ)
+	Referee = CreateUnitByName("referee", RefereeSpawnPos, true, nil, nil, DOTA_TEAM_NEUTRALS)
 
 	Timers:CreateTimer(.06, function()
+		AddEndgameRoot(Referee)
+		AddDisarmed(Referee)
+
 		Referee:FindAbilityByName("referee_passive"):SetLevel(1)
 		Referee:SetCustomHealthLabel( "Referee", 255, 0, 0 )
+
+		-- constantly make the ref look at the ball, for aesthetics
+		Referee.referee_timer = Timers:CreateTimer(function()
+			if Referee:HasModifier("modifier_disarmed_on") then
+				Referee:SetForwardVector((Ball.unit:GetAbsOrigin()-Referee:GetAbsOrigin()):Normalized())
+			end
+			return .06
+		end)
 
 		DotaStrikers:InitMap()
 	end)
@@ -693,9 +735,9 @@ function DotaStrikers:InitDotaStrikers()
 	VisionDummies = {GoodGuys = {}, BadGuys = {}}
 	local timeOffset = .03
 	-- CREATE vision dummies
-	local offset = 1600 --528
-	for y=Bounds.max, Bounds.min, -1*offset do
-		for x=GOAL_X_MIN, GOAL_X_MAX, offset do
+	local offset = 1800 --528
+	for y=8192, -5632, -1*offset do
+		for x=-8192, 8192, offset do
 			Timers:CreateTimer(timeOffset, function()
 				--if GridNav:IsTraversable(Vector(x,y,GlobalDummy.z)) and not GridNav:IsBlocked(Vector(x,y,GlobalDummy.z)) then
 				local goodguy = CreateUnitByName("vision_dummy", Vector(x,y,GlobalDummy.z), false, nil, nil, DOTA_TEAM_GOODGUYS)
@@ -717,7 +759,7 @@ function DotaStrikers:InitDotaStrikers()
 	--GameRules:SetCustomVictoryMessageDuration( 0 )
 
 	self.HeroesKV = LoadKeyValues("scripts/npc/npc_heroes_custom.txt")
-	--BASE_WORM_MOVE_SPEED = self.HeroesKV["worm"]["MovementSpeed"]
+	--PrintTable(self.HeroesKV)
 
 	-- Initialized tables for tracking state
 	self.vUserIds = {}

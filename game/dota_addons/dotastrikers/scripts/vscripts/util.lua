@@ -1,3 +1,80 @@
+function AddStun( hero )
+	if not hero:HasAbility("stun_passive") then
+		hero:AddAbility("stun_passive")
+		hero:FindAbilityByName("stun_passive"):SetLevel(1)
+	end
+end
+
+function RemoveStun( hero )
+	if hero:HasAbility("stun_passive") then
+		hero:RemoveAbility("stun_passive")
+		hero:RemoveModifierByName("modifier_stun_passive")
+	end
+end
+
+function AddSilence( hero )
+	if not hero:HasModifier("modifier_endround_silenced_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_silenced_passive", {})
+	end
+end
+
+function RemoveSilence( hero )
+	if hero:HasModifier("modifier_endround_silenced_passive") then
+		hero:RemoveModifierByName("modifier_endround_silenced_passive")
+	end
+end
+
+function AddEndgameRoot( hero )
+	if not hero:HasModifier("modifier_endround_rooted_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_rooted_passive", {})
+	end
+end
+
+function RemoveEndgameRoot( hero )
+	if hero:HasModifier("modifier_endround_rooted_passive") then
+		hero:RemoveModifierByName("modifier_endround_rooted_passive")
+	end
+end
+
+function AddDisarmed( hero )
+	if hero:HasModifier("modifier_disarmed_off") then
+		hero:RemoveModifierByName("modifier_disarmed_off")
+	end
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_disarmed_on", {})
+end
+
+function RemoveDisarmed( hero )
+	if hero:HasModifier("modifier_disarmed_on") then
+		hero:RemoveModifierByName("modifier_disarmed_on")
+	end
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_disarmed_off", {})
+end
+
+function InitAbility( ... )
+	local t = {...}
+	local sAbilName = t[1]
+	local unit = t[2]
+	local fun = t[3]
+	local remove = t[4]
+
+	unit:AddAbility(sAbilName)
+	local abil = unit:FindAbilityByName(sAbilName)
+	abil:SetLevel(1)
+
+	if fun then
+		Timers:CreateTimer(.03, function()
+			fun(abil)
+			Timers:CreateTimer(.03, function()
+				if remove then
+					unit:RemoveAbility(sAbilName)
+				end
+			end)
+		end)
+	else
+		return abil
+	end
+end
+
 function GetTeammates( hero )
 	local teammates = {}
 	for i=0,9 do
@@ -133,7 +210,7 @@ function ClearAbilities( unit )
 	-- we have to put in dummies and remove dummies so the ability icon changes.
 	-- it's stupid but volvo made us
 	for i=1,6 do
-		unit:AddAbility("wormwar_empty" .. tostring(i))
+		unit:AddAbility("dotastrikers_empty" .. tostring(i))
 	end
 	for i=0, unit:GetAbilityCount()-1 do
 		local abil = unit:GetAbilityByIndex(i)
@@ -156,16 +233,6 @@ function InitAbilities( hero )
 			end
 		end
 	end
-end
-
--- adds ability to a unit, sets the level to 1, then returns ability handle.
-function AddAbilityToUnit(unit, abilName)
-	if not unit:HasAbility(abilName) then
-		unit:AddAbility(abilName)
-	end
-	local abil = unit:FindAbilityByName(abilName)
-	abil:SetLevel(1)
-	return abil
 end
 
 function GetOppositeTeam( unit )

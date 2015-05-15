@@ -5,6 +5,42 @@
 {
 	"Version"		"1"
 
+	"spawn_anim"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"rubick_empty1"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityCastAnimation"			"ACT_DOTA_SPAWN"
+		//"AnimationPlaybackRate"
+
+		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
+	}
+
+	"roshan_slam_anim"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"rubick_empty1"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_3"
+		//"AnimationPlaybackRate"
+
+		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
+	}
+
 	"goalie_jump"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
@@ -238,6 +274,7 @@
 				"EffectName"		"particles\units\heroes\hero_pugna\pugna_decrepify.vpcf"
 				"EffectAttachType"	"follow_overhead"
 				"TextureName"     	"slark_dark_pact"
+				//"OverrideAnimation"     "ACT_DOTA_RUN+shadow_dance"
 				"States"
 				{
 					"MODIFIER_STATE_INVISIBLE"		"MODIFIER_STATE_VALUE_ENABLED"
@@ -267,6 +304,7 @@
 		
 		"OnSpellStart"
 		{
+
 			"RunScript"
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
@@ -290,15 +328,15 @@
 		
 		"OnSpellStart"
 		{
-			"RunScript"
-			{
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"surge"
-			}
 			"ApplyModifier"
 			{
 				"ModifierName"	"modifier_haste_anim"
 				"Target" 		"CASTER"
+			}
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge"
 			}
 		}
 
@@ -347,11 +385,6 @@
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge_break"
-			}
-			"RemoveModifier"
-			{
-				"ModifierName"	"modifier_haste_anim"
-				"Target" 		"CASTER"
 			}
 		}
 	}
@@ -682,8 +715,7 @@
 					"MODIFIER_STATE_UNSELECTABLE"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_NO_HEALTH_BAR"			"MODIFIER_STATE_VALUE_ENABLED"
 					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
-					"MODIFIER_STATE_FLYING"			"MODIFIER_STATE_VALUE_ENABLED"
-					//"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
+					"MODIFIER_STATE_FLYING"					"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
 		}
@@ -902,11 +934,49 @@
 				"IsHidden"                       "1"    
 				"OverrideAnimation"     "ACT_DOTA_FLAIL"
 			}
+			"modifier_victory_anim"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"OverrideAnimation"     "ACT_DOTA_TELEPORT"
+			}
+			"modifier_defeat_anim"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"OverrideAnimation"     "ACT_DOTA_DISABLED"
+			}
+			"modifier_ninja_jump_anim"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				//"OverrideAnimation"     ""
+			}
 			"modifier_ball_controller"
 			{
 				"Passive"                        "1"
 				//"IsHidden"                       "0"  
 				"TextureName"      "earth_spirit_rolling_boulder"
+			}
+			"modifier_disarmed_on"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+			
+				"States"
+				{
+					"MODIFIER_STATE_DISARMED"		"MODIFIER_STATE_VALUE_ENABLED"
+				}
+			}
+			"modifier_disarmed_off"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+			
+				"States"
+				{
+					"MODIFIER_STATE_DISARMED"		"MODIFIER_STATE_VALUE_DISABLED"
+				}
 			}
 		}
 	}

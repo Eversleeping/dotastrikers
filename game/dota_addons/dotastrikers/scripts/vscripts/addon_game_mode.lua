@@ -93,6 +93,8 @@ function Precache( context )
 	PrecacheResource("soundfile", "soundevents/game_sounds.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_ambient.vsndevts", context)
+	PrecacheResource("soundfile", "soundevents/game_sounds_roshan_halloween.vsndevts", context)
+	--game_sounds_roshan_halloween
 	PrecacheResource("soundfile", "soundevents/soundevents_custom.vsndevts", context)
 
 	PrecacheItemByNameSync("item_phase_boots", context)
@@ -102,6 +104,8 @@ function Precache( context )
 	PrecacheUnitByNameSync("npc_dota_hero_ancient_apparition", context)
 	PrecacheUnitByNameSync("npc_dota_hero_omniknight", context)
 	PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
+	--npc_dota_roshan
+	PrecacheUnitByNameSync("npc_dota_roshan", context)
 	--PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
 end
 

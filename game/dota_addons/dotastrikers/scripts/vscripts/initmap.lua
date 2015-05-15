@@ -1,5 +1,5 @@
 GOAL_Y = 290 -- half of the y direction width of the goal post.
-TIME_TILL_NEXT_ROUND = 7
+TIME_TILL_NEXT_ROUND = 10
 SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 11
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
@@ -17,6 +17,43 @@ GOAL_OUTWARDNESS = 400
 GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), helps with model clipping into fences.
 GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 15000
+
+function DotaStrikers:GetRoundAbils( hero )
+	--print("round_in_progress_abils:")
+	local ptr = 1
+	local round_in_progress_abils = {}
+	for k,v in pairs(self.HeroesKV) do
+		if k == hero.heroes_kv_name then
+			for k,v2 in pairs(v) do
+				--print(k .. ": " .. v2)
+				if k:sub(1,7) == "Ability" and k:len() == 8 then
+					local index = tonumber(k:sub(8,8))
+					if index and index <= 6 then
+						--print(k .. ": " .. v2)
+						round_in_progress_abils[index] = v2
+					end
+				end
+			end
+		end
+	end
+
+	hero.round_in_progress_abils = round_in_progress_abils
+
+	local round_not_in_progress_abils = {}
+	--print("round_not_in_progress_abils: ")
+	for i=1,6 do
+		if i < 4 or i == 6 then
+			round_not_in_progress_abils[i] = "dotastrikers_empty" .. i
+		elseif i == 4 then
+			round_not_in_progress_abils[i] = "pass_me"
+		elseif i == 5 then
+			round_not_in_progress_abils[i] = "frown"
+		end
+		--print(round_not_in_progress_abils[i])
+	end
+	hero.round_not_in_progress_abils = round_not_in_progress_abils
+end
+
 
 function DotaStrikers:InitMap()
 	local ball = Ball.unit
@@ -169,23 +206,55 @@ function DotaStrikers:OnGoal(team)
 
 	CleanUp(ball)
 
-	-- hero is going to activate the surge/sprint break ability at this point. we cant silence or stun him yet.
-	for _,hero in ipairs(DotaStrikers.vHeroes) do
-		hero:SetMana(2)
+	local nWinningTeam = DOTA_TEAM_BADGUYS
+	if team == "Radiant" then
+		nWinningTeam = DOTA_TEAM_GOODGUYS
 	end
 
+	-- force activate the break abil if hero has it.
+	for _,hero in ipairs(DotaStrikers.vHeroes) do
+		local surge_break = hero:GetAbilityByIndex(2)
+		local abilName = surge_break:GetAbilityName()
+		if string.ends(abilName, "break") then
+			print("casting " .. abilName)
+			hero:CastAbilityNoTarget(surge_break, 0)
+		end
+
+		if hero:HasModifier("modifier_flail_passive") then
+			hero:RemoveModifierByName("modifier_flail_passive")
+		end
+
+		AddEndgameRoot(hero)
+
+		-- play victory/defeat animation
+		if hero:GetTeam() == nWinningTeam then
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_victory_anim", {})
+		else
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_defeat_anim", {})
+		end
+
+	end
+
+	-- Allot time for the break ability to execute.
 	Timers:CreateTimer(.06, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
 			CleanUp(hero)
-			--print("accel: " .. VectorString(hero:GetPhysicsAcceleration()))
-			AddStun(hero)
-			AddSilence(hero)
+
+			-- Replace the abils with the round_not_in_progress abils
+			for i=1,6 do
+				local abil = hero:GetAbilityByIndex(i-1)
+				hero:RemoveAbility(abil:GetAbilityName())
+				hero:AddAbility(hero.round_not_in_progress_abils[i])
+				hero:FindAbilityByName(hero.round_not_in_progress_abils[i]):SetLevel(1)
+			end
+
+			
 		end
 	end)
 
 	-- Check if game over.
 	local winningTeamCol = "green"
-	if team == "Dire" then
+	if nWinningTeam == DOTA_TEAM_BADGUYS then
 		winningTeamCol = "red"
 		self.direScore = self.direScore + 1
 		GameRules:GetGameModeEntity():SetTopBarTeamValue ( DOTA_TEAM_BADGUYS, self.direScore )
@@ -206,7 +275,7 @@ function DotaStrikers:OnGoal(team)
 		[1] = ColorIt(scorer.playerName, scorer.colStr) .. " scored for the " .. ColorIt(team, winningTeamCol) .. "!!!"
 
 	}
-	
+
 	ShowQuickMessages(lines, .2)
 
 	RoundInProgress = false
@@ -220,31 +289,34 @@ function DotaStrikers:OnGoal(team)
 	for i=start,1,-1 do
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
-				--ball:SetPhysicsVelocity(Vector(0,0,0))
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
-					AddEndgameRoot(hero)
-					RemoveStun(hero)
+					if hero:HasModifier("modifier_defeat_anim") then
+						hero:RemoveModifierByName("modifier_defeat_anim")
+					elseif hero:HasModifier("modifier_victory_anim") then
+						hero:RemoveModifierByName("modifier_victory_anim")
+					end
 
 					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
 					hero:SetPhysicsFriction(GROUND_FRICTION)
 					hero:StopPhysicsSimulation()
 
-					if hero:HasModifier("modifier_flail_passive") then
-						hero:RemoveModifierByName("modifier_flail_passive")
-					end
-
 					-- return heroes back to their spawn positions.
 					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
 
 					-- make them all face the ball (looks nicer)
-					Timers:CreateTimer(.06, function()
+					Timers:CreateTimer(.03, function()
 						hero:SetForwardVector((ball:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized())
 						hero:SetMana(hero:GetMaxMana())
-						Timers:CreateTimer(.06, function()
-							AddStun(hero)
-							RemoveEndgameRoot(hero)
+						Timers:CreateTimer(.03, function()
+							--AddStun(hero)
+							--RemoveEndgameRoot(hero)
 							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
+
+							InitAbility("spawn_anim", hero, function(abil)
+								hero:CastAbilityNoTarget(abil, 0)
+							end, true)
+
 						end)
 					end)
 				end
@@ -263,8 +335,15 @@ function DotaStrikers:OnGoal(team)
 
 	Timers:CreateTimer(TIME_TILL_NEXT_ROUND, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
-			RemoveStun(hero)
-			RemoveSilence(hero)
+			RemoveEndgameRoot(hero)
+
+			for i=1,6 do
+				local abil = hero:GetAbilityByIndex(i-1)
+				hero:RemoveAbility(abil:GetAbilityName())
+				hero:AddAbility(hero.round_in_progress_abils[i])
+				hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
+			end
+
 			hero:StartPhysicsSimulation()
 			hero:SetPhysicsAcceleration(BASE_ACCELERATION)
 			hero:SetPhysicsVelocity(Vector(0,0,0))
@@ -324,9 +403,9 @@ function GetGoalUnitIsWithin( unit )
 	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE-10
 	local goal_pos = GOAL_Y+GC_INCREASE_SIDE+10
 
-	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS-10) and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_GOODGUYS
-	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS+10) and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_BADGUYS
 	end
 	return nil
@@ -399,40 +478,3 @@ function DotaStrikers:OnCantEnter( unit )
 	end
 end
 
-function AddStun( hero )
-	if not hero:HasAbility("stun_passive") then
-		hero:AddAbility("stun_passive")
-		hero:FindAbilityByName("stun_passive"):SetLevel(1)
-	end
-end
-
-function RemoveStun( hero )
-	if hero:HasAbility("stun_passive") then
-		hero:RemoveAbility("stun_passive")
-		hero:RemoveModifierByName("modifier_stun_passive")
-	end
-end
-
-function AddSilence( hero )
-	if not hero:HasModifier("modifier_endround_silenced_passive") then
-		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_silenced_passive", {})
-	end
-end
-
-function RemoveSilence( hero )
-	if hero:HasModifier("modifier_endround_silenced_passive") then
-		hero:RemoveModifierByName("modifier_endround_silenced_passive")
-	end
-end
-
-function AddEndgameRoot( hero )
-	if not hero:HasModifier("modifier_endround_rooted_passive") then
-		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_rooted_passive", {})
-	end
-end
-
-function RemoveEndgameRoot( hero )
-	if hero:HasModifier("modifier_endround_rooted_passive") then
-		hero:RemoveModifierByName("modifier_endround_rooted_passive")
-	end
-end

@@ -20,8 +20,8 @@ SPRINT_COOLDOWN = 5
 
 BH_RADIUS = 420
 BH_DURATION = 6
-BH_FORCE_MAX = 6000
-BH_FORCE_MIN = 3700
+BH_FORCE_MAX = 5300
+BH_FORCE_MIN = 4500
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
@@ -49,6 +49,8 @@ function DotaStrikers:OnRefereeAttacked( keys )
 	local attacked = keys.target
 	local ball = Ball.unit
 
+	if not attacked == ball then return end
+
 	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
 	--print("towardsCenter: " .. VectorString(towardsCenter))
 
@@ -61,19 +63,21 @@ function DotaStrikers:OnRefereeAttacked( keys )
 
 	ball:SetPhysicsVelocity(towardsCenter*REF_OOB_HIT_VEL)
 
-	local caster = keys.caster
+	local caster = keys.caster -- Referee
 
 	-- reset pos of ref
-	Timers:CreateTimer(.2, function()
-		caster:SetAbsOrigin(Vector(4000,4000,0))
-		caster:Stop()
+	Timers:CreateTimer(.5, function()
+		Referee:SetAbsOrigin(RefereeSpawnPos)
+		Timers:CreateTimer(.06, function()
+			AddEndgameRoot(Referee)
+			AddDisarmed(Referee)
+		end)
 	end)
 
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
 function DotaStrikers:on_powershot_succeeded( keys )
-	--print("on_powershot_succeeded")
 	local caster = keys.caster
 	local ball = Ball.unit
 	-- occurs when invoker got his ball stolen while channeling pshot.
@@ -99,8 +103,6 @@ function DotaStrikers:on_powershot_succeeded( keys )
 end
 
 function DotaStrikers:throw_ball( keys )
-	--PrintTable(keys)
-	--print("get_throw_point")
 	local caster = keys.caster
 	local ball = Ball.unit
 	if caster ~= ball.controller then return end
@@ -135,6 +137,7 @@ end
 function DotaStrikers:surge( keys )
 	local caster = keys.caster
 	caster.surgeOn = true
+	print("surge")
 
 	-- apply effects
 	--particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf
@@ -162,12 +165,12 @@ function DotaStrikers:surge( keys )
 
 		caster:EmitSound("Hero_Weaver.Shukuchi")
 
-		-- root hero so the haste movespeed doesn't influence him
-		AddEndgameRoot(caster)
-
 		-- this is for animation purposes. We also needed to add "OverrideAnimation" "ACT_DOTA_RUN" in the super_sprint ability for this to work.
 		-- because the rooted sets movespeed to 0, which causes ACT_DOTA_RUN to never be called.
 		caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
+
+		-- root hero so the haste movespeed doesn't influence him
+		AddEndgameRoot(caster)
 
 		caster.sprint_timer = Timers:CreateTimer(function()
 			if not caster:HasAbility("super_sprint_break") then
@@ -235,6 +238,7 @@ end
 function DotaStrikers:surge_break( keys )
 	local caster = keys.caster
 	caster.surgeOn = false
+	print("surge_break")
 
 	if caster.isSprinter then
 		caster:RemoveAbility("super_sprint_break")
@@ -259,6 +263,9 @@ function DotaStrikers:surge_break( keys )
 		if caster:HasModifier("modifier_rune_haste") then
 			caster:RemoveModifierByName("modifier_rune_haste")
 			RemoveEndgameRoot(caster)
+		end
+		if caster:HasModifier("modifier_haste_anim") then
+			caster:RemoveModifierByName("modifier_haste_anim")
 		end
 
 		--caster:EmitSound("Hero_Slardar.MovementSprint")
@@ -364,6 +371,10 @@ function DotaStrikers:ninja_jump( keys )
 	caster:AddPhysicsVelocity(caster:GetForwardVector()*NINJA_JUMP_XY + Vector(0,0,NINJA_JUMP_Z))
 	caster.noBounce = true
 	caster.isUsingJump = true
+
+	if caster:HasAbility("ninja_invis_sprint_break") then
+		caster:CastAbilityNoTarget(caster:FindAbilityByName("ninja_invis_sprint_break"), 0)
+	end
 
 	if Testing then keys.ability:EndCooldown() end
 end

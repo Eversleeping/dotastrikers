@@ -66,6 +66,10 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 		if unit.noBounce then
 			if unit.isUsingJump then
+				--[[if unit:HasModifier("modifier_ninja_jump_anim") then
+					unit:RemoveModifierByName("modifier_ninja_jump_anim")
+				end]]
+
 				unit.isUsingJump = false
 			end
 			unit.noBounce = false
@@ -210,11 +214,12 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 					ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
 				end
 
-				if hero == Referee.unit then
-					Referee.unit:MoveToTargetToAttack(ball)
+				ball.controller = hero
+				if ball.affectedByPowershot then
+					-- allow the hero collider to take control and apply collision velocity, by invoking it
+					ball.pshotInvoke = true
 
-				else
-					ball.controller = hero
+					ball.affectedByPowershot = false
 				end
 				hero.ballProc = true
 			end
@@ -323,6 +328,14 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		-- if the ball has a controller (the goalie), warn him beforehand.
 		ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
 			if not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress then return end
+
+			--Referee:CastAbilityNoTarget(Referee:FindAbilityByName("roshan_slam_anim"), 0)
+			if RandomInt(1, 2) == 1 then
+				EmitGlobalSound("RoshanDT.Scream")
+			else
+				EmitGlobalSound("RoshanDT.Scream2")
+			end
+
 			if not ball.controller or ball.controller:GetTeam() ~= thisGoal then return end
 
 			local cTime = GameRules:GetGameTime()
@@ -451,8 +464,17 @@ end]]
 function DotaStrikers:GetBallInBounds(  )
 	local ball = Ball.unit
 	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
-	local backOfBall = -250*towardsCenter + ball:GetAbsOrigin()
+	local backOfBall = -300*towardsCenter + ball:GetAbsOrigin()
+
+	RemoveEndgameRoot(Referee)
+	RemoveDisarmed(Referee)
+
 	Referee:SetAbsOrigin(backOfBall)
+
+	Referee:SetForwardVector((ball:GetAbsOrigin()-backOfBall):Normalized())
+
+	Referee:MoveToTargetToAttack(ball)
+
 	local thisController = ball.controller
 	ball.controller = Referee
 	Timers:CreateTimer(.06, function()
