@@ -759,7 +759,7 @@ function DotaStrikers:InitDotaStrikers()
 	--GameRules:SetCustomVictoryMessageDuration( 0 )
 
 	self.HeroesKV = LoadKeyValues("scripts/npc/npc_heroes_custom.txt")
-	--PrintTable(self.HeroesKV)
+	self.AbilitiesKV = LoadKeyValues("scripts/npc/npc_abilities_custom.txt")
 
 	-- Initialized tables for tracking state
 	self.vUserIds = {}

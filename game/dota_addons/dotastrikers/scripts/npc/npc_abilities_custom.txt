@@ -845,7 +845,7 @@
 		
 		"Modifiers"
 		{
-			"modifier_ball_passive"
+			"modifier_hero_passive"
 			{
 				"Passive"				"1"
 				"IsHidden"				"1"
@@ -939,6 +939,18 @@
 				"Passive"                        "1"
 				"IsHidden"                       "1"    
 				"OverrideAnimation"     "ACT_DOTA_TELEPORT"
+			}
+			"modifier_victory_anim_powershot"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"OverrideAnimation"     "ACT_DOTA_CAST_TORNADO"
+			}
+			"modifier_victory_anim_black_hole"
+			{
+				"Passive"                        "1"
+				"IsHidden"                       "1"    
+				"OverrideAnimation"     "ACT_DOTA_CAST_ABILITY_4"
 			}
 			"modifier_defeat_anim"
 			{

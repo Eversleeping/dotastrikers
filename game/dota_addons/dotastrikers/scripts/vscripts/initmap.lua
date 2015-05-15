@@ -216,23 +216,28 @@ function DotaStrikers:OnGoal(team)
 		local surge_break = hero:GetAbilityByIndex(2)
 		local abilName = surge_break:GetAbilityName()
 		if string.ends(abilName, "break") then
-			print("casting " .. abilName)
 			hero:CastAbilityNoTarget(surge_break, 0)
-		end
-
-		if hero:HasModifier("modifier_flail_passive") then
-			hero:RemoveModifierByName("modifier_flail_passive")
 		end
 
 		AddEndgameRoot(hero)
 
-		-- play victory/defeat animation
-		if hero:GetTeam() == nWinningTeam then
-			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_victory_anim", {})
-		else
-			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_defeat_anim", {})
-		end
+--[[
+	local animType = t[1]
+	local unit = t[2]
+	local unitKVName = t[3]
+	local maxDuration = t[4]
+	local singleDuration = t[5]
+	local repeatAnim = t[6]
+]]
 
+		-- play victory/defeat animation
+		--[[if not hero:HasModifier("modifier_flail_passive") then
+			if hero:GetTeam() == nWinningTeam then
+				hero.victory_anim = PlayAnimation("victory", hero )
+			else
+				hero.defeat_anim = PlayAnimation("defeat", hero )
+			end
+		end]]
 	end
 
 	-- Allot time for the break ability to execute.
@@ -247,8 +252,6 @@ function DotaStrikers:OnGoal(team)
 				hero:AddAbility(hero.round_not_in_progress_abils[i])
 				hero:FindAbilityByName(hero.round_not_in_progress_abils[i]):SetLevel(1)
 			end
-
-			
 		end
 	end)
 
@@ -290,11 +293,13 @@ function DotaStrikers:OnGoal(team)
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
-					if hero:HasModifier("modifier_defeat_anim") then
-						hero:RemoveModifierByName("modifier_defeat_anim")
-					elseif hero:HasModifier("modifier_victory_anim") then
-						hero:RemoveModifierByName("modifier_victory_anim")
-					end
+					--[[if hero:GetTeam() == nWinningTeam then
+						StopAnimation(hero.victory_anim, hero)
+					else
+						StopAnimation(hero.defeat_anim, hero)
+					end]]
+
+					StopAnimation("modifier_flail_passive", hero)
 
 					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
@@ -309,8 +314,6 @@ function DotaStrikers:OnGoal(team)
 						hero:SetForwardVector((ball:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized())
 						hero:SetMana(hero:GetMaxMana())
 						Timers:CreateTimer(.03, function()
-							--AddStun(hero)
-							--RemoveEndgameRoot(hero)
 							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
 
 							InitAbility("spawn_anim", hero, function(abil)
@@ -400,12 +403,12 @@ function GetGoalUnitIsWithin( unit )
 		return DOTA_TEAM_BADGUYS
 	end
 
-	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE-10
-	local goal_pos = GOAL_Y+GC_INCREASE_SIDE+10
+	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE
+	local goal_pos = GOAL_Y+GC_INCREASE_SIDE
 
-	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS-10) and (pos.y > goal_neg and pos.y < goal_pos) then
+	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_GOODGUYS
-	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS+10) and (pos.y > goal_neg and pos.y < goal_pos) then
+	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_BADGUYS
 	end
 	return nil
@@ -478,3 +481,64 @@ function DotaStrikers:OnCantEnter( unit )
 	end
 end
 
+function PlayAnimation( ... )
+	local t = {...}
+	local animType = t[1]
+	local unit = t[2]
+	local unitKVName = t[3]
+	local maxDuration = t[4]
+	local singleDuration = t[5]
+	local repeatAnim = t[6]
+
+	if not t[3] then
+		if not unit:IsRealHero() then
+			unitKVName = unit:GetUnitName()
+		else
+			unitKVName = unit.heroes_kv_name
+		end
+	end
+
+	local anim = "modifier_victory_anim_" .. unitKVName
+	if animType == "victory" then
+		if not DotaStrikers.AbilitiesKV["global_dummy_passive"]["Modifiers"][anim] then
+			anim = "modifier_victory_anim"
+		end
+	elseif animType == "defeat" then
+		anim = "modifier_defeat_anim_" .. unitKVName
+		if not DotaStrikers.AbilitiesKV["global_dummy_passive"]["Modifiers"][anim] then
+			print("getting defeat anim.")
+			anim = "modifier_defeat_anim"
+		end
+	end
+	print("anim: " .. anim)
+
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, anim, {})
+
+	if maxDuration then
+		if repeatAnim then
+			local animStopTime = GameRules:GetGameTime() + maxDuration
+			local firstRun = singleDuration
+			if not firstRun then firstRun = 2 end
+			Timers:CreateTimer(firstRun, function()
+				StopAnimation(anim, unit)
+				if GameRules:GetGameTime() > animStopTime then
+					return
+				end
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, anim, {})
+
+				return firstRun
+			end)
+		else
+			Timers:CreateTimer(maxDuration, function()
+				StopAnimation(anim, unit)
+			end)
+		end
+	end
+end
+
+function StopAnimation( anim, unit )
+	if anim == nil then return end
+	if unit:HasModifier(anim) then
+		unit:RemoveModifierByName(anim)
+	end
+end
