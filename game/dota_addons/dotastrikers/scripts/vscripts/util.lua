@@ -1,3 +1,26 @@
+function CreateNeutralParticle( particle, pos, attach_type, duration )
+	local handler = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_NEUTRALS)
+	local part = ParticleManager:CreateParticle(particle, attach_type, handler)
+
+	Timers:CreateTimer(duration, function()
+		handler:ForceKill(true)
+	end)
+
+	return part
+end
+
+function AddHasteAnimation( hero )
+	if not hero:HasModifier("modifier_haste_anim") then
+		GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_haste_anim", {})
+	end
+end
+
+function RemoveHasteAnimation( hero )
+	if hero:HasModifier("modifier_haste_anim") then
+		hero:RemoveModifierByName("modifier_haste_anim")
+	end
+end
+
 function AddStun( hero )
 	if not hero:HasAbility("stun_passive") then
 		hero:AddAbility("stun_passive")

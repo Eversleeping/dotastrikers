@@ -2315,6 +2315,58 @@ Physics:CreateColliderProfile("momentum",
 		end
 	})
 
+Physics:CreateColliderProfile("momentum_full",
+	{
+		type = COLLIDER_SPHERE,
+		radius = 100,
+		recollideTime = .1,
+		skipFrames = 0,
+		block = true,
+		blockRadius = 50,
+		moveSelf = false,
+		findClearSpace = false,
+		elasticity = 1,
+		test = function(self, collider, collided)
+			return collided.IsRealHero and collided:IsRealHero() and collider:GetTeam() ~= collided:GetTeam() and IsPhysicsUnit(collided)
+		end,
+		action = function(self, unit, v)
+			if self.hitTime == nil or GameRules:GetGameTime() >= self.hitTime then
+				local pos = unit:GetAbsOrigin()
+				local vPos = v:GetAbsOrigin()
+				local dir = vPos - pos
+				local mass = unit:GetMass()
+				local vMass = v:GetMass()
+				--dir.z = 0
+				dir = dir:Normalized()
+
+				local neg = -1 * dir
+
+				local dot = unit:GetTotalVelocity():Length()
+				local dot2 = -1*v:GetTotalVelocity():Length()
+
+				local v1 = (self.elasticity * vMass * (dot2 - dot) + (mass * dot) + (vMass * dot2)) / (mass + vMass)
+				local v2 = (self.elasticity * mass * (dot - dot2) + (mass * dot) + (vMass * dot2)) / (mass + vMass)
+
+				--if dot < 1 and dot2 < 1 then
+				--return
+				--end
+
+				unit:AddPhysicsVelocity((v1 - dot) * dir)
+				v:AddPhysicsVelocity((v2 - dot2) * dir)
+
+				if self.block then
+					if self.moveSelf then
+						Physics:BlockInSphere(v, unit, self.blockRadius, self.findClearSpace)
+					else
+						Physics:BlockInSphere(unit, v, self.blockRadius, self.findClearSpace)
+					end
+				end
+
+				self.hitTime = GameRules:GetGameTime() + self.recollideTime
+			end
+		end
+	})
+
 Physics:CreateColliderProfile("boxblocker",
 	{
 		type = COLLIDER_BOX,

@@ -49,3 +49,7 @@ end
 function tackle( keys )
 	DotaStrikers:tackle(keys)
 end
+
+function goalie_jump( keys )
+	DotaStrikers:goalie_jump(keys)
+end

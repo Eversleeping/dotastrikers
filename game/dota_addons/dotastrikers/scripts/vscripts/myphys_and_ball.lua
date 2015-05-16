@@ -3,7 +3,7 @@ GROUND_FRICTION = .035
 AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
-BALL_COLLISION_DIST = 130
+BALL_COLLISION_DIST = 125
 BOUNCE_MULTIPLIER = .9
 BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
@@ -14,7 +14,8 @@ NUM_BOUNCE_SOUNDS = 5
 NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
 
-BALL_HOG_DURATION = 7
+BALL_HOG_DURATION = 6
+BALL_OUTOFBOUNDS_DURATION = 5
 
 BALL_ROUNDSTART_KICK = {170,210}
 CONTROLLER_MOVESPEED_FACTOR = 1/5
@@ -72,6 +73,11 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 				unit.isUsingJump = false
 			end
+			if unit.isUsingGoalieJump then
+				unit:EmitSound("Hero_Rubick.Telekinesis.Target.Land")
+				unit.isUsingGoalieJump = false
+			end
+
 			unit.noBounce = false
 		end
 
@@ -107,7 +113,8 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			--if unit == Ball.unit then print("Changing ball friciton.") end
 			unit:SetPhysicsFriction(AIR_FRICTION)
 		end
-		if not unit:HasModifier("modifier_flail_passive") and not unit.noBounce and ball.controller ~= unit then
+		if not unit:HasModifier("modifier_flail_passive") and not unit.noBounce and ball.controller ~= unit then -- and not unit.isUsingGoalieJump
+
 			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_flail_passive", {})
 		end
 
@@ -165,7 +172,7 @@ function Ball:Init(  )
 		local vel_for_zero_rotation = 20*20
 		local cp_value_for_max_rotation = -60
 		local new_cp_value = ball.velocityMagnitude*(cp_value_for_max_rotation/vel_for_max_rotation)
-		if (ball:GetAbsOrigin()-ball.lastPos):Length() < 1 then
+		if (ball:GetAbsOrigin()-ball.lastPos):Length() < 1 or ball.controller then
 			if ball.rotateStarted then
 				--DebugDrawBox(ball:GetAbsOrigin(), Vector(-8,-8,0), Vector(8,8,1), 255, 0, 0, 100, 30)
 				ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,0))
@@ -266,24 +273,12 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 			cont.slowedByBall = true
 		end
 
-		ball:SetForwardVector(ball.controller:GetForwardVector())
+		-- if goalie, he can't have goalie jump while having the ball
+		if ball.controller.goalie then
+			DotaStrikers:RemoveGoalieJump(ball.controller)
+		end
 
-		-- handle when controller took the ball out of bounds
-		--local isBallOutOfBounds = ball:IsBallOutOfBounds()
-		--[[if isBallOutOfBounds and not ball.outOfBoundsProc then
-			--Timers:RemoveTimer(ball.outOfBoundsTimer)
-			ball.outOfBoundsTimer = Timers:CreateTimer(2, function()
-				if not ball.outOfBoundsProc then return end
-				print("Referee.unit:GetBallInBounds()")
-				Referee.unit:GetBallInBounds()
-			end)
-			-- show error msg
-			ShowErrorMsg(ball.controller, "Ball is out of bounds")
-			ball.outOfBoundsProc = true
-		elseif not isBallOutOfBounds and ball.outOfBoundsProc then
-			Timers:RemoveTimer(ball.outOfBoundsTimer)
-			ball.outOfBoundsProc = false
-		end]]
+		ball:SetForwardVector(ball.controller:GetForwardVector())
 
 	else -- ball.controller is nil
 		-- turn the facing direction of the ball for aesthetics.
@@ -313,39 +308,78 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		ball.current_goal = goal -- team number
 		local thisGoal = goal
 		--print("starting hog_timer")
-		--Timers:RemoveTimer(ball.hog_timer)
-		ball.hog_timer = Timers:CreateTimer(BALL_HOG_DURATION, function()
-			if not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress then return end
-			-- if ball has controller, make sure the controller is on the same team as this goal before knocking the ball away.
-			if ball.controller and ball.controller:GetTeam() ~= thisGoal then return end
 
-			local cTime = GameRules:GetGameTime()
-			if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION then
-				DotaStrikers:GetBallInBounds()
-			end
-		end)
+		-- is the situation we're in legit?
+		local allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
 
-		-- if the ball has a controller (the goalie), warn him beforehand.
-		ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
-			if not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress then return end
+		if not allowed then
+			ball.hog_timer = Timers:CreateTimer(BALL_HOG_DURATION, function()
+				-- check again to see if we're in the same situation
+				allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
+				if allowed then return end
 
-			--Referee:CastAbilityNoTarget(Referee:FindAbilityByName("roshan_slam_anim"), 0)
-			if RandomInt(1, 2) == 1 then
-				EmitGlobalSound("RoshanDT.Scream")
-			else
-				EmitGlobalSound("RoshanDT.Scream2")
-			end
+				local cTime = GameRules:GetGameTime()
+				if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION then
+					if RandomInt(1, 2) == 1 then
+						EmitGlobalSound("RoshanDT.Scream")
+					else
+						EmitGlobalSound("RoshanDT.Scream2")
+					end
+					DotaStrikers:GetBallInBounds()
+				end
+			end)
 
-			if not ball.controller or ball.controller:GetTeam() ~= thisGoal then return end
+			-- if the ball has a controller (the goalie), warn him beforehand.
+			ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
+				-- check again to see if we're in the same situation
+				allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
+				if allowed then return end
+				-- no need to execute this is there is no controller, since it's a warning.
+				if not ball.controller then return end
 
-			local cTime = GameRules:GetGameTime()
-			if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION/2 then
-				ShowErrorMsg(ball.controller, "#goalie_ball_hog_warning")
-			end
-		end)
+				local cTime = GameRules:GetGameTime()
+				if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION/2 then
+					ShowErrorMsg(ball.controller, "#goalie_ball_hog_warning")
+					DotaStrikers:text_particle( {caster=ball.controller, exclamation=true} )
+				end
+			end)
+		end
 	elseif ball.current_goal and not goal then
 		-- ball is no longer within a goal.
 		ball.current_goal = nil
+	end
+
+	-- Check if ball is out of bounds.
+	if not goal then
+		local isBallOutOfBounds = ballPos.x > RECT_X_MAX or ballPos.x < RECT_X_MIN or ballPos.y > Bounds.max or ballPos.y < Bounds.min
+		ball.outOfBounds = isBallOutOfBounds
+		if isBallOutOfBounds and not ball.outOfBoundsProc then
+			ball.timeBecameOutOfBounds = GameRules:GetGameTime()
+			ball.out_of_bounds_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION, function()
+				if not ball.outOfBoundsProc then return end
+				if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION then
+					if RandomInt(1, 2) == 1 then
+						EmitGlobalSound("RoshanDT.Scream")
+					else
+						EmitGlobalSound("RoshanDT.Scream2")
+					end
+					DotaStrikers:GetBallInBounds()
+				end
+			end)
+
+			ball.out_of_bounds_warning_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION/2, function()
+				if not ball.outOfBoundsProc then return end
+
+				if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION/2 then
+					ShowErrorMsg(ball.controller, "#outofbounds_warning")
+					DotaStrikers:text_particle( {caster=ball.controller, exclamation=true} )
+				end
+			end)
+
+			ball.outOfBoundsProc = true
+		elseif not isBallOutOfBounds and ball.outOfBoundsProc then
+			ball.outOfBoundsProc = false
+		end
 	end
 
 	-- rotate the ball depending if it's not moving or what
@@ -483,4 +517,56 @@ function DotaStrikers:GetBallInBounds(  )
 			--return .1
 		end
 	end)
+end
+
+function DotaStrikers:SetupPersonalColliders(hero)
+	local pshot_coll = hero:AddColliderFromProfile("momentum_full")
+	pshot_coll.radius = BALL_COLLISION_DIST
+	pshot_coll.filer = self.colliderFilter
+	pshot_coll.elasticity = .8
+	pshot_coll.test = function(self, collider, collided)
+		local passTest = false
+		local ball = Ball.unit
+
+		if not IsPhysicsUnit(collided) then return false end
+
+		if collided == ball and ball.pshotInvoke then
+			ball.dontChangeFriction = false
+
+			ball:SetPhysicsFriction(GROUND_FRICTION)
+
+			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
+
+			ParticleManager:DestroyParticle(ball.powershot_particle, false)
+
+			ball.pshotInvoke = false
+
+			passTest = true
+		end
+		return passTest
+	end
+	hero.pshot_collider = pshot_coll
+
+	local coll = hero:AddColliderFromProfile("momentum")
+	coll.radius = 110
+	coll.filer = self.colliderFilter
+	coll.elasticity = 1
+	coll.test = function(self, collider, collided)
+		local passTest = false
+		local ball = Ball.unit
+
+		if not IsPhysicsUnit(collided) then return false end
+		--local rad = (collider:GetAbsOrigin()-collided:GetAbsOrigin()):Length()
+
+		if collided.isDSHero then
+			if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
+				TryPlayCracks(collider)
+				passTest = true
+			end
+		end
+
+		return passTest
+	end
+	hero.personal_collider = coll
+
 end

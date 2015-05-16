@@ -1,6 +1,3 @@
-// Dota Abilities Override File
-// DataDriven Ability Guide: https://moddota.com/forums/discussion/14/datadriven-ability-breakdown-documentation
-
 "DOTAAbilities"
 {
 	"Version"		"1"
@@ -45,13 +42,13 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"slark_pounce"
+		"AbilityTextureName"			"rubick_telekinesis"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"0"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"8"
+		"AbilityCooldown"				"6"
 
 		"AbilityManaCost"				"0"
 		"MaxLevel"						"1"
@@ -102,7 +99,7 @@
 		"AbilityCastPoint"				"0"
 		"AbilityCooldown"				"20"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
-		"AOERadius"						"250" // half of BH_RADIUS
+		"AOERadius"						"260" // kinda half of BH_RADIUS
 
 		"AbilityManaCost"				"0"
 		
@@ -120,7 +117,7 @@
 			"01"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"radius"					"420"
+				"radius"					"430"
 			}
 			"02"
 			{
@@ -130,34 +127,9 @@
 		}
 	}
 
-	"powershot_channel"
-	{
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_CHANNELLED"
-		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			""
-
-		// Stats
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"0"
-		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"0"
-		"MaxLevel"						"1"
-		"AbilityManaCost"				"0"
-		"AbilityChannelTime"			".35"
-		
-		"OnChannelSucceeded"
-		{
-			"RunScript"
-			{
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"on_powershot_succeeded"
-			}
-		}
-	}
-
 	"powershot"
 	{
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_CHANNELLED"
 		"BaseClass"						"ability_datadriven"
 		"AbilityTextureName"			"vengefulspirit_magic_missile"
 		"MaxLevel"						"1"
@@ -166,26 +138,30 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"0"
-		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
+		"AbilityCooldown"				"10"
+		"AbilityCastAnimation"			"ACT_DOTA_CAST_GHOST_WALK"
+		"AnimationPlaybackRate"			"3"
 
 		"AbilityManaCost"				"0"
 		
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"Target"				"POINT"
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"throw_ball"
-			}
-		}
 		"AbilitySpecial"
 		{
 			"01"
 			{
 				"var_type"					"FIELD_FLOAT"
 				"channel_time"				"0.35"
+			}
+		}
+
+		"AbilityChannelTime"			".35"
+
+		"OnChannelSucceeded"
+		{
+			"RunScript"
+			{
+				"Target"				"POINT"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"throw_ball"
 			}
 		}
 	}
@@ -337,17 +313,6 @@
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"surge"
-			}
-		}
-
-		"Modifiers"
-		{
-			"modifier_haste_anim"
-			{
-				"Passive"			"1"
-				"IsHidden"			"1"
-		
-				"OverrideAnimation"     "ACT_DOTA_RUN"
 			}
 		}
 
@@ -963,6 +928,13 @@
 				"Passive"                        "1"
 				"IsHidden"                       "1"    
 				//"OverrideAnimation"     ""
+			}
+			"modifier_haste_anim"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+		
+				"OverrideAnimation"     "ACT_DOTA_RUN"
 			}
 			"modifier_ball_controller"
 			{

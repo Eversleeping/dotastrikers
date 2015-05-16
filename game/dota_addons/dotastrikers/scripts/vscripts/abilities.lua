@@ -18,17 +18,22 @@ SPRINT_ACCEL = 1200
 SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 5
 
-BH_RADIUS = 420
+BH_RADIUS = 430
 BH_DURATION = 6
-BH_FORCE_MAX = 5300
-BH_FORCE_MIN = 4500
+BH_FORCE_MAX = 4000
+BH_FORCE_MIN = 3000
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
 TACKLE_DURATION = .3
 TACKLE_FORCE = 800
 
+-- ball goes up a lil in the z direction if hero throws ball while in the air.
 KICK_BALL_Z_PUSH = 280
+GOALIE_JUMP_Z = 1300
+
+NUM_FROWNS = 6
+NUM_TAUNTS = 6
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 SURGE_MOVESPEED_FACTOR = 1/3
@@ -77,13 +82,12 @@ function DotaStrikers:OnRefereeAttacked( keys )
 	ball:SetHealth(ball:GetMaxHealth())
 end
 
-function DotaStrikers:on_powershot_succeeded( keys )
+function DotaStrikers:on_powershot_succeeded( keys, dir )
 	local caster = keys.caster
 	local ball = Ball.unit
 	-- occurs when invoker got his ball stolen while channeling pshot.
 	if ball.controller ~= caster then return end
 
-	local dir = caster.throw_direction
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
 	ball.dontChangeFriction = true
 	ball:SetPhysicsFriction(0)
@@ -105,6 +109,11 @@ end
 function DotaStrikers:throw_ball( keys )
 	local caster = keys.caster
 	local ball = Ball.unit
+
+	if Testing then
+		keys.ability:EndCooldown()
+	end
+
 	if caster ~= ball.controller then return end
 
 	local point = keys.target_points[1]
@@ -115,9 +124,8 @@ function DotaStrikers:throw_ball( keys )
 	local dir = (targetpoint_at_ball_z-ballPos):Normalized()
 
 	if keys.ability:GetAbilityName() == "powershot" then
-		-- begin the channeling portion
-		caster.throw_direction = dir
-		caster:CastAbilityNoTarget(caster:FindAbilityByName("powershot_channel"), 0)
+		print("powershot")
+		self:on_powershot_succeeded(keys, dir)
 	else
 		-- if caster is above ground, give the ball more of a push in z direction.
 		if caster.isAboveGround then
@@ -137,7 +145,6 @@ end
 function DotaStrikers:surge( keys )
 	local caster = keys.caster
 	caster.surgeOn = true
-	print("surge")
 
 	-- apply effects
 	--particles/units/heroes/hero_dark_seer/dark_seer_surge.vpcf
@@ -171,6 +178,10 @@ function DotaStrikers:surge( keys )
 
 		-- root hero so the haste movespeed doesn't influence him
 		AddEndgameRoot(caster)
+
+		Timers:CreateTimer(.03, function()
+			AddHasteAnimation(caster)
+		end)
 
 		caster.sprint_timer = Timers:CreateTimer(function()
 			if not caster:HasAbility("super_sprint_break") then
@@ -214,7 +225,15 @@ function DotaStrikers:surge( keys )
 		caster:FindAbilityByName("ninja_invis_sprint_break"):SetLevel(1)
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/ninja_invis_sprint/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		caster:EmitSound("Hero_BountyHunter.WindWalk")
-		ParticleManager:CreateParticle("particles/units/heroes/hero_bounty_hunter/bounty_hunter_windwalk.vpcf", PATTACH_ABSORIGIN, caster)
+
+		if caster.dust_particle then
+			ParticleManager:DestroyParticle(caster.dust_particle, false)
+			caster.dust_particle = nil
+		end
+
+		-- we need neutral particle so enemies can see the dust too.
+		caster.dust_particle = CreateNeutralParticle( "particles/units/heroes/hero_bounty_hunter/bounty_hunter_windwalk.vpcf", caster:GetAbsOrigin(), PATTACH_ABSORIGIN, 2 )
+
 		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	else
 		caster:RemoveAbility("surge")
@@ -238,7 +257,6 @@ end
 function DotaStrikers:surge_break( keys )
 	local caster = keys.caster
 	caster.surgeOn = false
-	print("surge_break")
 
 	if caster.isSprinter then
 		caster:RemoveAbility("super_sprint_break")
@@ -264,9 +282,7 @@ function DotaStrikers:surge_break( keys )
 			caster:RemoveModifierByName("modifier_rune_haste")
 			RemoveEndgameRoot(caster)
 		end
-		if caster:HasModifier("modifier_haste_anim") then
-			caster:RemoveModifierByName("modifier_haste_anim")
-		end
+		RemoveHasteAnimation(caster)
 
 		--caster:EmitSound("Hero_Slardar.MovementSprint")
 	elseif caster.isNinja then
@@ -381,12 +397,21 @@ end
 
 function DotaStrikers:text_particle( keys )
 	local caster = keys.caster
-	local abilName = keys.ability:GetAbilityName()
-	local particle = "particles/pass_me/legion_commander_duel_victory_text.vpcf"
+
+	local abilName = ""
+	if keys.ability then
+		abilName = keys.ability:GetAbilityName()
+	end
+
+	local particle = "particles/pass_me.vpcf"
 
 	if abilName == "frown" then
-		local frownIndex = RandomInt(1, 5)
+		local frownIndex = RandomInt(1, NUM_FROWNS)
 		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
+		--particle = "particles/techies/techies_suicide_kills_arcana_victories.vpcf"
+	elseif abilName == "taunt" then
+		local tauntIndex = RandomInt(1, NUM_TAUNTS)
+		particle = "particles/taunts/taunt" .. tauntIndex .. ".vpcf"
 	end
 
 	-- remove the current text particle above the caster, if any. to avoid clutter
@@ -404,16 +429,20 @@ function DotaStrikers:text_particle( keys )
 	if abilName == "pass_me" then
 		local parts = {}
 		local teammates = GetTeammates(caster)
-		local part = ParticleManager:CreateParticleForPlayer("particles/pass_me/legion_commander_duel_victory_text.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
+		local part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
 		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 		table.insert(parts, part)
 		for i,hero2 in ipairs(teammates) do
-			part = ParticleManager:CreateParticleForPlayer("particles/pass_me/legion_commander_duel_victory_text.vpcf", PATTACH_OVERHEAD_FOLLOW, hero2, hero2:GetPlayerOwner())
+			part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, hero2, hero2:GetPlayerOwner())
 			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
 			table.insert(parts, part)
 		end
 		caster.textParticle = parts
 	else
+		if keys.exclamation then
+			particle = "particles/exclamation.vpcf"
+		end
+
 		caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
 		if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
 			ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))
@@ -599,4 +628,24 @@ function DotaStrikers:tackle( keys )
 	if Testing then
 		keys.ability:EndCooldown()
 	end
+end
+
+function DotaStrikers:goalie_jump(keys)
+	local caster = keys.caster
+	local part = ParticleManager:CreateParticle("particles/units/heroes/hero_rubick/rubick_telekinesis.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+	ParticleManager:SetParticleControlEnt(part, 1, caster, 1, "follow_origin", caster:GetAbsOrigin(), true)
+	ParticleManager:SetParticleControl(part, 2, Vector(.8,0,0))
+	--ParticleManager:SetParticleControl(part, 0, caster:GetAbsOrigin())
+
+	caster:AddPhysicsVelocity(Vector(0,0,GOALIE_JUMP_Z))
+	caster.noBounce = true
+	caster.isUsingGoalieJump = true
+
+	-- no need to do this because the game automatically keeps the cooldown when adding/removing the same spell
+	caster.timeToRefreshGoalieJump = GameRules:GetGameTime() + keys.ability:GetCooldown(1)
+
+	caster:EmitSound("Hero_Rubick.Telekinesis.Cast")
+
+	if Testing then keys.ability:EndCooldown() end
+
 end

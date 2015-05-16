@@ -11,6 +11,11 @@ Bounds = {max = 1152-50}
 Bounds.min = -1*Bounds.max
 RectangleOffset = 2424-1152
 
+HERO_SELECTION_TIME = 30
+PRE_GAME_TIME = 0
+POST_GAME_TIME = 30
+PRE_FIRSTROUND_START = 8
+
 Ball = {}
 Components = {}
 
@@ -81,7 +86,75 @@ end
   It can be used to initialize non-hero player state or adjust the hero selection (i.e. force random etc)
 ]]
 function DotaStrikers:OnAllPlayersLoaded()
-	--print("[DOTASTRIKERS] All Players have loaded into the game")
+	PlayerCount = 0
+	for i=0,9 do
+		local ply = PlayerResource:GetPlayer(i)
+		if ply and ply:GetAssignedHero() == nil then
+			PlayerCount = PlayerCount + 1
+			self.vPlayers[i] = ply
+		end
+	end
+
+	Timers:CreateTimer(HERO_SELECTION_TIME, function()
+		HeroSelectionOver = true
+	end)
+
+	Timers:CreateTimer(function()
+		if not AllPlayersSelectedHeroes and not HeroSelectionOver then
+			return .1
+		end
+
+		local count = PRE_FIRSTROUND_START
+		Timers:CreateTimer(function()
+			if count == 0 then
+				ShowCenterMsg("PLAY!", 1)
+			else
+				ShowCenterMsg(tostring(count), 1)
+				count = count - 1
+				return 1
+			end
+		end)
+
+		Timers:CreateTimer(PRE_FIRSTROUND_START, function()
+			for _,ply in pairs(DotaStrikers.vPlayers) do
+				local hero = ply:GetAssignedHero()
+
+				if not hero then
+					-- player did not select a hero. so force select one
+
+				else
+					RemoveEndgameRoot(hero)
+
+					for i=1,6 do
+						local abil = hero:GetAbilityByIndex(i-1)
+						hero:RemoveAbility(abil:GetAbilityName())
+						hero:AddAbility(hero.round_in_progress_abils[i])
+						hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
+					end
+				end
+			end
+			print("RoundInProgress")
+			RoundInProgress = true
+		end)
+	end)
+
+	--[[local secs_till_game_starts = HERO_SELECTION_TIME
+
+	Timers:CreateTimer(function()
+		if secs_till_game_starts == 0 then
+			--ShowCenterMsg( "PLAY!", 1 )
+			return
+		end
+
+		--ShowCenterMsg( tostring(secs_till_game_starts), 1 )
+		secs_till_game_starts = secs_till_game_starts - 1
+		return 1
+	end)]]
+
+end
+
+function DotaStrikers:OnPreGameState(  )
+
 end
 
 --[[
@@ -91,11 +164,6 @@ end
 ]]
 function DotaStrikers:OnGameInProgress()
 	--print("[DOTASTRIKERS] The game has officially begun")
-
-	Timers:CreateTimer(30, function() -- Start this timer 30 game-time seconds later
-		--print("This function is called 30 seconds after the game begins, and every 30 seconds thereafter")
-		return 30.0 -- Rerun this timer every 30 game-time seconds
-	end)
 end
 
 function DotaStrikers:PlayerSay( keys )
@@ -162,6 +230,7 @@ function DotaStrikers:OnGameRulesStateChange(keys)
 				return .1 -- Check again later in case more players spawn
 			end})
 	elseif newState == DOTA_GAMERULES_STATE_PRE_GAME then
+		self:OnPreGameState()
 		--FireGameEvent("turn_off_waitforplayers", {})
 	elseif newState == DOTA_GAMERULES_STATE_GAME_IN_PROGRESS then
 		DotaStrikers:OnGameInProgress()
@@ -181,18 +250,17 @@ function DotaStrikers:OnNPCSpawned(keys)
 				self.greetPlayers = true
 			end
 
-			self:OnPlayersHeroFirstSpawn(hero)
+			self:OnHeroInGameFirstTime(hero)
 			ply.firstTime = true
 
 		else
-			self:OnPlayersHeroRespawn(hero)
+			self:OnHeroRespawn(hero)
 		end
 	end
 end
 
--- replaces OnHeroInGame
-function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
-	--print("OnPlayersHeroFirstSpawn")
+function DotaStrikers:OnHeroInGameFirstTime( hero )
+	--print("OnHeroInGameFirstTime")
 
 	function hero:OnThink(  )
 		local pos = hero:GetAbsOrigin()
@@ -204,6 +272,10 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 				hero.goalie = false
 				hero.gc.goalie = nil
 				hero.ballGoalieProc = false
+				DotaStrikers:RemoveGoalieJump(hero) -- in initmap
+			else
+				-- check to see if goalie jump is not added. if not, add it.
+				DotaStrikers:AddGoalieJump(hero)
 			end
 		end
 
@@ -222,7 +294,7 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		end
 	end
 
-	--local hero = ply:GetAssignedHero()
+
 	hero.base_move_speed = hero:GetBaseMoveSpeed()
 	Timers:CreateTimer(.1, function()
 		hero.spawn_pos = hero:GetAbsOrigin()
@@ -298,42 +370,8 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 	-- this is useful in between rounds, swapping ability bars. it's in initmap.lua
 	self:GetRoundAbils(hero)
 
-	local coll = hero:AddColliderFromProfile("momentum")
-	coll.radius = BALL_COLLISION_DIST
-	coll.filer = self.colliderFilter
-	coll.elasticity = 1
-	coll.test = function(self, collider, collided)
-		local passTest = false
-		local ball = Ball.unit
+	self:SetupPersonalColliders(hero) -- in myball_and_phys.lua
 
-		if not IsPhysicsUnit(collided) then return false end
-		local rad = (collider:GetAbsOrigin()-collided:GetAbsOrigin()):Length()
-
-		if rad <= 100 then
-			if collided.isDSHero then
-				if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
-					TryPlayCracks(collider)
-					passTest = true
-				end
-			end
-		end
-		if collided == ball and ball.pshotInvoke then
-			ball.dontChangeFriction = false
-
-			ball:SetPhysicsFriction(GROUND_FRICTION)
-
-			hero:EmitSound("Hero_VengefulSpirit.MagicMissileImpact")
-
-			ParticleManager:DestroyParticle(ball.powershot_particle, false)
-
-			ball.pshotInvoke = false
-
-			passTest = true
-		end
-		return passTest
-	end
-	--collider.draw = true
-	hero.personalCollider = coll
 
 	Timers:CreateTimer(.04, function()
 		if hero:GetPlayerOwner():GetAssignedHero() == nil then print("Hero still nil.") end
@@ -376,11 +414,29 @@ function DotaStrikers:OnPlayersHeroFirstSpawn( hero )
 		return SURGE_TICK
 	end)
 
+
+	if #self.vHeroes >= PlayerCount then
+		AllPlayersSelectedHeroes = true
+		print("AllPlayersSelectedHeroes")
+	end
+
+	-- Physics thinker
 	hero:OnPhysicsFrame(function(unit)
 		DotaStrikers:OnMyPhysicsFrame(hero)
-
 	end)
 
+	-- Replace the abils with the round_not_in_progress abils
+	if not RoundInProgress then
+		Timers:CreateTimer(.03, function()
+			AddEndgameRoot(hero)
+			for i=1,6 do
+				local abil = hero:GetAbilityByIndex(i-1)
+				hero:RemoveAbility(abil:GetAbilityName())
+				hero:AddAbility(hero.round_not_in_progress_abils[i])
+				hero:FindAbilityByName(hero.round_not_in_progress_abils[i]):SetLevel(1)
+			end
+		end)
+	end
 end
 
 function DotaStrikers:SetupPhysicsSettings( unit )
@@ -395,8 +451,7 @@ function DotaStrikers:SetupPhysicsSettings( unit )
 	unit.lastShieldParticleTime = GameRules:GetGameTime()
 end
 
-function DotaStrikers:OnPlayersHeroRespawn( hero )
-
+function DotaStrikers:OnHeroRespawn( hero )
 
 end
 
@@ -413,8 +468,6 @@ function DotaStrikers:GreetPlayers(  )
 	Timers:CreateTimer(2, function()
 		ShowQuickMessages( lines, 2 )
 	end)
-
-	RoundInProgress = true
 end
 
 -- An entity somewhere has been hurt.  This event fires very often with many units so don't do too many expensive
@@ -614,9 +667,9 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetHeroRespawnEnabled( true )
 	GameRules:SetUseUniversalShopMode( true )
 	GameRules:SetSameHeroSelectionEnabled( true )
-	GameRules:SetHeroSelectionTime( 1 )
-	GameRules:SetPreGameTime( 0)
-	GameRules:SetPostGameTime( 30 )
+	GameRules:SetHeroSelectionTime( HERO_SELECTION_TIME )
+	GameRules:SetPreGameTime( PRE_GAME_TIME )
+	GameRules:SetPostGameTime( POST_GAME_TIME )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)
 	GameRules:SetHeroMinimapIconScale( .8 )
 	GameRules:SetCreepMinimapIconScale( 1.4 )

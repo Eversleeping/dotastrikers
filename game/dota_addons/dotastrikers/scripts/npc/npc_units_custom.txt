@@ -12,7 +12,7 @@
 		"SoundSet"					"Roshan"					// Name of sound set.
 		"ModelScale"				".8"
 		"MinimapIcon"				"minimap_roshancamp"
-		"MinimapIconSize"			"280"
+		"MinimapIconSize"			"260"
 				
 		// Abilities
 		//----------------------------------------------------------------

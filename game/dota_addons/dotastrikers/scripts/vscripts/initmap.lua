@@ -1,5 +1,5 @@
 GOAL_Y = 290 -- half of the y direction width of the goal post.
-TIME_TILL_NEXT_ROUND = 10
+TIME_TILL_NEXT_ROUND = 8
 SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 11
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
@@ -185,6 +185,38 @@ function DotaStrikers:InitMap()
 	end
 end
 
+function DotaStrikers:AddGoalieJump(unit)
+	-- he can't have goalie jump while having the ball
+	if Ball.unit.controller == unit or not unit.goalie then return end
+
+	if not unit:HasAbility("goalie_jump") then
+		if unit:HasAbility("dotastrikers_empty6") then
+			unit:RemoveAbility("dotastrikers_empty6")
+		end
+
+		Timers:CreateTimer(.03, function()
+			if not unit:HasAbility("goalie_jump") then
+				unit:AddAbility("goalie_jump")
+				unit:FindAbilityByName("goalie_jump"):SetLevel(1)
+			end
+		end)
+	end
+
+end
+
+function DotaStrikers:RemoveGoalieJump(unit)
+	if unit:HasAbility("goalie_jump") then
+		unit:RemoveAbility("goalie_jump")
+
+		Timers:CreateTimer(.03, function()
+			if not unit:HasAbility("dotastrikers_empty6") then
+				unit:AddAbility("dotastrikers_empty6")
+				unit:FindAbilityByName("dotastrikers_empty6"):SetLevel(1)
+			end
+		end)
+	end
+end
+
 -- TODO: in the future prolly should have a class for a Team. ex. logo, color, players, etc in the far future.
 function DotaStrikers:OnGoal(team)
 	local currTime = GameRules:GetGameTime()
@@ -197,6 +229,8 @@ function DotaStrikers:OnGoal(team)
 	local ball = Ball.unit
 	local scorer = ball.lastMovedBy
 	scorer.personalScore = scorer.personalScore + 1
+
+	-- special effect for scorer?
 
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
@@ -219,16 +253,21 @@ function DotaStrikers:OnGoal(team)
 			hero:CastAbilityNoTarget(surge_break, 0)
 		end
 
-		AddEndgameRoot(hero)
-
---[[
-	local animType = t[1]
-	local unit = t[2]
-	local unitKVName = t[3]
-	local maxDuration = t[4]
-	local singleDuration = t[5]
-	local repeatAnim = t[6]
-]]
+		-- root losing heroes only
+		if hero:GetTeam() ~= nWinningTeam then
+			AddEndgameRoot(hero)
+		else
+			ParticleManager:CreateParticle("particles/legion_duel_victory/legion_commander_duel_victory.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
+		end
+		
+	--[[
+		local animType = t[1]
+		local unit = t[2]
+		local unitKVName = t[3]
+		local maxDuration = t[4]
+		local singleDuration = t[5]
+		local repeatAnim = t[6]
+	]]
 
 		-- play victory/defeat animation
 		--[[if not hero:HasModifier("modifier_flail_passive") then
@@ -300,6 +339,7 @@ function DotaStrikers:OnGoal(team)
 					end]]
 
 					StopAnimation("modifier_flail_passive", hero)
+					AddEndgameRoot(hero)
 
 					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
@@ -476,10 +516,10 @@ function DotaStrikers:OnCantEnter( unit )
 		local fv = unit:GetForwardVector()
 		unit.shieldParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_medusa/medusa_mana_shield_impact_highlight01.vpcf", PATTACH_CUSTOMORIGIN, unit)
 		ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-70) + Vector(fv.x,fv.y,0)*40)
-		--ParticleManager:SetParticleControl(unit.shieldParticle, 0, Vector(pos.x,pos.y,pos.z-80) + Vector(fv.x,fv.y,0)*50)
 		unit.lastShieldParticleTime = currTime
 	end
 end
+
 
 function PlayAnimation( ... )
 	local t = {...}
