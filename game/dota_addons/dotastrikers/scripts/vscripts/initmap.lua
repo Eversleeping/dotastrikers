@@ -18,6 +18,10 @@ GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), he
 GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 15000
 
+if Testing then
+	SCORE_TO_WIN = 4
+end
+
 function DotaStrikers:GetRoundAbils( hero )
 	--print("round_in_progress_abils:")
 	local ptr = 1
@@ -40,14 +44,11 @@ function DotaStrikers:GetRoundAbils( hero )
 	hero.round_in_progress_abils = round_in_progress_abils
 
 	local round_not_in_progress_abils = {}
-	--print("round_not_in_progress_abils: ")
 	for i=1,6 do
-		if i < 4 or i == 6 then
-			round_not_in_progress_abils[i] = "dotastrikers_empty" .. i
-		elseif i == 4 then
+		if i == 4 then
 			round_not_in_progress_abils[i] = "pass_me"
-		elseif i == 5 then
-			round_not_in_progress_abils[i] = "frown"
+		else
+			round_not_in_progress_abils[i] = "dotastrikers_empty" .. i
 		end
 		--print(round_not_in_progress_abils[i])
 	end
@@ -79,16 +80,21 @@ function DotaStrikers:InitMap()
 
 	-- top and bottom big colliders
 	bcs[1].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MIN-offset, Bounds.max+offset, COLLIDER_Z)}
+
 	bcs[2].box = {Vector(RECT_X_MAX+offset, Bounds.min, 0), Vector(RECT_X_MIN-offset, Bounds.min-offset, COLLIDER_Z)}
+	
 	-- upper right, badguys goal
 	bcs[3].box = {Vector(RECT_X_MAX+offset, Bounds.max+offset, 0), Vector(RECT_X_MAX, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[3].draw=true
+
 	-- lower right, badguys goal
 	bcs[4].box = {Vector(RECT_X_MAX+offset, Bounds.min-offset, 0), Vector(RECT_X_MAX, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[4].draw=true
+
 	-- upper left, goodguys goal
 	bcs[5].box = {Vector(RECT_X_MIN-offset, Bounds.max+offset, 0), Vector(RECT_X_MIN, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[5].draw=true
+
 	-- lower left, goodguys goal
 	bcs[6].box = {Vector(RECT_X_MIN-offset, Bounds.min-offset, 0), Vector(RECT_X_MIN, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
 	--bcs[6].draw=true
@@ -99,10 +105,10 @@ function DotaStrikers:InitMap()
 	-- far right, badguys (to prevent non-goalies from entering area.)
 	bcs[8].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX, Bounds.min, COLLIDER_Z)}
 
-	-- far left, goodguys FOR GOALIES
+	-- far left, goodguys FOR GOALIES [inwardness]
 	bcs[9].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN-GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
 
-	-- far right, badguys FOR GOALIES
+	-- far right, badguys FOR GOALIES [inwardness]
 	bcs[10].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX+GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
 
 	-- the top of everything
@@ -141,6 +147,12 @@ function DotaStrikers:InitMap()
 			if not IsPhysicsUnit(unit) then return false end
 
 			if unit == gc.goalie then return false end -- ignore the current goalie in this goalpost.
+
+			if unit.isSwapDummy and unit:GetTeam() ~= gc.team then
+				return true
+			elseif unit.isSwapDummy then
+				return false
+			end
 
 			local passTest = false
 			if unit ~= ball and gc.goalie then
@@ -190,8 +202,8 @@ function DotaStrikers:AddGoalieJump(unit)
 	if Ball.unit.controller == unit or not unit.goalie then return end
 
 	if not unit:HasAbility("goalie_jump") then
-		if unit:HasAbility("dotastrikers_empty6") then
-			unit:RemoveAbility("dotastrikers_empty6")
+		if unit:HasAbility("dotastrikers_empty5") then
+			unit:RemoveAbility("dotastrikers_empty5")
 		end
 
 		Timers:CreateTimer(.03, function()
@@ -209,9 +221,9 @@ function DotaStrikers:RemoveGoalieJump(unit)
 		unit:RemoveAbility("goalie_jump")
 
 		Timers:CreateTimer(.03, function()
-			if not unit:HasAbility("dotastrikers_empty6") then
-				unit:AddAbility("dotastrikers_empty6")
-				unit:FindAbilityByName("dotastrikers_empty6"):SetLevel(1)
+			if not unit:HasAbility("dotastrikers_empty5") then
+				unit:AddAbility("dotastrikers_empty5")
+				unit:FindAbilityByName("dotastrikers_empty5"):SetLevel(1)
 			end
 		end)
 	end
@@ -237,6 +249,9 @@ function DotaStrikers:OnGoal(team)
 	ball.dontChangeFriction = true
 
 	ball:SetPhysicsFriction(GROUND_FRICTION*3)
+
+	ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
+	EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
 
 	CleanUp(ball)
 
@@ -320,6 +335,7 @@ function DotaStrikers:OnGoal(team)
 
 	ShowQuickMessages(lines, .2)
 
+	RoundsCompleted = RoundsCompleted + 1
 	RoundInProgress = false
 
 	if GameOver then
@@ -345,6 +361,11 @@ function DotaStrikers:OnGoal(team)
 					hero.dontChangeFriction = false
 					hero:SetPhysicsFriction(GROUND_FRICTION)
 					hero:StopPhysicsSimulation()
+
+					if ball.netParticle then
+						ParticleManager:DestroyParticle(ball.netParticle, false)
+						ball.netParticle = nil
+					end
 
 					-- return heroes back to their spawn positions.
 					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
@@ -395,6 +416,7 @@ function DotaStrikers:OnGoal(team)
 		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
 		ball:SetPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 
+
 		RoundInProgress = true
 		Say(nil, "PLAY!!", false)
 	end)
@@ -437,11 +459,11 @@ end
 
 function GetGoalUnitIsWithin( unit )
 	local pos = unit:GetAbsOrigin()
-	if pos.x < (RECT_X_MIN-5) then
+	--[[if pos.x < (RECT_X_MIN-5) then
 		return DOTA_TEAM_GOODGUYS
 	elseif pos.x > (RECT_X_MAX+5) then
 		return DOTA_TEAM_BADGUYS
-	end
+	end]]
 
 	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE
 	local goal_pos = GOAL_Y+GC_INCREASE_SIDE
@@ -455,23 +477,33 @@ function GetGoalUnitIsWithin( unit )
 end
 
 function OnBoundsCollision( self, unit, bc, i )
-	--return false
 	if not IsPhysicsUnit(unit) then return false end
 	local ball = Ball.unit
 	local isBall = unit == ball
 	local passTest = true
 	local unitPos = unit:GetAbsOrigin()
-
+	--print(bc.name)
 	-- when someone is holding the ball
 	if isBall and ball.controller then
 		return false
 	end
 
+	-- For some of the colliders, we need to return true early, sometimes we don't want to play the crack effects and sounds.
+
+	if bc.name == "bounds_collider_5" or bc.name == "bounds_collider_6" or bc.name == "bounds_collider_3" or bc.name == "bounds_collider_4" then
+		if unit.goalie and unit.isUsingGoalieJump then 
+			return true 
+		else
+			--print("test")
+		end
+	end
+
 	if bc.name == "bounds_collider_12" or bc.name == "bounds_collider_13" then
 		if isBall then
 			DotaStrikers:OnCantEnter(unit)
-
 			return true
+		elseif unit.goalie then
+			return false
 		end
 	end
 
@@ -480,7 +512,7 @@ function OnBoundsCollision( self, unit, bc, i )
 	end
 
 	if bc.name == "bounds_collider_7" or bc.name == "bounds_collider_8" then
-		if unit.goalie or isBall then
+		if unit.goalie or isBall or unit.isSwapDummy then
 			return false
 		end
 	end

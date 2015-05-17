@@ -18,7 +18,7 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 	string m_hLowViolenceDef = ""
 	uint(4) m_ConstantColor = ( 255, 201, 72, 255 )
 	float(3) m_ConstantNormal = ( 0.000000, 0.000000, 1.000000 )
-	float m_flConstantRadius = 80.000000
+	float m_flConstantRadius = 30.000000
 	float m_flConstantRotation = 0.000000
 	float m_flConstantRotationSpeed = 0.000000
 	float m_flConstantLifespan = 1.000000

@@ -14,7 +14,13 @@ RectangleOffset = 2424-1152
 HERO_SELECTION_TIME = 30
 PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
+
 PRE_FIRSTROUND_START = 8
+if Testing then
+	PRE_FIRSTROUND_START = 1
+end
+
+RoundsCompleted = 0
 
 Ball = {}
 Components = {}
@@ -294,19 +300,22 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		end
 	end
 
-
 	hero.base_move_speed = hero:GetBaseMoveSpeed()
+
 	Timers:CreateTimer(.1, function()
 		hero.spawn_pos = hero:GetAbsOrigin()
 	end)
+
 	hero.plyID = hero:GetPlayerID()
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
+
 	-- Store the player's name inside this hero handle.
 	hero.playerName = PlayerResource:GetPlayerName(hero.plyID)
 	if hero.playerName == nil or hero.playerName == "" then
 		hero.playerName = DummyNames[hero.plyID+1]
 	end
+
 	hero.personalScore = 0
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
@@ -324,13 +333,20 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
+	--table.insert(self.colliderFilter, hero)
 
-	table.insert(self.colliderFilter, hero)
+	hero.colliderID = DoUniqueString("a")
+	self.colliderFilter[hero.colliderID] = hero
 
 	self:SetupPhysicsSettings(hero)
 
 	-- my components lib to control velocities better
 	Components:Init(hero)
+
+	hero.frownItem = CreateItem("item_frown", hero, hero)
+	hero.tauntItem = CreateItem("item_taunt", hero, hero)
+	hero:AddItem(hero.frownItem)
+	hero:AddItem(hero.tauntItem)
 
 	-- this is for black holes.
 	hero.last_bh_accels = {}
@@ -358,12 +374,22 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		hero.isSlam = true
 		heroes_kv_name = "slam"
 	elseif classname == "npc_dota_hero_wisp" then
-		hero.isWisp = true
+		hero.isPull = true
 		heroes_kv_name = "pull"
 	elseif classname == "npc_dota_hero_bloodseeker" then
 		hero.isTackle = true
 		heroes_kv_name = "tackle"
+	elseif classname == "npc_dota_hero_queenofpain" then
+		hero.isBlink = true
+		heroes_kv_name = "blink"
+	elseif classname == "npc_dota_hero_pudge" then
+		hero.isHook = true
+		heroes_kv_name = "hook"
+	elseif classname == "npc_dota_hero_puck" then
+		hero.isSwap = true
+		heroes_kv_name = "swap"
 	end
+
 	hero.heroes_kv_name = heroes_kv_name
 	--print("heroes_kv_name: " .. heroes_kv_name)
 
@@ -371,7 +397,6 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	self:GetRoundAbils(hero)
 
 	self:SetupPersonalColliders(hero) -- in myball_and_phys.lua
-
 
 	Timers:CreateTimer(.04, function()
 		if hero:GetPlayerOwner():GetAssignedHero() == nil then print("Hero still nil.") end

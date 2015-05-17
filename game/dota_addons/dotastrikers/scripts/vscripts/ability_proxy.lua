@@ -53,3 +53,15 @@ end
 function goalie_jump( keys )
 	DotaStrikers:goalie_jump(keys)
 end
+
+function blink( keys )
+	DotaStrikers:blink(keys)
+end
+
+function swap( keys )
+	DotaStrikers:swap(keys)
+end
+
+function if_testing_remove_cooldown( keys )
+	if Testing then keys.ability:EndCooldown() end
+end

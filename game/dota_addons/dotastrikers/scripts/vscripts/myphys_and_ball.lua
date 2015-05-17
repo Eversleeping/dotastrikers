@@ -134,7 +134,9 @@ end
 function Ball:Init(  )
 	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_NOTEAM)
 	local ball = Ball.unit
-	table.insert(DotaStrikers.colliderFilter, ball)
+	--table.insert(DotaStrikers.colliderFilter, ball)
+	ball.colliderID = DoUniqueString("a")
+	DotaStrikers.colliderFilter[ball.colliderID] = ball
 	BALL = ball.unit
 	ball.isBall = true
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
@@ -151,9 +153,10 @@ function Ball:Init(  )
 	function ball:SpawnParticle(  )
 		-- constantly reposition the ball particle dummy.
 		ball.particleDummy:SetAbsOrigin(Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET))
-		Timers:CreateTimer(.066, function()
+		Timers:CreateTimer(.06, function()
 			if not ball.ballParticle then
 				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+
 				ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 			end
 		end)
@@ -177,6 +180,10 @@ function Ball:Init(  )
 				--DebugDrawBox(ball:GetAbsOrigin(), Vector(-8,-8,0), Vector(8,8,1), 255, 0, 0, 100, 30)
 				ParticleManager:SetParticleControl(ball.ballParticle, 11, Vector(0,0,0))
 				ball.rotateStarted = false
+
+				if not RoundInProgress and RoundsCompleted > 0 then
+					--ball.netParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_meepo/meepo_earthbind.vpcf", PATTACH_ABSORIGIN, ball)
+				end
 			end
 		else
 			if not ball.rotateStarted then
@@ -303,83 +310,81 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 	-- Do ball hog logic
 	local goal = GetGoalUnitIsWithin( ball )
-	if not ball.current_goal and goal then
-		ball.timeBecameInGoal = GameRules:GetGameTime()
-		ball.current_goal = goal -- team number
-		local thisGoal = goal
-		--print("starting hog_timer")
+	ball.hogged = goal and ((ball.controller and ball.controller.goalie and ball.controller:GetTeam() == goal) or not ball.controller) and RoundInProgress
 
-		-- is the situation we're in legit?
-		local allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
+	if ball.hogged and not ball.hoggedProc then
+		ball.timeBecameHogged = GameRules:GetGameTime()
 
-		if not allowed then
-			ball.hog_timer = Timers:CreateTimer(BALL_HOG_DURATION, function()
-				-- check again to see if we're in the same situation
-				allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
-				if allowed then return end
+		ball.hog_timer = Timers:CreateTimer(BALL_HOG_DURATION, function()
+			-- check again to see if we're in the same situation
+			if not ball.hogged then return end
 
-				local cTime = GameRules:GetGameTime()
-				if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION then
-					if RandomInt(1, 2) == 1 then
-						EmitGlobalSound("RoshanDT.Scream")
-					else
-						EmitGlobalSound("RoshanDT.Scream2")
-					end
-					DotaStrikers:GetBallInBounds()
+			if GameRules:GetGameTime()-ball.timeBecameHogged >= BALL_HOG_DURATION then
+				if RandomInt(1, 2) == 1 then
+					EmitGlobalSound("RoshanDT.Scream")
+				else
+					EmitGlobalSound("RoshanDT.Scream2")
 				end
-			end)
+				DotaStrikers:GetBallInBounds()
+			end
+		end)
 
-			-- if the ball has a controller (the goalie), warn him beforehand.
-			ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
-				-- check again to see if we're in the same situation
-				allowed = (not ball.current_goal or thisGoal ~= ball.current_goal or not RoundInProgress) or (ball.controller and ball.controller:GetTeam() ~= thisGoal)
-				if allowed then return end
-				-- no need to execute this is there is no controller, since it's a warning.
-				if not ball.controller then return end
+		-- if the ball has a controller (the goalie), warn him beforehand.
+		ball.hog_warning = Timers:CreateTimer(BALL_HOG_DURATION/2, function()
+			-- check again to see if we're in the same situation
+			if not ball.hogged then return end
 
-				local cTime = GameRules:GetGameTime()
-				if cTime-ball.timeBecameInGoal >= BALL_HOG_DURATION/2 then
+			if GameRules:GetGameTime()-ball.timeBecameHogged >= BALL_HOG_DURATION/2 then
+				if not ball.controller then
+					DotaStrikers:text_particle( {caster=ball, exclamation=true} )
+				else
 					ShowErrorMsg(ball.controller, "#goalie_ball_hog_warning")
 					DotaStrikers:text_particle( {caster=ball.controller, exclamation=true} )
 				end
-			end)
-		end
-	elseif ball.current_goal and not goal then
-		-- ball is no longer within a goal.
-		ball.current_goal = nil
+			end
+		end)
+
+		ball.hoggedProc = true
+
+	elseif not ball.hogged and ball.hoggedProc then
+		ball.hoggedProc = false
 	end
 
 	-- Check if ball is out of bounds.
-	if not goal then
-		local isBallOutOfBounds = ballPos.x > RECT_X_MAX or ballPos.x < RECT_X_MIN or ballPos.y > Bounds.max or ballPos.y < Bounds.min
-		ball.outOfBounds = isBallOutOfBounds
-		if isBallOutOfBounds and not ball.outOfBoundsProc then
-			ball.timeBecameOutOfBounds = GameRules:GetGameTime()
-			ball.out_of_bounds_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION, function()
-				if not ball.outOfBoundsProc then return end
-				if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION then
-					if RandomInt(1, 2) == 1 then
-						EmitGlobalSound("RoshanDT.Scream")
-					else
-						EmitGlobalSound("RoshanDT.Scream2")
-					end
-					DotaStrikers:GetBallInBounds()
+	local isBallOutOfBounds = not goal and (ballPos.x > RECT_X_MAX or ballPos.x < RECT_X_MIN or ballPos.y > Bounds.max or ballPos.y < Bounds.min) and RoundInProgress
+	ball.outOfBounds = isBallOutOfBounds
+
+	if isBallOutOfBounds and not ball.outOfBoundsProc then
+		print("ball.outOfBoundsProc")
+		ball.timeBecameOutOfBounds = GameRules:GetGameTime()
+		ball.out_of_bounds_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION, function()
+			-- do the check again
+			if not ball.outOfBounds then return end
+
+			if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION then
+				if RandomInt(1, 2) == 1 then
+					EmitGlobalSound("RoshanDT.Scream")
+				else
+					EmitGlobalSound("RoshanDT.Scream2")
 				end
-			end)
+				DotaStrikers:GetBallInBounds()
+			end
+		end)
 
-			ball.out_of_bounds_warning_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION/2, function()
-				if not ball.outOfBoundsProc then return end
+		ball.out_of_bounds_warning_timer = Timers:CreateTimer(BALL_OUTOFBOUNDS_DURATION/2, function()
+			-- do the check again
+			if not ball.outOfBounds then return end
 
-				if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION/2 then
-					ShowErrorMsg(ball.controller, "#outofbounds_warning")
-					DotaStrikers:text_particle( {caster=ball.controller, exclamation=true} )
-				end
-			end)
+			if (GameRules:GetGameTime() - ball.timeBecameOutOfBounds) >= BALL_OUTOFBOUNDS_DURATION/2 then
+				ShowErrorMsg(ball.controller, "#outofbounds_warning")
+				DotaStrikers:text_particle( {caster=ball.controller, exclamation=true} )
+			end
+		end)
 
-			ball.outOfBoundsProc = true
-		elseif not isBallOutOfBounds and ball.outOfBoundsProc then
-			ball.outOfBoundsProc = false
-		end
+		ball.outOfBoundsProc = true
+	elseif not isBallOutOfBounds and ball.outOfBoundsProc then
+		print("ball.outOfBoundsProc = false")
+		ball.outOfBoundsProc = false
 	end
 
 	-- rotate the ball depending if it's not moving or what
@@ -557,6 +562,12 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 		--local rad = (collider:GetAbsOrigin()-collided:GetAbsOrigin()):Length()
+
+		if collided.isSwapDummy and hero ~= collided.caster then
+			-- technically treat this as a collision, but return false since we don't want the momentum stuff
+			collided:OnSwapCollision(hero) -- in abilities.lua
+			return false
+		end
 
 		if collided.isDSHero then
 			if collider.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then

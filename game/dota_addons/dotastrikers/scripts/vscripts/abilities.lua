@@ -1,6 +1,6 @@
 THROW_VELOCITY = 1700
 SURGE_TICK = .2
-SLAM_Z = 2100
+SLAM_Z = 2300 --2200
 SLAM_XY = 1100
 
 PSHOT_VELOCITY = 1600
@@ -28,12 +28,19 @@ BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 TACKLE_DURATION = .3
 TACKLE_FORCE = 800
 
+BLINK_WAIT_TIME = .5
+BLINK_DISTANCE = 700
+
+SWAP_PROJ_VELOCITY = 1400
+SWAP_DURATION = 2
+
 -- ball goes up a lil in the z direction if hero throws ball while in the air.
 KICK_BALL_Z_PUSH = 280
 GOALIE_JUMP_Z = 1300
 
 NUM_FROWNS = 6
 NUM_TAUNTS = 6
+SMILEY_COOLDOWN = 2
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 SURGE_MOVESPEED_FACTOR = 1/3
@@ -327,9 +334,12 @@ function DotaStrikers:pull( keys )
 
 	-- particle
 	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	--caster.pullParticle = ParticleManager:CreateParticle("particles/econ/items/puck/puck_alliance_set/puck_dreamcoil_tether_aproset.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	--ParticleManager:SetParticleControl(caster.pullParticle, 1, ball:GetAbsOrigin())
 	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+
+	caster:EmitSound("Hero_Wisp.Tether")
+	caster:EmitSound("Hero_Wisp.Tether.Target")
+
+	--caster.pullParticle2 = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_overcharge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
 	caster.pull_start_time = GameRules:GetGameTime()
 	caster.pull_timer = Timers:CreateTimer(PULL_MAX_DURATION, function()
@@ -352,6 +362,10 @@ function DotaStrikers:pull_break( keys )
 
 	-- remove particle effect
 	ParticleManager:DestroyParticle(caster.pullParticle, false)
+	--ParticleManager:DestroyParticle(caster.pullParticle2, false)
+
+	caster:EmitSound("Hero_Wisp.Tether.Stop")
+	caster:StopSound("Hero_Wisp.Tether")
 
 	Timers:RemoveTimer(caster.pull_timer)
 
@@ -405,13 +419,23 @@ function DotaStrikers:text_particle( keys )
 
 	local particle = "particles/pass_me.vpcf"
 
-	if abilName == "frown" then
+	if abilName == "item_frown" then
 		local frownIndex = RandomInt(1, NUM_FROWNS)
 		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
-		--particle = "particles/techies/techies_suicide_kills_arcana_victories.vpcf"
-	elseif abilName == "taunt" then
+
+		-- helps reduce spam
+		if caster.tauntItem then
+			caster.tauntItem:StartCooldown(SMILEY_COOLDOWN)
+		end
+
+	elseif abilName == "item_taunt" then
 		local tauntIndex = RandomInt(1, NUM_TAUNTS)
 		particle = "particles/taunts/taunt" .. tauntIndex .. ".vpcf"
+
+		-- helps reduce spam
+		if caster.frownItem then
+			caster.frownItem:StartCooldown(SMILEY_COOLDOWN)
+		end
 	end
 
 	-- remove the current text particle above the caster, if any. to avoid clutter
@@ -463,7 +487,7 @@ function DotaStrikers:slam( keys )
 	local affected = 0
 	--print("radius: " .. radius)
 	for i, ent in ipairs(Entities:FindAllInSphere(hero:GetAbsOrigin(), radius)) do
-		if IsPhysicsUnit(ent) then
+		if IsPhysicsUnit(ent) and (ent.isDSHero or ent.isBall) then
 			local dir = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized()
 			local dist = (ent:GetAbsOrigin()-hero:GetAbsOrigin()):Length()
 			local knockbackScale = (radius-dist)/radius
@@ -529,7 +553,7 @@ function DotaStrikers:black_hole( keys )
 		ParticleManager:DestroyParticle(caster.bh_particle, false)
 		EmitSoundAtPosition("Hero_Enigma.Black_Hole.Stop", point)
 
-		for i,hero in ipairs(DotaStrikers.colliderFilter) do
+		for k,hero in pairs(DotaStrikers.colliderFilter) do
 			if hero ~= caster then
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
 				hero.last_bh_accels[casterID] = Vector(0,0,0)
@@ -556,9 +580,9 @@ function OnBHThink( caster, point, casterID, ball )
 	end]]
 	caster.bh_curr_force = BH_FORCE_MAX
 
-	for i,hero in ipairs(DotaStrikers.colliderFilter) do
-		--print("hi.")
-		if hero ~= caster then
+	for k,unit in pairs(DotaStrikers.colliderFilter) do
+		if unit ~= caster and (unit.isDSHero or unit == ball) then
+			local hero = unit
 			--print("Point: " .. VectorString(point))
 			local p1 = hero:GetAbsOrigin()
 			local pID = 20 -- 20 is the ball
@@ -645,6 +669,130 @@ function DotaStrikers:goalie_jump(keys)
 	caster.timeToRefreshGoalieJump = GameRules:GetGameTime() + keys.ability:GetCooldown(1)
 
 	caster:EmitSound("Hero_Rubick.Telekinesis.Cast")
+
+	if Testing then keys.ability:EndCooldown() end
+
+end
+
+function DotaStrikers:blink( keys )
+	local caster = keys.caster
+
+	caster.blink_timer = Timers:CreateTimer(BLINK_WAIT_TIME, function()
+		local fv = caster:GetForwardVector()
+
+		local part = ParticleManager:CreateParticle("particles/units/heroes/hero_queenofpain/queen_blink_start.vpcf", PATTACH_ABSORIGIN, caster)
+		ParticleManager:SetParticleControlEnt(part, 1, caster, 1, "attach_hitloc", caster:GetAbsOrigin(), true)
+		--caster:EmitSound("Hero_QueenOfPain.Blink_out")
+		EmitSoundAtPosition("Hero_QueenOfPain.Blink_out", caster:GetAbsOrigin())
+
+		-- execute a movement order in the current fv direction, to prevent hero from immediately moving backwards after teleporting.
+		if not caster:IsIdle() then
+			ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
+				Position = caster:GetAbsOrigin() + fv*1500, Queue = false})
+		end
+
+		local newPos = caster:GetAbsOrigin() + BLINK_DISTANCE*fv
+		caster:SetAbsOrigin(newPos)
+
+		local part2 = ParticleManager:CreateParticle("particles/units/heroes/hero_queenofpain/queen_blink_end.vpcf", PATTACH_CUSTOMORIGIN, caster)
+		ParticleManager:SetParticleControl(part2, 0, newPos)
+		EmitSoundAtPosition("Hero_QueenOfPain.Blink_in",newPos )
+
+	end)
+
+	if Testing then keys.ability:EndCooldown() end
+
+end
+
+function DotaStrikers:swap(keys)
+	local caster = keys.caster
+	local point = keys.target_points[1]
+	local ball = Ball.unit
+
+	local swapDummy = CreateUnitByName("dummy", caster:GetAbsOrigin(), false, nil, nil, caster:GetTeam())
+	caster.swapDummy = swapDummy
+	swapDummy.isSwapDummy = true
+	swapDummy.caster = caster
+
+	swapDummy.swapParticle = ParticleManager:CreateParticle("particles/illusory_orb/puck_illusory_orb.vpcf", PATTACH_ABSORIGIN_FOLLOW, swapDummy)
+	local part = swapDummy.swapParticle
+	--ParticleManager:SetParticleControlEnt(part, 1, swapDummy, 1, "follow_origin", swapDummy:GetAbsOrigin(), true)
+	
+	swapDummy:EmitSound("Hero_Puck.Illusory_Orb")
+
+	Physics:Unit(swapDummy)
+	swapDummy:SetPhysicsFriction(0)
+	local dir = (point-caster:GetAbsOrigin()):Normalized()
+	local vel = dir*SWAP_PROJ_VELOCITY
+	swapDummy:SetPhysicsVelocity(vel)
+
+	swapDummy:OnPhysicsFrame(function(x)
+		DebugDrawCircle(swapDummy:GetAbsOrigin(), Vector(255,0,0), 30, 50, true, .03)
+		ParticleManager:SetParticleControl(part, 4, swapDummy:GetAbsOrigin())
+	end)
+
+	--table.insert(self.colliderFilter, swapDummy)
+	swapDummy.colliderID = DoUniqueString("a")
+	self.colliderFilter[swapDummy.colliderID] = swapDummy
+
+	function swapDummy:OnSwapCollision( collided )
+		local casterVel = caster:GetPhysicsVelocity()
+		local casterPos = caster:GetAbsOrigin()
+		local collidedVel = collided:GetPhysicsVelocity()
+		local collidedPos = collided:GetAbsOrigin()
+
+
+		caster:SetPhysicsVelocity(collidedVel)
+		caster:SetAbsOrigin(collidedPos)
+		caster:EmitSound("Hero_Puck.EtherealJaunt")
+		Timers:CreateTimer(.03, function()
+			ParticleManager:CreateParticle("particles/items_fx/blink_dagger_start.vpcf", PATTACH_ABSORIGIN, caster)
+			ParticleManager:CreateParticle("particles/items_fx/blink_dagger_start.vpcf", PATTACH_ABSORIGIN, collided)
+		end)
+
+		collided:SetPhysicsVelocity(casterVel)
+		collided:SetAbsOrigin(casterPos)
+
+		local ball_controller = nil
+		local newPos = collidedPos
+		if caster == ball.controller then
+			ball_controller = caster
+		elseif collided == ball.controller then
+			ball_controller = collided
+			newPos = casterPos
+		end
+
+		if ball_controller then
+			ball.controller = nil
+			ball_controller.ballProc = false
+			ball:SetAbsOrigin(newPos+ball_controller:GetForwardVector()*20)
+
+		end
+
+
+		self:DS_Destroy(true)
+
+
+	end
+
+	function swapDummy:DS_Destroy( bSuccess )
+		ParticleManager:DestroyParticle(self.swapParticle, false)
+		self:StopSound("Hero_Puck.Illusory_Orb")
+
+		swapDummy.isSwapDummy = false
+		swapDummy:StopPhysicsSimulation()
+		swapDummy:ForceKill(true)
+		DotaStrikers.colliderFilter[swapDummy.colliderID] = nil
+
+
+	end
+
+	caster.swapTimer = Timers:CreateTimer(SWAP_DURATION, function()
+		if swapDummy.isSwapDummy then
+			swapDummy:DS_Destroy(false)
+		end
+
+	end)
 
 	if Testing then keys.ability:EndCooldown() end
 

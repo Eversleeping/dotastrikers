@@ -93,7 +93,7 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 			bool m_bPreventNameBasedLookup = false
 			float m_flDelay = 0.000000
 			bool m_bEndCap = false
-			bool m_bDisableChild = false
+			bool m_bDisableChild = true
 		},
 		ParticleChildrenInfo_t
 		{
@@ -724,8 +724,8 @@ C_INIT_CreateWithinSphere C_INIT_CreateWithinSphere_19
 
 C_INIT_RandomRadius C_INIT_RandomRadius_20
 {
-	float m_flRadiusMin = 0.300000
-	float m_flRadiusMax = 0.300000
+	float m_flRadiusMin = 0.280000
+	float m_flRadiusMax = 0.280000
 	float m_flRadiusRandExponent = 0.400000
 	bool m_bRunForParentApplyKillList = true
 	float m_flOpStartFadeInTime = 0.000000
