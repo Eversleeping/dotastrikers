@@ -2,6 +2,69 @@
 {
 	"Version"		"1"
 
+	"bloodseeker_rupture_datadriven"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
+		"BaseClass"						"bloodseeker_rupture"
+		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
+		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+		"AbilityType"					"DOTA_ABILITY_TYPE_BASIC"
+		"AbilityTextureName"			"bloodseeker_rupture"
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"0"
+
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"0"		
+		
+		// Cast Range
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"9999"
+			
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityModifierSupportValue"	"0.0"	// Only does damage
+
+		// Special
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"duration"					"4.0"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"movement_damage_pct"		"0"
+			}
+			"03"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"damage_cap_amount"			"0"
+			}
+			"04"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"damage_cap_interval"		"0"
+			}
+			"05"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"cast_range_tooltip"		"9999"
+			}
+		}
+	}
+
 	"swap"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
@@ -128,20 +191,31 @@
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
 		"AbilityTextureName"			"bloodseeker_bloodrage"
+		"MaxLevel"						"1"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
 		"AbilityCooldown"				"10"
-		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
 		
 		"OnSpellStart"
 		{
 			"RunScript"
 			{
+				"Target"				"POINT"
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"tackle"
+			}
+		}
+
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"channel_time"				"0.35"
 			}
 		}
 	}
@@ -373,11 +447,6 @@
 		
 		"OnSpellStart"
 		{
-			"ApplyModifier"
-			{
-				"ModifierName"	"modifier_haste_anim"
-				"Target" 		"CASTER"
-			}
 			"RunScript"
 			{
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
@@ -1008,8 +1077,12 @@
 			"modifier_ball_controller"
 			{
 				"Passive"                        "1"
-				//"IsHidden"                       "0"  
 				"TextureName"      "earth_spirit_rolling_boulder"
+			}
+			"modifier_goalie"
+			{
+				"Passive"                        "1"
+				"TextureName"      "goalie"
 			}
 			"modifier_disarmed_on"
 			{
@@ -1029,6 +1102,26 @@
 				"States"
 				{
 					"MODIFIER_STATE_DISARMED"		"MODIFIER_STATE_VALUE_DISABLED"
+				}
+			}
+			"modifier_phased_on"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+			
+				"States"
+				{
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_ENABLED"
+				}
+			}
+			"modifier_phased_off"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+			
+				"States"
+				{
+					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_DISABLED"
 				}
 			}
 		}

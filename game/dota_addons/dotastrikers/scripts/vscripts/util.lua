@@ -142,7 +142,7 @@ function ShowQuickMessages( linesTable, durBetweenLines )
 end
 
 function ShowErrorMsg( unit, msg )
-	if not unit:GetPlayerOwner() then return end
+	if not unit or not unit:GetPlayerOwner() then return end
 	if not unit.lastErrorPopupTime or (GameRules:GetGameTime()-unit.lastErrorPopupTime > 1) then
 		FireGameEvent( 'custom_error_show', { player_ID = unit:GetPlayerOwner():GetPlayerID(), _error = msg } )
 		unit.lastErrorPopupTime = GameRules:GetGameTime()

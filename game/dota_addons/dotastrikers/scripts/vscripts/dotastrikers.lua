@@ -16,14 +16,16 @@ PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
 
 PRE_FIRSTROUND_START = 8
+SCORE_TO_WIN = 13
+
 if Testing then
 	PRE_FIRSTROUND_START = 1
+	--SCORE_TO_WIN = 4
 end
 
 RoundsCompleted = 0
 
 Ball = {}
-Components = {}
 
 ColorStr = 
 {	-- This is plyID+1
@@ -269,6 +271,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	--print("OnHeroInGameFirstTime")
 
 	function hero:OnThink(  )
+		--if not RoundInProgress then return end
+
 		local pos = hero:GetAbsOrigin()
 		--print("pos: " .. VectorString(pos))
 		if hero.goalie then
@@ -278,10 +282,19 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 				hero.goalie = false
 				hero.gc.goalie = nil
 				hero.ballGoalieProc = false
+
 				DotaStrikers:RemoveGoalieJump(hero) -- in initmap
+
+				if hero:HasModifier("modifier_goalie") then
+					hero:RemoveModifierByName("modifier_goalie")
+				end
 			else
 				-- check to see if goalie jump is not added. if not, add it.
 				DotaStrikers:AddGoalieJump(hero)
+
+				if not hero:HasModifier("modifier_goalie") then
+					GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_goalie", {})
+				end
 			end
 		end
 
@@ -298,6 +311,9 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 				hero.onOwnSide = false
 			end
 		end
+
+
+
 	end
 
 	hero.base_move_speed = hero:GetBaseMoveSpeed()
@@ -309,6 +325,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	hero.plyID = hero:GetPlayerID()
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
+	hero.components = {}
 
 	-- Store the player's name inside this hero handle.
 	hero.playerName = PlayerResource:GetPlayerName(hero.plyID)
@@ -335,18 +352,19 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	table.insert(self.vHeroes, hero)
 	--table.insert(self.colliderFilter, hero)
 
+	hero.last_peak_z = 0
+
+	hero.pp_collisions = {} -- player-player collisions
+
 	hero.colliderID = DoUniqueString("a")
 	self.colliderFilter[hero.colliderID] = hero
 
 	self:SetupPhysicsSettings(hero)
 
-	-- my components lib to control velocities better
-	Components:Init(hero)
-
-	hero.frownItem = CreateItem("item_frown", hero, hero)
 	hero.tauntItem = CreateItem("item_taunt", hero, hero)
-	hero:AddItem(hero.frownItem)
+	hero.frownItem = CreateItem("item_frown", hero, hero)
 	hero:AddItem(hero.tauntItem)
+	hero:AddItem(hero.frownItem)
 
 	-- this is for black holes.
 	hero.last_bh_accels = {}
@@ -378,7 +396,9 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		heroes_kv_name = "pull"
 	elseif classname == "npc_dota_hero_bloodseeker" then
 		hero.isTackle = true
+		hero.tackle_end_time = 0
 		heroes_kv_name = "tackle"
+		hero.tackleTargets = {}
 	elseif classname == "npc_dota_hero_queenofpain" then
 		hero.isBlink = true
 		heroes_kv_name = "blink"
@@ -467,13 +487,18 @@ end
 function DotaStrikers:SetupPhysicsSettings( unit )
 	Physics:Unit(unit)
 	unit:Hibernate(false)
-	unit:FollowNavMesh (false)
-	unit:SetNavCollisionType(PHYSICS_NAV_NOTHING)
+	--unit:FollowNavMesh (false)
+	unit:SetNavCollisionType(PHYSICS_NAV_BOUNCE)
 	unit:SetGroundBehavior(PHYSICS_GROUND_ABOVE)
 	-- gravity
 	unit:SetPhysicsAcceleration(BASE_ACCELERATION)
+	--unit:SetPhysicsBoundingRadius(unit:GetPaddedCollisionRadius()+20)
 	unit.shieldParticles = {}
 	unit.lastShieldParticleTime = GameRules:GetGameTime()
+
+	unit:OnBounce(function(_unit, _normal)
+		DotaStrikers:OnGridNavBounce( _unit, _normal )
+	end)
 end
 
 function DotaStrikers:OnHeroRespawn( hero )

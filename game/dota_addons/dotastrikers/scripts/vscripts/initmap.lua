@@ -1,26 +1,30 @@
-GOAL_Y = 290 -- half of the y direction width of the goal post.
 TIME_TILL_NEXT_ROUND = 8
-SCORE_TO_WIN = 13
 NUM_ROUNDEND_SOUNDS = 11
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
-GOAL_Z = 510
 RECT_X_MIN = Bounds.min-RectangleOffset
 RECT_X_MAX = Bounds.max+RectangleOffset
 -- these are for the whole goal post (everywhere the goalie can move)
 GOAL_X_MIN = RECT_X_MIN-GOAL_SMOOTHING
 GOAL_X_MAX = RECT_X_MAX+GOAL_SMOOTHING
 
-SCORE_X_MAX = RECT_X_MAX+270
+SCORE_X_MAX = 2830
 SCORE_X_MIN = -1*SCORE_X_MAX
 
-GOAL_OUTWARDNESS = 400
+GOAL_OUTWARDNESS = 420
 GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), helps with model clipping into fences.
 GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 15000
 
-if Testing then
-	SCORE_TO_WIN = 4
-end
+GOAL_Y = 428 -- half of the y direction width of the goal post.
+-- RADIANT MAP VALUES:
+R_OUTWARDNESS = -1879
+R_INWARDNESS = -3218.45
+R_SCORE = -2828.21
+BIG_OFFSET = 10000
+GOAL_Z = 492
+
+D_OUTWARDNESS = -1*R_OUTWARDNESS
+D_SCORE = -1*R_SCORE
 
 function DotaStrikers:GetRoundAbils( hero )
 	--print("round_in_progress_abils:")
@@ -59,71 +63,25 @@ end
 function DotaStrikers:InitMap()
 	local ball = Ball.unit
 
-	local offset = 3000
-
 	self.bcs = {
 		[1] = Physics:AddCollider("bounds_collider_1", Physics:ColliderFromProfile("aaboxreflect")),
 		[2] = Physics:AddCollider("bounds_collider_2", Physics:ColliderFromProfile("aaboxreflect")),
 		[3] = Physics:AddCollider("bounds_collider_3", Physics:ColliderFromProfile("aaboxreflect")),
-		[4] = Physics:AddCollider("bounds_collider_4", Physics:ColliderFromProfile("aaboxreflect")),
-		[5] = Physics:AddCollider("bounds_collider_5", Physics:ColliderFromProfile("aaboxreflect")),
-		[6] = Physics:AddCollider("bounds_collider_6", Physics:ColliderFromProfile("aaboxreflect")),
-		[7] = Physics:AddCollider("bounds_collider_7", Physics:ColliderFromProfile("aaboxreflect")),
-		[8] = Physics:AddCollider("bounds_collider_8", Physics:ColliderFromProfile("aaboxreflect")),
-		[9] = Physics:AddCollider("bounds_collider_9", Physics:ColliderFromProfile("aaboxreflect")),
-		[10] = Physics:AddCollider("bounds_collider_10", Physics:ColliderFromProfile("aaboxreflect")),
-		[11] = Physics:AddCollider("bounds_collider_11", Physics:ColliderFromProfile("aaboxreflect")),
-		[12] = Physics:AddCollider("bounds_collider_12", Physics:ColliderFromProfile("aaboxreflect")),
-		[13] = Physics:AddCollider("bounds_collider_13", Physics:ColliderFromProfile("aaboxreflect")),
 	}
 	local bcs = self.bcs
 
-	-- top and bottom big colliders
-	bcs[1].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MIN-offset, Bounds.max+offset, COLLIDER_Z)}
-
-	bcs[2].box = {Vector(RECT_X_MAX+offset, Bounds.min, 0), Vector(RECT_X_MIN-offset, Bounds.min-offset, COLLIDER_Z)}
-	
-	-- upper right, badguys goal
-	bcs[3].box = {Vector(RECT_X_MAX+offset, Bounds.max+offset, 0), Vector(RECT_X_MAX, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
-	--bcs[3].draw=true
-
-	-- lower right, badguys goal
-	bcs[4].box = {Vector(RECT_X_MAX+offset, Bounds.min-offset, 0), Vector(RECT_X_MAX, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
-	--bcs[4].draw=true
-
-	-- upper left, goodguys goal
-	bcs[5].box = {Vector(RECT_X_MIN-offset, Bounds.max+offset, 0), Vector(RECT_X_MIN, GOAL_Y-GOAL_LESSEN_SIDE, COLLIDER_Z)}
-	--bcs[5].draw=true
-
-	-- lower left, goodguys goal
-	bcs[6].box = {Vector(RECT_X_MIN-offset, Bounds.min-offset, 0), Vector(RECT_X_MIN, -1*GOAL_Y+GOAL_LESSEN_SIDE, COLLIDER_Z)}
-	--bcs[6].draw=true
-
-	-- far left, goodguys (to prevent non-goalies from entering area.)
-	bcs[7].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN, Bounds.min, COLLIDER_Z)}
-
-	-- far right, badguys (to prevent non-goalies from entering area.)
-	bcs[8].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX, Bounds.min, COLLIDER_Z)}
-
-	-- far left, goodguys FOR GOALIES [inwardness]
-	bcs[9].box = {Vector(RECT_X_MIN-offset, Bounds.max, 0), Vector(RECT_X_MIN-GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
-
-	-- far right, badguys FOR GOALIES [inwardness]
-	bcs[10].box = {Vector(RECT_X_MAX+offset, Bounds.max, 0), Vector(RECT_X_MAX+GOAL_SMOOTHING, Bounds.min, COLLIDER_Z)}
-
 	-- the top of everything
-	local this_offset = 2*offset
-	bcs[11].box = {Vector(GOAL_X_MAX+this_offset, Bounds.max+this_offset, COLLIDER_Z-this_offset), Vector(GOAL_X_MIN-this_offset, Bounds.min-this_offset, COLLIDER_Z+this_offset)}
+	bcs[1].box = {Vector(BIG_OFFSET, BIG_OFFSET, BIG_OFFSET-3000), Vector(-1*BIG_OFFSET, -1*BIG_OFFSET, BIG_OFFSET+3000)}
 
 	-- top of radiant goal post, ball reflector
-	bcs[12].box = {Vector(SCORE_X_MIN-offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MIN, GOAL_Y, COLLIDER_Z)}
+	bcs[2].box = {Vector(-1*BIG_OFFSET, GOAL_Y*-1, GOAL_Z), Vector(R_SCORE, GOAL_Y, BIG_OFFSET)}
 
 	-- top of dire goal post, ball reflector
-	bcs[13].box = {Vector(SCORE_X_MAX+offset, GOAL_Y*-1, GOAL_Z), Vector(SCORE_X_MAX, GOAL_Y, COLLIDER_Z)}
+	bcs[3].box = {Vector(BIG_OFFSET, GOAL_Y*-1, GOAL_Z), Vector(D_SCORE, GOAL_Y, BIG_OFFSET)}
 
 	for i,bc in ipairs(bcs) do
 		bc.test = function(self, unit)
-			return OnBoundsCollision(self, unit, bc, i)
+			return OnBoundsCollision(self, unit, bc)
 		end
 		bc.filter = DotaStrikers.colliderFilter
 	end
@@ -135,8 +93,8 @@ function DotaStrikers:InitMap()
 
 	local gcs = self.gcs
 
-	gcs[1].box = {Vector(RECT_X_MIN+GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MIN-offset, GOAL_Y+GC_INCREASE_SIDE, COLLIDER_Z)}
-	gcs[2].box = {Vector(RECT_X_MAX-GOAL_OUTWARDNESS, -1*GOAL_Y-GC_INCREASE_SIDE, 0), Vector(RECT_X_MAX+offset, GOAL_Y+GC_INCREASE_SIDE, COLLIDER_Z)}
+	gcs[1].box = {Vector(R_OUTWARDNESS, -1*GOAL_Y, 0), Vector(-1*BIG_OFFSET, GOAL_Y, BIG_OFFSET)}
+	gcs[2].box = {Vector(D_OUTWARDNESS, -1*GOAL_Y, 0), Vector(BIG_OFFSET, GOAL_Y, BIG_OFFSET)}
 	gcs[1].team = DOTA_TEAM_GOODGUYS
 	gcs[2].team = DOTA_TEAM_BADGUYS
 	--gcs[1].draw=true
@@ -145,6 +103,8 @@ function DotaStrikers:InitMap()
 	for _,gc in ipairs(gcs) do
 		gc.test = function ( self, unit )
 			if not IsPhysicsUnit(unit) then return false end
+
+			if TrySetComponentStatus(unit) then return true end
 
 			if unit == gc.goalie then return false end -- ignore the current goalie in this goalpost.
 
@@ -165,9 +125,9 @@ function DotaStrikers:InitMap()
 				end
 			elseif unit == ball then
 				passTest = false
-			elseif not gc.goalie and unit ~= ball and unit:GetTeamNumber() == gc.team then
+			elseif unit.isDSHero and not gc.goalie and unit:GetTeamNumber() == gc.team then
 				-- if there's nobody in the goal and the unit isn't the ball and he's on the same team as this goal post, then let the unit in.
-				print("new goalie")
+				--print("new goalie")
 				gc.goalie = unit
 				unit.goalie = true
 				unit.timeBecameGoalie = GameRules:GetGameTime()
@@ -182,14 +142,15 @@ function DotaStrikers:InitMap()
 				
 			end
 			-- done with calculating passTest value.
-
 			if passTest then
-				DotaStrikers:OnCantEnter(unit)
+				DotaStrikers:PlayReflectParticle(unit)
 				-- if high velocity onto the goal post, do sounds/effects etc.
 				if unit.isDSHero then
 					TryPlayCracks(unit)
 				end
 			end
+			TrySetComponentStatus(unit)
+
 			return passTest
 		end
 		--gc.draw=true
@@ -198,6 +159,8 @@ function DotaStrikers:InitMap()
 end
 
 function DotaStrikers:AddGoalieJump(unit)
+	if not RoundInProgress then return end
+
 	-- he can't have goalie jump while having the ball
 	if Ball.unit.controller == unit or not unit.goalie then return end
 
@@ -250,8 +213,12 @@ function DotaStrikers:OnGoal(team)
 
 	ball:SetPhysicsFriction(GROUND_FRICTION*3)
 
-	ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
-	EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
+	--local win_ball_pos = ball:GetAbsOrigin()
+	Timers:CreateTimer(.06, function()
+		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
+		--ParticleManager:SetParticleControl(win_ball_particle, 0, win_ball_pos)
+		EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
+	end)
 
 	CleanUp(ball)
 
@@ -336,6 +303,7 @@ function DotaStrikers:OnGoal(team)
 	ShowQuickMessages(lines, .2)
 
 	RoundsCompleted = RoundsCompleted + 1
+
 	RoundInProgress = false
 
 	if GameOver then
@@ -352,6 +320,10 @@ function DotaStrikers:OnGoal(team)
 						StopAnimation(hero.victory_anim, hero)
 					else
 						StopAnimation(hero.defeat_anim, hero)
+					end]]
+
+					--[[if hero.goalie then
+						DotaStrikers:RemoveGoalieJump(hero)
 					end]]
 
 					StopAnimation("modifier_flail_passive", hero)
@@ -373,7 +345,9 @@ function DotaStrikers:OnGoal(team)
 					-- make them all face the ball (looks nicer)
 					Timers:CreateTimer(.03, function()
 						hero:SetForwardVector((ball:GetAbsOrigin()-hero:GetAbsOrigin()):Normalized())
+
 						hero:SetMana(hero:GetMaxMana())
+
 						Timers:CreateTimer(.03, function()
 							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
 
@@ -403,9 +377,13 @@ function DotaStrikers:OnGoal(team)
 
 			for i=1,6 do
 				local abil = hero:GetAbilityByIndex(i-1)
-				hero:RemoveAbility(abil:GetAbilityName())
-				hero:AddAbility(hero.round_in_progress_abils[i])
-				hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
+				if abil then
+					hero:RemoveAbility(abil:GetAbilityName())
+					hero:AddAbility(hero.round_in_progress_abils[i])
+					hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
+				else
+					print("no abil at " .. i)
+				end
 			end
 
 			hero:StartPhysicsSimulation()
@@ -476,72 +454,49 @@ function GetGoalUnitIsWithin( unit )
 	return nil
 end
 
-function OnBoundsCollision( self, unit, bc, i )
+function OnBoundsCollision( self, unit, bc )
 	if not IsPhysicsUnit(unit) then return false end
+
+	if TrySetComponentStatus(unit) then return true end
+
 	local ball = Ball.unit
 	local isBall = unit == ball
 	local passTest = true
 	local unitPos = unit:GetAbsOrigin()
 	--print(bc.name)
+
+	-- top of radiant, top of dire goals
+	if bc.name == "bounds_collider_2" or bc.name == "bounds_collider_3" then
+		if unit.goalie then
+			return false
+		end
+	end
+
 	-- when someone is holding the ball
 	if isBall and ball.controller then
 		return false
 	end
 
-	-- For some of the colliders, we need to return true early, sometimes we don't want to play the crack effects and sounds.
-
-	if bc.name == "bounds_collider_5" or bc.name == "bounds_collider_6" or bc.name == "bounds_collider_3" or bc.name == "bounds_collider_4" then
-		if unit.goalie and unit.isUsingGoalieJump then 
-			return true 
-		else
-			--print("test")
-		end
-	end
-
-	if bc.name == "bounds_collider_12" or bc.name == "bounds_collider_13" then
-		if isBall then
-			DotaStrikers:OnCantEnter(unit)
-			return true
-		elseif unit.goalie then
-			return false
-		end
-	end
-
-	if bc.name == "bounds_collider_11" then
-		return true
-	end
-
-	if bc.name == "bounds_collider_7" or bc.name == "bounds_collider_8" then
-		if unit.goalie or isBall or unit.isSwapDummy then
-			return false
-		end
-	end
-
-	if bc.name == "bounds_collider_9" or bc.name == "bounds_collider_10" then
-		if unit.goalie or isBall then
-			if unit.isAboveGround then
-				DotaStrikers:OnCantEnter(unit)
-			end
-			return true
-		end
-	end
-
 	-- done with passTest logic. move onto parsing that logic, add sounds, effects, etc.
-	if isBall and passTest and not ball.controller and not ball.affectedByPowershot then
-		unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
-	elseif unit.isDSHero and passTest then
-		TryPlayCracks(unit, nil, true)
-	end
 	if passTest then
-		if unit.isAboveGround then
-			DotaStrikers:OnCantEnter(unit)
+		if isBall and not ball.affectedByPowershot then
+			unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
+		elseif unit.isDSHero then
+			TryPlayCracks(unit, nil, true)
 		end
+		if unit.isAboveGround then
+			DotaStrikers:PlayReflectParticle(unit)
+		end
+	else
+
 	end
+
+	TryInvokeComponents(passTest, unit)
 
 	return passTest
 end
 
-function DotaStrikers:OnCantEnter( unit )
+function DotaStrikers:PlayReflectParticle( unit )
 	local currTime = GameRules:GetGameTime()
 	if not unit.lastShieldParticleTime or currTime-unit.lastShieldParticleTime > .03 then
 		local pos = unit:GetAbsOrigin()

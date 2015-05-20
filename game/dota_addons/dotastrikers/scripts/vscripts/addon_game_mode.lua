@@ -6,7 +6,7 @@ requires = {
 	--'newphysics',
 	'dotastrikers',
 	'initmap',
-	'myphys_and_ball',
+	'myphysics',
 	'ability_proxy',
 	'abilities',
 }
@@ -28,6 +28,7 @@ function Precache( context )
 	PrecacheResource("particle_folder", "particles/powershot", context)
 	PrecacheResource("particle_folder", "particles/slam", context)
 	PrecacheResource("particle_folder", "particles/black_hole", context)
+	PrecacheResource("particle_folder", "particles/time_walk", context)
 	--PrecacheResource("particle_folder", "blah", context)
 	--PrecacheResource("particle_folder", "blah", context)
 	--PrecacheResource("particle_folder", "blah", context)
@@ -71,8 +72,8 @@ function Precache( context )
 	PrecacheResource("particle", "particles/illusory_orb/puck_illusory_orb.vpcf", context)
 	PrecacheResource("particle", "particles/econ/items/puck/puck_alliance_set/puck_waning_rift_aproset.vpcf", context)
 	PrecacheResource("particle", "particles/items_fx/blink_dagger_start.vpcf", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
+	PrecacheResource("particle", "particles/ghost_model.vpcf", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_bloodseeker/bloodseeker_rupture.vpcf", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
@@ -135,7 +136,7 @@ function Precache( context )
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_rubick.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_templar_assassin.vsndevts", context)
 	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_wisp.vsndevts", context)
-	--PrecacheResource("soundfile", "blah", context)
+	PrecacheResource("soundfile", "soundevents/game_sounds_heroes/game_sounds_faceless_void.vsndevts", context)
 	--PrecacheResource("soundfile", "blah", context)
 	--PrecacheResource("soundfile", "blah", context)
 	--PrecacheResource("soundfile", "blah", context)
@@ -154,6 +155,7 @@ function Precache( context )
 	PrecacheUnitByNameSync("npc_dota_hero_omniknight", context)
 	PrecacheUnitByNameSync("npc_dota_hero_earthshaker", context)
 	PrecacheUnitByNameSync("npc_dota_roshan", context)
+	PrecacheUnitByNameSync("npc_dota_bloodseeker", context)
 	--PrecacheUnitByNameSync("npc_dota_hero_rubick", context)
 	--PrecacheUnitByNameSync("blah", context)
 	--PrecacheUnitByNameSync("blah", context)

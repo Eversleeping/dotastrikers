@@ -1,7 +1,7 @@
 THROW_VELOCITY = 1700
 SURGE_TICK = .2
-SLAM_Z = 2300 --2200
-SLAM_XY = 1100
+SLAM_Z = 2100
+SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1300
@@ -14,9 +14,11 @@ PULL_ACCEL_FORCE = 2300
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL = 1200
+SPRINT_ACCEL_FORCE = 900
 SPRINT_INITIAL_FORCE = 600
-SPRINT_COOLDOWN = 5
+SPRINT_COOLDOWN = 6
+
+TACKLE_SLOW_DURATION = 4
 
 BH_RADIUS = 430
 BH_DURATION = 6
@@ -25,8 +27,8 @@ BH_FORCE_MIN = 3000
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
-TACKLE_DURATION = .3
-TACKLE_FORCE = 800
+TACKLE_DURATION = .5
+TACKLE_VEL_FORCE = 1500
 
 BLINK_WAIT_TIME = .5
 BLINK_DISTANCE = 700
@@ -37,6 +39,7 @@ SWAP_DURATION = 2
 -- ball goes up a lil in the z direction if hero throws ball while in the air.
 KICK_BALL_Z_PUSH = 280
 GOALIE_JUMP_Z = 1300
+GOALIE_JUMP_XY = 120
 
 NUM_FROWNS = 6
 NUM_TAUNTS = 6
@@ -57,14 +60,13 @@ function DotaStrikers:OnAbilityUsed( keys )
 end
 
 function DotaStrikers:OnRefereeAttacked( keys )
-	print("OnRefereeAttacked")
+	--print("OnRefereeAttacked")
 	local attacked = keys.target
 	local ball = Ball.unit
 
 	if not attacked == ball then return end
 
 	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
-	--print("towardsCenter: " .. VectorString(towardsCenter))
 
 	ball.controlledByRef = true
 
@@ -161,21 +163,37 @@ function DotaStrikers:surge( keys )
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
 
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		
 		caster.sprint_fv = caster:GetForwardVector()
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
-		caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL
+		
+		caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL_FORCE
+		caster.last_supersprint_time = GameRules:GetGameTime()
+		
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
 
-		--[[local component = caster:PhysicsComponent("super_sprint")
+		local component = AddPhysicsComponent("super_sprint", caster)
 		component:SetPhysicsAcceleration(caster.sprint_accel)
-		component:OnPhysicsFrame(function(param)
-			if component:GetPhysicsFriction() ~= caster:GetPhysicsFriction() then
-				component:SetPhysicsFriction(caster:GetPhysicsFriction())
-				--local dir = caster:GetPhysicsVelocity():Normalized()
-				--component:SetPhysicsVelocity()
+		component:OnPhysicsFrame(function(x)
+			if not caster:HasAbility("super_sprint_break") then
+				return
 			end
+
+			if GameRules:GetGameTime() - caster.last_supersprint_time > .1 then
+				if caster.velocityMagnitude < 200*200 then
+					caster:CastAbilityNoTarget(caster:FindAbilityByName("super_sprint_break"), 0)
+				end
+			end
+
+			local orig_accel = caster:GetPhysicsAcceleration()-caster.sprint_accel
+
+			caster.sprint_accel = caster:GetForwardVector()*SPRINT_ACCEL_FORCE
+
+			caster:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
+			component:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
+			--print("curr vel mag: " .. caster.velocityMagnitude)
 		end)
-		caster.super_sprint_component = component]]
+		caster.super_sprint_component = component
 
 		caster:EmitSound("Hero_Weaver.Shukuchi")
 
@@ -190,41 +208,7 @@ function DotaStrikers:surge( keys )
 			AddHasteAnimation(caster)
 		end)
 
-		caster.sprint_timer = Timers:CreateTimer(function()
-			if not caster:HasAbility("super_sprint_break") then
-				--caster.sprint_accel = Vector(0,0,0)
-				return
-			end
-			-- remove curr accel
-			caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
-			caster.sprint_accel = caster:GetForwardVector()*SPRINT_ACCEL
-			caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
-
-			return .01
-		end)
-
-		-- ensure the sprinter is moving somewhere.
-		caster.dist_check_timer = Timers:CreateTimer(function()
-			if not caster:HasAbility("super_sprint_break") then
-				return
-			end
-
-			local currPos = caster:GetAbsOrigin()
-
-			if not caster.lastPos then
-				caster.lastPos = Vector(8000,8000,0)
-			end
-
-			local distTraveled = (currPos-caster.lastPos):Length()
-			--print("distTraveled: " .. distTraveled)
-			if distTraveled ~= 0 and distTraveled < 20 then
-				caster:CastAbilityImmediately(caster:FindAbilityByName("super_sprint_break"), 0)
-				caster.lastPos = Vector(8000,8000,0)
-			end
-
-			caster.lastPos = currPos
-			return .1
-		end)
+		caster.isUsingSuperSprint = true
 
 	elseif caster.isNinja then
 		caster:RemoveAbility("ninja_invis_sprint")
@@ -274,6 +258,8 @@ function DotaStrikers:surge_break( keys )
 		Timers:RemoveTimer(caster.sprint_timer)
 		Timers:RemoveTimer(caster.dist_check_timer)
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
+		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4))
+		caster.super_sprint_component:RemoveComponent()
 
 		--[[ remove most of the vel gained from that sprint
 		local comp = caster.super_sprint_component
@@ -290,6 +276,7 @@ function DotaStrikers:surge_break( keys )
 			RemoveEndgameRoot(caster)
 		end
 		RemoveHasteAnimation(caster)
+		caster.isUsingSuperSprint = false
 
 		--caster:EmitSound("Hero_Slardar.MovementSprint")
 	elseif caster.isNinja then
@@ -411,6 +398,7 @@ end
 
 function DotaStrikers:text_particle( keys )
 	local caster = keys.caster
+	if not caster then print("text_particle, caster nil") return end
 
 	local abilName = ""
 	if keys.ability then
@@ -507,9 +495,12 @@ function DotaStrikers:slam( keys )
 	end
 
 	local echoDummy = CreateUnitByName("dummy", hero:GetAbsOrigin(), false, nil, nil, DOTA_TEAM_NEUTRALS)
-	local slamDummyAbil = echoDummy:FindAbilityByName("slam_dummy")
+	echoDummy:AddAbility("slam_dummy")
+	local slamAbil = echoDummy:FindAbilityByName("slam_dummy")
+	slamAbil:SetLevel(1)
+
 	Timers:CreateTimer(NEXT_FRAME, function()
-		echoDummy:CastAbilityImmediately(slamDummyAbil, 0)
+		echoDummy:CastAbilityImmediately(slamAbil, 0)
 		Timers:CreateTimer(1, function()
 			echoDummy:ForceKill(true)
 		end)
@@ -623,26 +614,64 @@ function DotaStrikers:tackle( keys )
 	local caster = keys.caster
 	local ball = Ball.unit
 	local point = keys.target_points[1]
+	point = Vector(point.x, point.y, caster:GetAbsOrigin().z)
+	
 	caster.isUsingTackle = true
+	
 	caster.tackle_end_time = GameRules:GetGameTime() + TACKLE_DURATION
+	
+	caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
 	AddEndgameRoot(caster)
+
+	Timers:CreateTimer(.03, function()
+		AddHasteAnimation(caster)
+	end)
+
+	caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
+	caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()+caster.tackle_vel)
+
+	caster:EmitSound("Hero_FacelessVoid.TimeWalk")
+
+	local tackleDummy = CreateUnitByName("dummy", caster:GetAbsOrigin(), false, nil, nil, caster:GetTeam())
+	caster.tackleDummy = tackleDummy
+	caster.tackleDummy:AddAbility("bloodseeker_rupture_datadriven")
+	caster.tackleDummyAbil = caster.tackleDummy:FindAbilityByName("bloodseeker_rupture_datadriven")
+	caster.tackleDummyAbil:SetLevel(1)
 
 	-- move order to turn the unit
 	ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
-		Position = point, Queue = false})
+		Position = 2000*(point-caster:GetAbsOrigin()):Normalized(), Queue = false})
 
 	caster.tackleTimer = Timers:CreateTimer(function()
-		if GameRules:GetGameTime() > caster.tackle_end_time then
-
+		if GameRules:GetGameTime() > caster.tackle_end_time or caster.tackled_someone then
 			caster.isUsingTackle = false
-			RemoveEndgameRoot(caster)
+			caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
+			caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-caster.tackle_vel)
+			if caster:HasModifier("modifier_rune_haste") then
+				caster:RemoveModifierByName("modifier_rune_haste")
+				RemoveEndgameRoot(caster)
+			end
+			RemoveHasteAnimation(caster)
+			Timers:CreateTimer(1, function()
+				tackleDummy:ForceKill(true)
+			end)
+			caster.tackled_someone = false
+			caster:Stop()
+
 			return nil
 		end
-		local fv = caster:GetForwardVector()
-		local newForce = fv*TACKLE_FORCE
 		
-		local velDir = caster:GetPhysicsVelocity():Normalized()
-		
+		-- remove last vel
+		caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
+		local orig_vel = caster:GetPhysicsVelocity()-caster.tackle_vel
+		caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
+		caster:SetPhysicsVelocity(orig_vel+caster.tackle_vel)
+
+		if not caster.last_tackle_particle_time or GameRules:GetGameTime() - caster.last_tackle_particle_time > .03 then
+			local part = ParticleManager:CreateParticle("particles/ghost_model.vpcf", PATTACH_ABSORIGIN, caster)
+			ParticleManager:SetParticleControlEnt(part, 1, caster, 1, "follow_origin", caster:GetAbsOrigin(), true)
+			caster.last_tackle_particle_time = GameRules:GetGameTime()
+		end
 
 		return .01
 	end)
@@ -661,7 +690,7 @@ function DotaStrikers:goalie_jump(keys)
 	ParticleManager:SetParticleControl(part, 2, Vector(.8,0,0))
 	--ParticleManager:SetParticleControl(part, 0, caster:GetAbsOrigin())
 
-	caster:AddPhysicsVelocity(Vector(0,0,GOALIE_JUMP_Z))
+	caster:AddPhysicsVelocity(caster:GetForwardVector()*GOALIE_JUMP_XY + Vector(0,0,GOALIE_JUMP_Z))
 	caster.noBounce = true
 	caster.isUsingGoalieJump = true
 
@@ -720,7 +749,8 @@ function DotaStrikers:swap(keys)
 	
 	swapDummy:EmitSound("Hero_Puck.Illusory_Orb")
 
-	Physics:Unit(swapDummy)
+	self:SetupPhysicsSettings( swapDummy )
+	--Physics:Unit(swapDummy)
 	swapDummy:SetPhysicsFriction(0)
 	local dir = (point-caster:GetAbsOrigin()):Normalized()
 	local vel = dir*SWAP_PROJ_VELOCITY

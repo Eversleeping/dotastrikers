@@ -1442,7 +1442,7 @@ function Physics:Unit(unit)
 							end
 						end
 					end
-				else -- ends if unit.bFollowNavMesh
+				else -- executes if not unit.bFollowNavMesh
 					unit:SetAbsOrigin(newPos)
 				end
 			end -- ends if unit.vVelocity ~= Vector(0,0,0)
