@@ -7,9 +7,6 @@ RECT_X_MAX = Bounds.max+RectangleOffset
 GOAL_X_MIN = RECT_X_MIN-GOAL_SMOOTHING
 GOAL_X_MAX = RECT_X_MAX+GOAL_SMOOTHING
 
-SCORE_X_MAX = 2830
-SCORE_X_MIN = -1*SCORE_X_MAX
-
 GOAL_OUTWARDNESS = 420
 GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), helps with model clipping into fences.
 GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
@@ -19,7 +16,7 @@ GOAL_Y = 428 -- half of the y direction width of the goal post.
 -- RADIANT MAP VALUES:
 R_OUTWARDNESS = -1879
 R_INWARDNESS = -3218.45
-R_SCORE = -2828.21
+R_SCORE = -2748
 BIG_OFFSET = 10000
 GOAL_Z = 492
 
@@ -108,6 +105,7 @@ function DotaStrikers:InitMap()
 
 			if unit == gc.goalie then return false end -- ignore the current goalie in this goalpost.
 
+			-- swapdummy doesn't care if there's a goalie or not.
 			if unit.isSwapDummy and unit:GetTeam() ~= gc.team then
 				return true
 			elseif unit.isSwapDummy then
@@ -380,7 +378,11 @@ function DotaStrikers:OnGoal(team)
 				if abil then
 					hero:RemoveAbility(abil:GetAbilityName())
 					hero:AddAbility(hero.round_in_progress_abils[i])
-					hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
+					local new_abil = hero:FindAbilityByName(hero.round_in_progress_abils[i])
+					new_abil:SetLevel(1)
+					Timers:CreateTimer(.03, function()
+						new_abil:EndCooldown()
+					end)
 				else
 					print("no abil at " .. i)
 				end

@@ -22,7 +22,23 @@
 {
     "custom_error_show"
     {
-        "player_ID"     "short"
-        "_error"        "string"
+        "player_ID"    			 "short"
+        "_error"        		 "string"
+    }
+    "toggle_show_ability_silenced"
+    {
+        "player_ID"    			  "short"
+        "ability_index"      	  "short"
+    }
+    "show_welcome_popup" { }
+	
+    // Stat collection
+    "stat_collection_part"
+    {
+        "data"          "string"
+    }
+
+    "stat_collection_send"
+    {
     }
 }

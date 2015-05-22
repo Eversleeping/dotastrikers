@@ -194,6 +194,9 @@ end
 function Timers:RemoveTimer(name)
 	if Timers.timers[name] then
 		Timers.timers[name] = nil
+		--print("removed time: " .. name)
+	else
+		--print("no timer named " .. name)
 	end
 end
 

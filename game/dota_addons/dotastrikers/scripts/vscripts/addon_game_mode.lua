@@ -1,10 +1,11 @@
 requires = {
-	--'lib.statcollection',
+	'lib.statcollection',
 	'util',
 	'timers',
 	'physics',
 	--'newphysics',
 	'dotastrikers',
+	'components',
 	'initmap',
 	'myphysics',
 	'ability_proxy',

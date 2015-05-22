@@ -23,6 +23,9 @@ BALL_OUTOFBOUNDS_DURATION = 5
 BALL_ROUNDSTART_KICK = {170,210}
 CONTROLLER_MOVESPEED_FACTOR = 1/5
 
+-- this is for tackle
+SprintAbilIndex = 2
+
 function DotaStrikers:OnMyPhysicsFrame( unit )
 	local unitPos = unit:GetAbsOrigin()
 	unit.currPos = unitPos
@@ -129,7 +132,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if hero.isUsingPull then
 			-- it's imba is the puller already has the ball and she's using pull.
 			if ball.controller ~= hero then
-				local dirToBall = (Ball.hero:GetAbsOrigin() - hero:GetAbsOrigin()):Normalized()
+				local dirToBall = (ball:GetAbsOrigin() - hero:GetAbsOrigin()):Normalized()
 				-- remove the current pull acceleration.
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.currPullAccel)
 				hero.currPullAccel = dirToBall*PULL_ACCEL_FORCE
@@ -146,7 +149,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 			local in_collision_radius = false
 			if hero2 then
-				in_collision_radius = (hero2:GetAbsOrigin()-hero:GetAbsOrigin()):Length() <= hero:GetPaddedCollisionRadius()
+				in_collision_radius = (hero2:GetAbsOrigin()-hero:GetAbsOrigin()):Length() <= (hero:GetPaddedCollisionRadius()+30)
 			end
 
 			if in_collision_radius then
@@ -160,13 +163,14 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 				hero:RemoveModifierByName("modifier_phased_off")
 			end
 			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_phased_on", {})
-			DebugDrawCircle(hero:GetAbsOrigin(), Vector(255,0,0), 50, 30, false, .04)
+			--DebugDrawCircle(hero:GetAbsOrigin(), Vector(255,0,0), 50, hero:GetPaddedCollisionRadius()+30, false, 3)
+
 		elseif not pp_collision and hero:HasModifier("modifier_phased_on") then
 			if hero:HasModifier("modifier_phased_on") then
 				hero:RemoveModifierByName("modifier_phased_on")
 			end
 			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_phased_off", {})
-			print("removing phased.")
+			--print("removing phased.")
 		end
 	end
 end
@@ -278,16 +282,17 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		elseif hero == ball.controller then
 			local fv = hero:GetForwardVector()
 			-- reposition ball to in front of controller.
-			if ball.outOfBounds then
+			ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
+			--[[if ball.outOfBounds then
 				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET*3/4)
 			else
 				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
-			end
+			end]]
 			ball:SetForwardVector(fv)
 		end
 		-- reset the movespeed if this guy isn't the ball handler anymore.
 		if ball.controller ~= hero and hero.slowedByBall then
-			hero:SetBaseMoveSpeed(hero:GetBaseMoveSpeed() + hero.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			RemoveMovementComponent(hero, "ball_slow")
 			if hero:HasModifier("modifier_ball_controller") then
 				hero:RemoveModifierByName("modifier_ball_controller")
 			end
@@ -309,13 +314,13 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		end
 
 		-- slow the movespeed of the controller if we haven't already.
-		local cont = ball.controller
-		if not cont.slowedByBall then
-			cont:SetBaseMoveSpeed(cont:GetBaseMoveSpeed() - cont.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
-			if not cont:HasModifier("modifier_ball_controller") then
-				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, cont, "modifier_ball_controller", {})
+		local controller = ball.controller
+		if not controller.slowedByBall then
+			AddMovementComponent(controller, "ball_slow", -1*controller.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			if not controller:HasModifier("modifier_ball_controller") then
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, controller, "modifier_ball_controller", {})
 			end
-			cont.slowedByBall = true
+			controller.slowedByBall = true
 		end
 
 		-- if goalie, he can't have goalie jump while having the ball
@@ -338,9 +343,9 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		ballPos = ball:GetAbsOrigin()
 		
 		if ball.lastMovedBy ~= Referee then
-			if ballPos.x < SCORE_X_MIN and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
+			if ballPos.x < R_SCORE and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Dire")
-			elseif ballPos.x > SCORE_X_MAX and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
+			elseif ballPos.x > D_SCORE and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Radiant")
 			end
 		end
@@ -469,89 +474,6 @@ function TryPlayCracks( ... )
 	end
 end
 
--- Components extension to physics.lua:
-
-function AddPhysicsComponent( ... )
-	local t = {...}
-	local name = t[1]
-	local unit = t[2]
-
-	if not unit.components then
-		unit.components = {}
-	end
-
-	local components = unit.components
-
-	local possibleExisting = components[name]
-	if possibleExisting and IsValidEntity(possibleExisting) then
-		possibleExisting:RemoveSelf()
-		components[name] = nil
-	end
-
-	local component = CreateUnitByName("dummy", unit:GetAbsOrigin(), false, nil, nil, unit:GetTeam())
-	DotaStrikers:SetupPhysicsSettings(component)
-	component.isComponent = true
-	component.componentOwner = unit
-	components[name] = component
-	local colliderID = DoUniqueString("a")
-	DotaStrikers.colliderFilter[colliderID] = component
-
-	component.component_timer = Timers:CreateTimer(function()
-		if not IsValidEntity(component) or not component:IsAlive() then
-			Timers:RemoveTimer(component.component_timer)
-			return nil
-		end
-		component:SetPhysicsFriction(unit:GetPhysicsFriction())
-		component:SetAbsOrigin(unit:GetAbsOrigin())
-		--DebugDrawCircle(unit:GetAbsOrigin(), Vector(255,0,0), 30, 40, false, .06)
-
-		return .01
-	end)
-
-	--[[component:OnPhysicsFrame(function(x)
-		-- make the dummy stay in 1 place
-		component:SetAbsOrigin(unit:GetAbsOrigin())
-	end)]]
-
-	function component:RemoveComponent(  )
-		if not component or not IsValidEntity(component) or not component:IsAlive() then return end
-		component:ForceKill(true)
-		components[name] = nil
-		DotaStrikers.colliderFilter[colliderID] = nil
-	end
-
-	return component
-end
-
-function IsComponent( unit )
-	return unit.isComponent
-end
-
-function TryInvokeComponents(passTest, unit )
-	if passTest and unit.components then
-		for k,component in pairs(unit.components) do
-			component.invoked = true
-		end
-	end
-end
-
-function TrySetComponentStatus( unit )
-	if unit.isComponent and unit.invoked then
-		unit.invoked = false
-		return true
-	end
-end
-
-function TryResetComponentVelocities( unit )
-	if unit.components then
-		for k,component in pairs(unit.components) do
-			component:SetPhysicsVelocity(unit:GetPhysicsVelocity())
-		end
-	end
-end
-
--- End of components extension.
-
 function DotaStrikers:GetBallInBounds(  )
 	local ball = Ball.unit
 	local towardsCenter = (Vector(0,0,GroundZ)-ball:GetAbsOrigin()):Normalized()
@@ -636,23 +558,37 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 			if hero.isUsingTackle and not hero.tackleTargets[collided:GetPlayerID()] then
 				hero.tackleTargets[collided:GetPlayerID()] = true
+				--print("tackled.")
 
 				-- do negative stuff
 				if hero:GetTeam() ~= collided:GetTeam() then
-					hero.tackleDummy:SetForwardVector((collided:GetAbsOrigin() - hero.tackleDummy:GetAbsOrigin()):Normalized())
 					Timers:CreateTimer(.03, function()
-						hero.tackleDummy:CastAbilityOnTarget(collided, hero.tackleDummyAbil, 0)
+						hero.tackleDummy:SetForwardVector((collided:GetAbsOrigin() - hero.tackleDummy:GetAbsOrigin()):Normalized())
+						Timers:CreateTimer(.03, function()
+							hero.tackleDummy:CastAbilityOnTarget(collided, hero.tackleDummyAbil, 0)
+							Timers:CreateTimer(.06, function()
+								--FireGameEvent("toggle_show_ability_silenced", {player_ID=collided:GetPlayerID(), ability_index=2})
+							end)
+						end)
 					end)
-					print("enemy target tackled.")
-					collided:SetBaseMoveSpeed(0)
-					--[[if not collided.movespeed_before_tackle then
-						collided.movespeed_before_tackle = collided:GetBaseMoveSpeed()
+					local sprint_break_abil = collided:GetAbilityByIndex(SprintAbilIndex)
+					local sprint_break_abil_name = sprint_break_abil:GetAbilityName()
+					--[[if string.ends(sprint_break_abil_name, "break") and collided:HasAbility(sprint_break_abil_name) then
+						collided:CastAbilityNoTarget(sprint_break_abil, 0)
 					end]]
+					collided.last_time_tackled = GameRules:GetGameTime()
+					AddMovementComponent(collided, "tackle", -9999)
+					collided.isTackled = true
 				end
 				hero.tackle_end_time = GameRules:GetGameTime()
+
 				Timers:CreateTimer(TACKLE_SLOW_DURATION, function()
 					if hero:GetTeam() ~= collided:GetTeam() then
-						collided:SetBaseMoveSpeed(collided.base_move_speed)
+						if GameRules:GetGameTime() - collided.last_time_tackled < (TACKLE_SLOW_DURATION+.1) then
+							--FireGameEvent("toggle_show_ability_silenced", {player_ID=collided:GetPlayerID(), ability_index=2})
+							RemoveMovementComponent(collided, "tackle")
+							collided.isTackled = false
+						end
 					end
 					hero.tackleTargets[collided:GetPlayerID()] = false
 				end)
@@ -660,7 +596,6 @@ function DotaStrikers:SetupPersonalColliders(hero)
 				hero.tackled_someone = true
 			elseif collided.isUsingTackle or (collided.tackle_end_time and GameRules:GetGameTime()-collided.tackle_end_time < .2) or hero.isUsingTackle or
 				(hero.tackle_end_time and GameRules:GetGameTime()-hero.tackle_end_time < .2) then
-				print("not playing cracks.")
 			elseif hero.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
 				TryPlayCracks(collider)
 				passTest = true

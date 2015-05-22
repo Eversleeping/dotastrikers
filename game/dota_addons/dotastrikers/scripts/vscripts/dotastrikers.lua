@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = true
+Testing = false
 NEXT_FRAME = .033
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -11,7 +11,7 @@ Bounds = {max = 1152-50}
 Bounds.min = -1*Bounds.max
 RectangleOffset = 2424-1152
 
-HERO_SELECTION_TIME = 30
+HERO_SELECTION_TIME = 60
 PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
 
@@ -25,7 +25,15 @@ end
 
 RoundsCompleted = 0
 
+-- define classes
 Ball = {}
+MovementComponents = {}
+
+if not Testing then --Only send stats when not testing
+  statcollection.addStats({
+    modID = '7044690ce484329ad2704e8c12a0498b'
+  })
+end
 
 ColorStr = 
 {	-- This is plyID+1
@@ -105,6 +113,10 @@ function DotaStrikers:OnAllPlayersLoaded()
 
 	Timers:CreateTimer(HERO_SELECTION_TIME, function()
 		HeroSelectionOver = true
+	end)
+
+	Timers:CreateTimer(.06, function()
+		FireGameEvent("show_welcome_popup", {})
 	end)
 
 	Timers:CreateTimer(function()
@@ -188,16 +200,22 @@ function DotaStrikers:PlayerSay( keys )
 		return
 	end
 	--print("txt: " .. txt)
-	if txt == "pancamera" then
-		PlayerResource:SetCameraTarget(ply:GetPlayerID(), Ball.unit)
-		--print("pancamera")
-	end
-	if txt == "pancamera_off" then
-		PlayerResource:SetCameraTarget(ply:GetPlayerID(), nil)
-		--print("pancamera")
-	end
-	if txt == "ball_controller" then
-		if ball.controller == nil then print ("ball controller is nil.") end
+	if Testing then
+		if txt == "pancamera" then
+			PlayerResource:SetCameraTarget(ply:GetPlayerID(), Ball.unit)
+			--print("pancamera")
+		end
+		if txt == "pancamera_off" then
+			PlayerResource:SetCameraTarget(ply:GetPlayerID(), nil)
+			--print("pancamera")
+		end
+		if txt == "ball_controller" then
+			if ball.controller == nil then print ("ball controller is nil.") end
+		end
+		if txt == "silence" then
+			print("txt==silence")
+			FireGameEvent("toggle_show_ability_silenced", {player_ID=hero:GetPlayerID(), ability_index=2})
+		end
 	end
 end
 
@@ -312,9 +330,27 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 			end
 		end
 
+		local isInBlackHole = false
+		for i=0,9 do
+			local bh_accel = hero.last_bh_accels[i]
+			if bh_accel and bh_accel ~= Vector(0,0,0) then
+				isInBlackHole = true
+			end
+		end
+		hero.isInBlackHole = isInBlackHole
+
+		if hero.isSprinter then
+			if not hero.isInBlackHole and hero:GetPhysicsAcceleration():Length() < (-1*GRAVITY+3) then
+				hero:SetPhysicsAcceleration(Vector(0,0,GRAVITY))
+				--print("setting accel.")
+			end
+			--print("accel mag: " .. hero:GetPhysicsAcceleration():Length())
+		end
 
 
 	end
+
+
 
 	hero.base_move_speed = hero:GetBaseMoveSpeed()
 
@@ -326,6 +362,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
 	hero.components = {}
+	AddMovementComponent(hero, "base", hero.base_move_speed)
 
 	-- Store the player's name inside this hero handle.
 	hero.playerName = PlayerResource:GetPlayerName(hero.plyID)
@@ -883,6 +920,7 @@ function DotaStrikers:InitDotaStrikers()
 
 	Ball:Init()
 
+
 	-- Main thinker
 	Timers:CreateTimer(function()
 		for i,hero in ipairs(self.vHeroes) do
@@ -901,11 +939,10 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 1800 )
+		mode:SetCameraDistanceOverride( 1800 ) --1800
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( true )
-		--mode:SetFogOfWarDisabled(true)
 		mode:SetGoldSoundDisabled( true )
 		--mode:SetRemoveIllusionsOnDeath( true )
 

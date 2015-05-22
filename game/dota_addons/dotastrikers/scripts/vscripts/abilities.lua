@@ -20,10 +20,10 @@ SPRINT_COOLDOWN = 6
 
 TACKLE_SLOW_DURATION = 4
 
-BH_RADIUS = 430
+BH_RADIUS = 470
 BH_DURATION = 6
-BH_FORCE_MAX = 4000
-BH_FORCE_MIN = 3000
+BH_FORCE_MAX = 4800
+BH_FORCE_MIN = 3500
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
@@ -47,6 +47,7 @@ SMILEY_COOLDOWN = 2
 
 REF_OOB_HIT_VEL = 2200 -- referee out of bounds hit velocity.
 SURGE_MOVESPEED_FACTOR = 1/3
+
 
 function DotaStrikers:OnAbilityUsed( keys )
 	local player = EntIndexToHScript(keys.PlayerID)
@@ -153,6 +154,14 @@ end
 
 function DotaStrikers:surge( keys )
 	local caster = keys.caster
+
+	--[[if caster.isTackled then
+		--Timers:CreateTimer(.03, function()
+		ShowErrorMsg(caster, "Can't cast sprint while tackled")
+		--end)
+		return
+	end]]
+
 	caster.surgeOn = true
 
 	-- apply effects
@@ -225,7 +234,8 @@ function DotaStrikers:surge( keys )
 		-- we need neutral particle so enemies can see the dust too.
 		caster.dust_particle = CreateNeutralParticle( "particles/units/heroes/hero_bounty_hunter/bounty_hunter_windwalk.vpcf", caster:GetAbsOrigin(), PATTACH_ABSORIGIN, 2 )
 
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+		AddMovementComponent(caster, "surge", caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+
 	else
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
@@ -241,7 +251,7 @@ function DotaStrikers:surge( keys )
 		caster:CastAbilityImmediately(phaseBoots, 0)
 		caster:RemoveItem(phaseBoots)
 
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() + caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
+		AddMovementComponent(caster, "surge", caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	end
 end
 
@@ -284,9 +294,9 @@ function DotaStrikers:surge_break( keys )
 		caster:AddAbility("ninja_invis_sprint")
 		local ninja_invis_sprint = caster:FindAbilityByName("ninja_invis_sprint")
 		ninja_invis_sprint:SetLevel(1)
-		-- we need to add 1 apparently because going back and forth between the values decreases the movespeed
-		-- by 1 each time. No idea why.
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR+1)
+
+		RemoveMovementComponent(caster, "surge")
+
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
@@ -294,7 +304,8 @@ function DotaStrikers:surge_break( keys )
 		caster:RemoveAbility("surge_break")
 		caster:AddAbility("surge")
 		caster:FindAbilityByName("surge"):SetLevel(1)
-		caster:SetBaseMoveSpeed(caster:GetBaseMoveSpeed() - caster.base_move_speed*SURGE_MOVESPEED_FACTOR+1)
+
+		RemoveMovementComponent(caster, "surge")
 	end
 	if caster.surgeParticle then
 		ParticleManager:DestroyParticle(caster.surgeParticle, false)
@@ -544,14 +555,12 @@ function DotaStrikers:black_hole( keys )
 		ParticleManager:DestroyParticle(caster.bh_particle, false)
 		EmitSoundAtPosition("Hero_Enigma.Black_Hole.Stop", point)
 
-		for k,hero in pairs(DotaStrikers.colliderFilter) do
-			if hero ~= caster then
-				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
-				hero.last_bh_accels[casterID] = Vector(0,0,0)
+		for k,unit in pairs(DotaStrikers.colliderFilter) do
+			if unit ~= caster and (unit.isDSHero or unit == ball) then
+				unit:SetPhysicsAcceleration(unit:GetPhysicsAcceleration()-unit.last_bh_accels[casterID])
+				unit.last_bh_accels[casterID] = Vector(0,0,0)
 			end
 		end
-
-		--hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()+hero.last_bh_accels[casterID])
 	end)
 
 	if Testing then
@@ -562,13 +571,14 @@ end
 function OnBHThink( caster, point, casterID, ball )
 	local currTime = GameRules:GetGameTime()
 
-	-- increase the force
+	-- increase the force over time
 	--[[if currTime < caster.bh_max_growth_endtime then
 		caster.bh_curr_force = caster.bh_curr_force + caster.bh_growth_interval
 		print(caster.bh_curr_force)
 	else
 		caster.bh_curr_force = BH_FORCE_MAX
 	end]]
+
 	caster.bh_curr_force = BH_FORCE_MAX
 
 	for k,unit in pairs(DotaStrikers.colliderFilter) do
@@ -616,8 +626,6 @@ function DotaStrikers:tackle( keys )
 	local point = keys.target_points[1]
 	point = Vector(point.x, point.y, caster:GetAbsOrigin().z)
 	
-	caster.isUsingTackle = true
-	
 	caster.tackle_end_time = GameRules:GetGameTime() + TACKLE_DURATION
 	
 	caster:AddNewModifier(caster, nil, "modifier_rune_haste", {})
@@ -632,7 +640,7 @@ function DotaStrikers:tackle( keys )
 
 	caster:EmitSound("Hero_FacelessVoid.TimeWalk")
 
-	local tackleDummy = CreateUnitByName("dummy", caster:GetAbsOrigin(), false, nil, nil, caster:GetTeam())
+	local tackleDummy = CreateUnitByName("dummy", caster:GetAbsOrigin()-300*caster:GetForwardVector(), true, nil, nil, caster:GetTeam())
 	caster.tackleDummy = tackleDummy
 	caster.tackleDummy:AddAbility("bloodseeker_rupture_datadriven")
 	caster.tackleDummyAbil = caster.tackleDummy:FindAbilityByName("bloodseeker_rupture_datadriven")
@@ -640,7 +648,8 @@ function DotaStrikers:tackle( keys )
 
 	-- move order to turn the unit
 	ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
-		Position = 2000*(point-caster:GetAbsOrigin()):Normalized(), Queue = false})
+		Position = point, Queue = false})
+	--Position = 2000*(point-caster:GetAbsOrigin()):Normalized()
 
 	caster.tackleTimer = Timers:CreateTimer(function()
 		if GameRules:GetGameTime() > caster.tackle_end_time or caster.tackled_someone then
@@ -650,8 +659,10 @@ function DotaStrikers:tackle( keys )
 			if caster:HasModifier("modifier_rune_haste") then
 				caster:RemoveModifierByName("modifier_rune_haste")
 				RemoveEndgameRoot(caster)
+				Timers:CreateTimer(.06, function()
+					RemoveHasteAnimation(caster)
+				end)
 			end
-			RemoveHasteAnimation(caster)
 			Timers:CreateTimer(1, function()
 				tackleDummy:ForceKill(true)
 			end)
@@ -676,7 +687,7 @@ function DotaStrikers:tackle( keys )
 		return .01
 	end)
 
-
+	caster.isUsingTackle = true
 
 	if Testing then
 		keys.ability:EndCooldown()
