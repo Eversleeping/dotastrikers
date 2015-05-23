@@ -1,9 +1,9 @@
-THROW_VELOCITY = 1700
+THROW_VELOCITY = 1800
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
 
-PSHOT_VELOCITY = 1600
+PSHOT_VELOCITY = 1700
 PSHOT_ONHIT_VEL = 1300
 PSHOT_COOLDOWN = 10
 
@@ -29,8 +29,9 @@ BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 
 TACKLE_DURATION = .5
 TACKLE_VEL_FORCE = 1500
+TACKLE_PUSH = 300
 
-BLINK_WAIT_TIME = .5
+BLINK_WAIT_TIME = .3
 BLINK_DISTANCE = 700
 
 SWAP_PROJ_VELOCITY = 1400
@@ -268,8 +269,13 @@ function DotaStrikers:surge_break( keys )
 		Timers:RemoveTimer(caster.sprint_timer)
 		Timers:RemoveTimer(caster.dist_check_timer)
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
+
+		print("caster curr vel: " .. caster:GetPhysicsVelocity():Length())
+		print("caster new vel: " .. (caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4)):Length())
+
 		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4))
 		caster.super_sprint_component:RemoveComponent()
+		caster.super_sprint_component = nil
 
 		--[[ remove most of the vel gained from that sprint
 		local comp = caster.super_sprint_component
@@ -339,6 +345,26 @@ function DotaStrikers:pull( keys )
 
 	--caster.pullParticle2 = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_overcharge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
+	-- Display the time counter particle for the player, above the wisp.
+	caster.counterParticle = ParticleManager:CreateParticleForPlayer("particles/wisp_relocate_timer_b.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
+	ParticleManager:SetParticleControl(caster.counterParticle, 1, Vector(0,0,0))
+
+	local secondsCount = 1
+	Timers:CreateTimer(1, function()
+		if caster.isUsingPull then
+			if caster.counterParticle then
+				ParticleManager:DestroyParticle(caster.counterParticle, false)
+			end
+			caster.counterParticle = ParticleManager:CreateParticleForPlayer("particles/wisp_relocate_timer_b.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
+			ParticleManager:SetParticleControl(caster.counterParticle, 1, Vector(0,secondsCount,0))
+			secondsCount = secondsCount + 1
+		else
+			return nil
+		end
+
+		return 1
+	end)
+
 	caster.pull_start_time = GameRules:GetGameTime()
 	caster.pull_timer = Timers:CreateTimer(PULL_MAX_DURATION, function()
 		--caster.pull_duration = caster.pull_duration + .5
@@ -360,7 +386,9 @@ function DotaStrikers:pull_break( keys )
 
 	-- remove particle effect
 	ParticleManager:DestroyParticle(caster.pullParticle, false)
-	--ParticleManager:DestroyParticle(caster.pullParticle2, false)
+	if caster.counterParticle then
+		ParticleManager:DestroyParticle(caster.counterParticle, true)
+	end
 
 	caster:EmitSound("Hero_Wisp.Tether.Stop")
 	caster:StopSound("Hero_Wisp.Tether")
@@ -375,7 +403,7 @@ function DotaStrikers:pull_break( keys )
 	--caster:AddPhysicsVelocity(1000*dirToBall)
 
 	-- determine cooldown to set
-	--[[local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
+	local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
 	if timeDiff < 1.5 then
 		pullAbility:StartCooldown(10)
 	elseif timeDiff < 2.5 then
@@ -386,7 +414,7 @@ function DotaStrikers:pull_break( keys )
 		pullAbility:StartCooldown(25)
 	else
 		pullAbility:StartCooldown(30)
-	end]]
+	end
 	pullAbility:StartCooldown(PULL_COOLDOWN)
 	if Testing then
 		pullAbility:EndCooldown()
@@ -453,11 +481,11 @@ function DotaStrikers:text_particle( keys )
 		local parts = {}
 		local teammates = GetTeammates(caster)
 		local part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
-		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
+		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
 		table.insert(parts, part)
 		for i,hero2 in ipairs(teammates) do
-			part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, hero2, hero2:GetPlayerOwner())
-			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_origin", caster:GetAbsOrigin(), true)
+			part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, hero2:GetPlayerOwner())
+			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
 			table.insert(parts, part)
 		end
 		caster.textParticle = parts

@@ -58,7 +58,11 @@ function AddPhysicsComponent( ... )
 	end
 
 	local component = CreateUnitByName("dummy", unit:GetAbsOrigin(), false, nil, nil, unit:GetTeam())
+	component.semaphore = 0
+	component.rollback_sem = 0
+	component.rollback_vels = {}
 	DotaStrikers:SetupPhysicsSettings(component)
+	component:SetPhysicsBoundingRadius(unit:GetPhysicsBoundingRadius()+10)
 	component.isComponent = true
 	component.componentOwner = unit
 	components[name] = component
@@ -67,7 +71,6 @@ function AddPhysicsComponent( ... )
 
 	component.component_timer = Timers:CreateTimer(function()
 		if not IsValidEntity(component) or not component:IsAlive() then
-			Timers:RemoveTimer(component.component_timer)
 			return nil
 		end
 		component:SetPhysicsFriction(unit:GetPhysicsFriction())
@@ -84,9 +87,10 @@ function AddPhysicsComponent( ... )
 
 	function component:RemoveComponent(  )
 		if not component or not IsValidEntity(component) or not component:IsAlive() then return end
-		component:ForceKill(true)
+		component:SetPhysicsVelocity(Vector(0,0,0))
 		components[name] = nil
 		DotaStrikers.colliderFilter[colliderID] = nil
+		component:RemoveSelf()
 	end
 
 	return component
@@ -96,17 +100,17 @@ function IsComponent( unit )
 	return unit.isComponent
 end
 
-function TryInvokeComponents(passTest, unit )
+function TrySignalComponents(passTest, unit )
 	if passTest and unit.components then
 		for k,component in pairs(unit.components) do
-			component.invoked = true
+			component.semaphore = component.semaphore + 1
 		end
 	end
 end
 
-function TrySetComponentStatus( unit )
-	if unit.isComponent and unit.invoked then
-		unit.invoked = false
+function TryWaitComponent( unit )
+	if unit.isComponent and unit.semaphore > 0 then
+		unit.semaphore = unit.semaphore - 1
 		return true
 	end
 end

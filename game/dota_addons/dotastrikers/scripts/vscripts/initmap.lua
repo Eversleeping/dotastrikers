@@ -1,5 +1,4 @@
 TIME_TILL_NEXT_ROUND = 8
-NUM_ROUNDEND_SOUNDS = 11
 GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
 RECT_X_MIN = Bounds.min-RectangleOffset
 RECT_X_MAX = Bounds.max+RectangleOffset
@@ -101,7 +100,7 @@ function DotaStrikers:InitMap()
 		gc.test = function ( self, unit )
 			if not IsPhysicsUnit(unit) then return false end
 
-			if TrySetComponentStatus(unit) then return true end
+			if TryWaitComponent(unit) then return true end
 
 			if unit == gc.goalie then return false end -- ignore the current goalie in this goalpost.
 
@@ -147,7 +146,7 @@ function DotaStrikers:InitMap()
 					TryPlayCracks(unit)
 				end
 			end
-			TrySetComponentStatus(unit)
+			TryWaitComponent(unit)
 
 			return passTest
 		end
@@ -310,6 +309,9 @@ function DotaStrikers:OnGoal(team)
 
 	local start = 3
 	ShowCenterMsg(scorer.playerName .. " SCORED!", TIME_TILL_NEXT_ROUND-start )
+	local roundCountdownSet = RandomInt(1, #RoundCountdownSounds)
+	local numCountdownSounds = RoundCountdownSounds[roundCountdownSet]
+
 	for i=start,1,-1 do
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
@@ -347,7 +349,7 @@ function DotaStrikers:OnGoal(team)
 						hero:SetMana(hero:GetMaxMana())
 
 						Timers:CreateTimer(.03, function()
-							hero:AddNewModifier(hero, nil, "modifier_camera_follow", {})
+							hero:AddNewModifier(ball, nil, "modifier_camera_follow", {})
 
 							InitAbility("spawn_anim", hero, function(abil)
 								hero:CastAbilityNoTarget(abil, 0)
@@ -365,6 +367,7 @@ function DotaStrikers:OnGoal(team)
 					ball:StopPhysicsSimulation()
 				end)
 			end
+			EmitGlobalSound("RoundCountdown" .. roundCountdownSet .. "_" .. RandomInt(1, numCountdownSounds))
 			Say(nil, i .. "...", false)
 		end)
 	end
@@ -387,7 +390,6 @@ function DotaStrikers:OnGoal(team)
 					print("no abil at " .. i)
 				end
 			end
-
 			hero:StartPhysicsSimulation()
 			hero:SetPhysicsAcceleration(BASE_ACCELERATION)
 			hero:SetPhysicsVelocity(Vector(0,0,0))
@@ -399,6 +401,9 @@ function DotaStrikers:OnGoal(team)
 
 		RoundInProgress = true
 		Say(nil, "PLAY!!", false)
+		local roundStartSound = "Round_Start" .. RandomInt(1, NumRoundStartSounds)
+		EmitGlobalSound(roundStartSound)
+		print("playing " .. roundStartSound)
 	end)
 end
 
@@ -459,7 +464,7 @@ end
 function OnBoundsCollision( self, unit, bc )
 	if not IsPhysicsUnit(unit) then return false end
 
-	if TrySetComponentStatus(unit) then return true end
+	if TryWaitComponent(unit) then return true end
 
 	local ball = Ball.unit
 	local isBall = unit == ball
@@ -493,7 +498,7 @@ function OnBoundsCollision( self, unit, bc )
 
 	end
 
-	TryInvokeComponents(passTest, unit)
+	TrySignalComponents(passTest, unit)
 
 	return passTest
 end

@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NEXT_FRAME = .033
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -340,7 +340,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		hero.isInBlackHole = isInBlackHole
 
 		if hero.isSprinter then
-			if not hero.isInBlackHole and hero:GetPhysicsAcceleration():Length() < (-1*GRAVITY+3) then
+			if not hero.isInBlackHole and hero:GetPhysicsAcceleration():Length() < (-1*GRAVITY+50) then
 				hero:SetPhysicsAcceleration(Vector(0,0,GRAVITY))
 				--print("setting accel.")
 			end
@@ -535,6 +535,9 @@ function DotaStrikers:SetupPhysicsSettings( unit )
 
 	unit:OnBounce(function(_unit, _normal)
 		DotaStrikers:OnGridNavBounce( _unit, _normal )
+	end)
+	unit:OnPreBounce(function(_unit, _normal)
+		DotaStrikers:OnPreGridNavBounce( _unit, _normal )
 	end)
 end
 

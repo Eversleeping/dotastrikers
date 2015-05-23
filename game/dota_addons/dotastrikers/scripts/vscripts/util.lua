@@ -1,3 +1,14 @@
+-- ty noya
+function PlayCentaurBloodEffect( unit )
+	local centaur_blood_fx = "particles/units/heroes/hero_centaur/centaur_double_edge_bloodspray_src.vpcf"
+	local targetLoc = unit:GetAbsOrigin()
+	local blood = ParticleManager:CreateParticle(centaur_blood_fx, PATTACH_CUSTOMORIGIN, unit)
+	ParticleManager:SetParticleControl(blood, 0, targetLoc)
+	ParticleManager:SetParticleControl(blood, 2, targetLoc+RandomVector(RandomInt(20,100)))
+	ParticleManager:SetParticleControl(blood, 4, targetLoc+RandomVector(RandomInt(20,100)))
+	ParticleManager:SetParticleControl(blood, 5, targetLoc+RandomVector(RandomInt(20,100)))
+end
+
 function CreateNeutralParticle( particle, pos, attach_type, duration )
 	local handler = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_NEUTRALS)
 	local part = ParticleManager:CreateParticle(particle, attach_type, handler)

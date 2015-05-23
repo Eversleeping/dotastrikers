@@ -76,7 +76,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"14"
+		"AbilityCooldown"				"16"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_1"
 
 		"AbilityManaCost"				"0"
@@ -103,7 +103,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"0"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"9"
+		"AbilityCooldown"				"24"
 		"AbilityManaCost"				"0"
 		"MaxLevel"						"1"
 		
@@ -121,6 +121,11 @@
 			{
 				"var_type"					"FIELD_INTEGER"
 				"distance"					"700"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"wait_time"					".3"
 			}
 		}
 	}
@@ -197,7 +202,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"10"
+		"AbilityCooldown"				"32"
 		"AbilityManaCost"				"0"
 		
 		"OnSpellStart"
@@ -215,7 +220,7 @@
 			"01"
 			{
 				"var_type"					"FIELD_FLOAT"
-				"channel_time"				"0.35"
+				"duration"				"0.5"
 			}
 		}
 	}
@@ -231,7 +236,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"2000"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"20"
+		"AbilityCooldown"				"38"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
 		"AOERadius"						"280" // kinda half of BH_RADIUS
 
@@ -272,7 +277,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"10"
+		"AbilityCooldown"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_GHOST_WALK"
 		"AnimationPlaybackRate"			"3"
 
@@ -416,7 +421,7 @@
 		"AbilityCastPoint"				"0"
 		"AbilityCastAnimation"			"ACT_DOTA_SLARK_POUNCE"
 		"AnimationPlaybackRate"			".5"
-		"AbilityCooldown"				"8"
+		"AbilityCooldown"				"24"
 
 		"AbilityManaCost"				"0"
 		"MaxLevel"						"1"
@@ -650,8 +655,28 @@
 		{
 			"01"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"max_duration"					"4.55"
+				"var_type"					"FIELD_INTEGER"
+				"cooldown_one"					"10"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"cooldown_two"					"15"
+			}
+			"03"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"cooldown_three"					"20"
+			}
+			"04"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"cooldown_four"					"25"
+			}
+			"05"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"cooldown_five"					"30"
 			}
 		}
 	}
@@ -665,7 +690,7 @@
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastPoint"				".12"
-		"AbilityCooldown"				"15"
+		"AbilityCooldown"				"30"
 		"MaxLevel"						"1"
 		"AbilityManaCost"				"0"
 		"AbilityCastRange"				"780"

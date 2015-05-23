@@ -11,11 +11,9 @@ BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
 PP_COLLISION_RADIUS = 110
 PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
+CrackThreshSq = CRACK_THRESHOLD*CRACK_THRESHOLD
 
 BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-10
-NUM_BOUNCE_SOUNDS = 5
-NUM_KICK_SOUNDS = 6
-NUM_CATCH_SOUNDS = 5
 
 BALL_HOG_DURATION = 6
 BALL_OUTOFBOUNDS_DURATION = 5
@@ -25,6 +23,33 @@ CONTROLLER_MOVESPEED_FACTOR = 1/5
 
 -- this is for tackle
 SprintAbilIndex = 2
+
+--SOUNDS
+NUM_BOUNCE_SOUNDS = 5
+NUM_KICK_SOUNDS = 6
+NUM_CATCH_SOUNDS = 5
+NumRoundStartSounds = 6
+NUM_ROUNDEND_SOUNDS = 12
+NumGiantImpactSounds = 1
+NumHeavyImpactSounds = 2
+NumMediumImpactSounds = 4
+NumLightImpactSounds = 4
+NumSavedSounds = 4
+
+RoundCountdownSounds =
+{
+	-- set # vs. how many in set
+	[1] = 1,
+	[2] = 2
+}
+
+PlayerPlayerCollisionSounds = 
+{
+	[1] = "ThunderClapCaster",
+	--[2] = "Hero_Leshrac.Split_Earth",
+	--[3] = "Hero_EarthSpirit.BoulderSmash.Target",
+	--[2] = "Hero_ElderTitan.EchoStomp",
+}
 
 function DotaStrikers:OnMyPhysicsFrame( unit )
 	local unitPos = unit:GetAbsOrigin()
@@ -149,7 +174,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 			local in_collision_radius = false
 			if hero2 then
-				in_collision_radius = (hero2:GetAbsOrigin()-hero:GetAbsOrigin()):Length() <= (hero:GetPaddedCollisionRadius()+30)
+				in_collision_radius = (hero2:GetAbsOrigin()-hero:GetAbsOrigin()):Length() <= (hero:GetPaddedCollisionRadius()+20)
 			end
 
 			if in_collision_radius then
@@ -266,7 +291,23 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 					ball:EmitSound("Catch" .. RandomInt(1, NUM_CATCH_SOUNDS))
 				end
 
-				ball.controller = hero
+				-- when referee hits the ball, if goalie is in goal area, he shouldn't be able to catch the ball.
+				if ball.lastMovedBy == Referee and hero.goalie and hero:GetTeam() == ball.goal then
+
+				else
+					ball.controller = hero
+					if hero.goalie and ball.velocityMagnitude > 2*CrackThreshSq then
+						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN, hero)
+						--ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
+						ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
+						--[[if CurrSavedSound then
+
+						end]]
+						EmitGlobalSound("Saved" .. RandomInt(1, NumSavedSounds))
+					end
+
+				end
+
 				if ball.affectedByPowershot then
 					-- allow the hero collider to take control and apply collision velocity, by invoking it
 					ball.pshotInvoke = true
@@ -353,6 +394,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 	-- Do ball hog logic
 	local goal = GetGoalUnitIsWithin( ball )
+	ball.goal = goal
 	ball.hogged = goal and ((ball.controller and ball.controller.goalie and ball.controller:GetTeam() == goal) or not ball.controller) and RoundInProgress
 
 	if ball.hogged and not ball.hoggedProc then
@@ -448,11 +490,13 @@ function TryPlayCracks( ... )
 	local unit = t[1]
 	local location = t[2]
 	local checkFence = t[3]
+	local bPlayerPlayerColl = t[4]
 	local ground_thresh = 30
 	local currTime = GameRules:GetGameTime()
 	local unitPos = unit:GetAbsOrigin()
 	local soundPlayed = false
-	if unit.velocityMagnitude > CRACK_THRESHOLD*CRACK_THRESHOLD and (not unit.lastCrackTime or currTime-unit.lastCrackTime > .3) then
+
+	if unit.velocityMagnitude > CrackThreshSq and (not unit.lastCrackTime or currTime-unit.lastCrackTime > .3) then
 		--if unitPos.z < (GroundZ + ground_thresh) then
 		if not location then
 			ParticleManager:CreateParticle("particles/units/heroes/hero_nevermore/nevermore_requiemofsouls_ground_cracks.vpcf", PATTACH_ABSORIGIN, unit)
@@ -468,7 +512,21 @@ function TryPlayCracks( ... )
 		end
 
 		if not soundPlayed then
-			EmitSoundAtPosition("ThunderClapCaster", unitPos)
+			local impactSound = "Impact_Light" .. RandomInt(1, NumLightImpactSounds)
+			-- default: play a light or heavy impact sound.
+			if unit.velocityMagnitude > CrackThreshSq*4 then
+				impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
+			elseif unit.velocityMagnitude > CrackThreshSq*3 then
+				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+			elseif unit.velocityMagnitude > CrackThreshSq*2 then
+				impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
+			end
+			if bPlayerPlayerColl then
+				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+				PlayCentaurBloodEffect(unit)
+			end
+			print("sound played: " .. impactSound)
+			EmitSoundAtPosition(impactSound, unitPos)
 		end
 		unit.lastCrackTime = currTime
 	end
@@ -509,7 +567,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 
-		if TrySetComponentStatus(collider) then return true end
+		if TryWaitComponent(collider) then return true end
 
 		if collided == ball and ball.pshotInvoke then
 			-- 5-17-15 bug: if ball is really close to collided, collided won't receive knockback. 
@@ -527,7 +585,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 			passTest = true
 		end
 
-		TryInvokeComponents(passTest, collider)
+		TrySignalComponents(passTest, collider)
 
 		return passTest
 	end
@@ -543,7 +601,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 		
-		if TrySetComponentStatus(collider) then return true end
+		if TryWaitComponent(collider) then return true end
 
 		if collided.isSwapDummy and hero ~= collided.caster then
 			-- technically treat this as a collision, but return false since we don't want the momentum stuff
@@ -578,6 +636,10 @@ function DotaStrikers:SetupPersonalColliders(hero)
 					end]]
 					collided.last_time_tackled = GameRules:GetGameTime()
 					AddMovementComponent(collided, "tackle", -9999)
+					-- give collided a small push
+					local pushDir = (collided:GetAbsOrigin() - hero:GetAbsOrigin()):Normalized()
+					collided:AddPhysicsVelocity(pushDir*TACKLE_PUSH)
+
 					collided.isTackled = true
 				end
 				hero.tackle_end_time = GameRules:GetGameTime()
@@ -597,13 +659,13 @@ function DotaStrikers:SetupPersonalColliders(hero)
 			elseif collided.isUsingTackle or (collided.tackle_end_time and GameRules:GetGameTime()-collided.tackle_end_time < .2) or hero.isUsingTackle or
 				(hero.tackle_end_time and GameRules:GetGameTime()-hero.tackle_end_time < .2) then
 			elseif hero.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
-				TryPlayCracks(collider)
+				TryPlayCracks(collider, nil, nil, true)
 				passTest = true
 			end
 
 		end
 
-		TryInvokeComponents(passTest, collider)
+		TrySignalComponents(passTest, collider)
 
 		return passTest
 	end
@@ -621,16 +683,31 @@ function DotaStrikers:OnGridNavBounce( unit, normal )
 	
 	elseif unit.isDSHero then
 		TryPlayCracks(unit, nil, true)
+		TrySignalComponents(true, unit)
+		--print("signaling components")
+		--print("signaling. hero vel: " .. unit:GetPhysicsVelocity():Length())
+	elseif unit.isComponent and unit.rollback_sem > 0 then
+		local rollback_vel = unit.rollback_vels[1]
+		unit:SetPhysicsVelocity(rollback_vel)
+		--print("rolling back vel: " .. rollback_vel:Length())
+		table.remove(unit.rollback_vels, 1)
+		unit.rollback_sem = unit.rollback_sem - 1
+	elseif unit.isComponent then
+		--print("component successful gridnav bounce. component vel: " .. unit:GetPhysicsVelocity():Length())
 	end
 
 	if unit.isAboveGround then
 		DotaStrikers:PlayReflectParticle(unit)
 	end
 
-	--[[if unit.components then
-		for i,component in ipairs(unit.components) do
-			component.invoked = true
-		end
-	end]]
+end
 
+function DotaStrikers:OnPreGridNavBounce( unit, normal )
+	-- ensure the component owner bounced first.
+	-- "if not TryWaitComponent(unit) then" is the same as saying "if the semaphore can't decrement, i.e. it's at 0"
+	if unit.isComponent and not TryWaitComponent(unit) then
+		unit.rollback_sem = unit.rollback_sem + 1
+		print("adding vel to rollback: " .. unit:GetPhysicsVelocity():Length())
+		table.insert(unit.rollback_vels, 1, unit:GetPhysicsVelocity())
+	end
 end
