@@ -7,9 +7,8 @@ OutOfWorldVector = Vector(5000, 5000, -200)
 DrawDebug = false
 UseCursorStream = false
 
-Bounds = {max = 1152-50}
+Bounds = {max = 1366.77}
 Bounds.min = -1*Bounds.max
-RectangleOffset = 2424-1152
 
 HERO_SELECTION_TIME = 60
 PRE_GAME_TIME = 0
@@ -352,7 +351,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 
 
-	hero.base_move_speed = hero:GetBaseMoveSpeed()
+	hero.base_move_speed = 320
 
 	Timers:CreateTimer(.1, function()
 		hero.spawn_pos = hero:GetAbsOrigin()
@@ -841,16 +840,17 @@ function DotaStrikers:InitDotaStrikers()
 	self.m_TeamColors[8] = { 5, 110, 50 } -- 7:109:44
 	self.m_TeamColors[9] = { 130, 80, 5 } -- 124:75:6
 
-
-
 	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
-	--print("GlobalDummy pos: " .. VectorString(GlobalDummy:GetAbsOrigin()))
-	GroundZ = GlobalDummy:GetAbsOrigin().z
+
+	GroundZ = GetGroundPosition(GlobalDummy:GetAbsOrigin(), GlobalDummy).z
+	--print("GroundZ: " .. GroundZ)
 
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
+
+	self:InitCreeps() -- creep spectators
 
 	RefereeSpawnPos = Vector(2780,1550,GroundZ)
 	Referee = CreateUnitByName("referee", RefereeSpawnPos, true, nil, nil, DOTA_TEAM_NEUTRALS)
@@ -871,6 +871,7 @@ function DotaStrikers:InitDotaStrikers()
 		end)
 
 		DotaStrikers:InitMap()
+		--print("initmap")
 	end)
 
 	self.lastGoalTime = 0
@@ -885,6 +886,11 @@ function DotaStrikers:InitDotaStrikers()
 				--if GridNav:IsTraversable(Vector(x,y,GlobalDummy.z)) and not GridNav:IsBlocked(Vector(x,y,GlobalDummy.z)) then
 				local goodguy = CreateUnitByName("vision_dummy", Vector(x,y,GlobalDummy.z), false, nil, nil, DOTA_TEAM_GOODGUYS)
 				local badguy = CreateUnitByName("vision_dummy", Vector(x,y,GlobalDummy.z), false, nil, nil, DOTA_TEAM_BADGUYS)
+
+				--modifier_vision_dummy
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, goodguy, "modifier_vision_dummy", {})
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, badguy, "modifier_vision_dummy", {})
+
 				goodguy.isVisionDummy = true
 				badguy.isVisionDummy = true
 				table.insert(VisionDummies.GoodGuys, goodguy)
@@ -903,6 +909,7 @@ function DotaStrikers:InitDotaStrikers()
 
 	self.HeroesKV = LoadKeyValues("scripts/npc/npc_heroes_custom.txt")
 	self.AbilitiesKV = LoadKeyValues("scripts/npc/npc_abilities_custom.txt")
+	--DeepPrintTable(self.AbilitiesKV)
 
 	-- Initialized tables for tracking state
 	self.vUserIds = {}
@@ -942,7 +949,7 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 1800 ) --1800
+		mode:SetCameraDistanceOverride( 2000 ) --1800
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( true )

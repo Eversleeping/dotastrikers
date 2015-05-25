@@ -23,7 +23,37 @@ function AddMovementComponent( ... )
 			for name,val in pairs(mcs) do
 				total = total + val
 			end
-			unit:SetBaseMoveSpeed(total)
+			--unit:SetBaseMoveSpeed(total)
+			total = math.floor(total)
+			local needsNewAbil = false
+
+			if unit.movespeedAbil and IsValidEntity(unit.movespeedAbil) then
+				local abilName = unit.movespeedAbil:GetAbilityName()
+				local old = tonumber(abilName:sub(11))
+				if old ~= total then
+					unit:RemoveAbility(abilName)
+					if unit:HasModifier("modifier_movespeed_" .. old) then
+						unit:RemoveModifierByName("modifier_movespeed_" .. old)
+					end
+
+					unit.movespeedAbil = nil
+				end
+			else
+				if unit.movespeedModifierName and unit:HasModifier(unit.movespeedModifierName) then
+					unit:RemoveModifierByName(unit.movespeedModifierName)
+				end
+
+				needsNewAbil = true
+			end
+
+			if needsNewAbil and total <= 600 then
+				--unit:SetBaseMoveSpeed(0)
+				local abilName = "movespeed_" .. total
+				unit:AddAbility(abilName)
+				unit.movespeedAbil = unit:FindAbilityByName(abilName)
+				unit.movespeedAbil:SetLevel(1)
+				unit.movespeedModifierName = "modifier_movespeed_" .. total
+			end
 
 			return .01
 		end)

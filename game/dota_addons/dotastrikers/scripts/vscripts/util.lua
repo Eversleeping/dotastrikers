@@ -1,3 +1,17 @@
+function MergeTables( tableOfTables )
+	local index = 1
+	local newTable = {}
+	for i,t in ipairs(tableOfTables) do
+		if type(t) == "table" then
+			for i2,val in ipairs(t) do
+				newTable[index] = val
+				index = index + 1
+			end
+		end
+	end
+	return newTable
+end
+
 -- ty noya
 function PlayCentaurBloodEffect( unit )
 	local centaur_blood_fx = "particles/units/heroes/hero_centaur/centaur_double_edge_bloodspray_src.vpcf"
@@ -235,6 +249,8 @@ end
 
 -- Remove all abilities on a unit.
 function ClearAbilities( unit )
+	if not unit or not unit.GetAbilityCount or unit:GetAbilityCount() < 1 then return end
+	
 	for i=0, unit:GetAbilityCount()-1 do
 		local abil = unit:GetAbilityByIndex(i)
 		if abil ~= nil then

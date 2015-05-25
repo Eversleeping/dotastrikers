@@ -1,23 +1,20 @@
 TIME_TILL_NEXT_ROUND = 8
-GOAL_SMOOTHING = 540 -- the inwardness of the goal post.
-RECT_X_MIN = Bounds.min-RectangleOffset
-RECT_X_MAX = Bounds.max+RectangleOffset
--- these are for the whole goal post (everywhere the goalie can move)
-GOAL_X_MIN = RECT_X_MIN-GOAL_SMOOTHING
-GOAL_X_MAX = RECT_X_MAX+GOAL_SMOOTHING
 
-GOAL_OUTWARDNESS = 420
-GOAL_LESSEN_SIDE = 20 -- lessens the y-length of the goal post (for goalies), helps with model clipping into fences.
+RECT_X_MAX = 2585.02
+RECT_X_MIN = -1*RECT_X_MAX
 GC_INCREASE_SIDE = 20 -- increases the y-length of the goal collider. 
 COLLIDER_Z = 15000
 
-GOAL_Y = 428 -- half of the y direction width of the goal post.
+GOAL_Y = 415 -- half of the y direction width of the goal post.
 -- RADIANT MAP VALUES:
-R_OUTWARDNESS = -1879
-R_INWARDNESS = -3218.45
-R_SCORE = -2748
-BIG_OFFSET = 10000
-GOAL_Z = 492
+R_OUTWARDNESS = -2028
+--R_INWARDNESS = -3268
+R_SCORE = -2837.82
+BIG_OFFSET = 16000
+
+-- Apparently z-level you see in Hammer isn't the same as the z-level in game.
+-- 1st num is the ground level in-game. 2nd num is z level of goal post in hammer. third num is base z-level in hammer. fourth is my custom offset
+GOAL_Z = 256+(465-128-20)
 
 D_OUTWARDNESS = -1*R_OUTWARDNESS
 D_SCORE = -1*R_SCORE
@@ -70,10 +67,12 @@ function DotaStrikers:InitMap()
 	bcs[1].box = {Vector(BIG_OFFSET, BIG_OFFSET, BIG_OFFSET-3000), Vector(-1*BIG_OFFSET, -1*BIG_OFFSET, BIG_OFFSET+3000)}
 
 	-- top of radiant goal post, ball reflector
-	bcs[2].box = {Vector(-1*BIG_OFFSET, GOAL_Y*-1, GOAL_Z), Vector(R_SCORE, GOAL_Y, BIG_OFFSET)}
+	bcs[2].box = {Vector(-1*BIG_OFFSET, GOAL_Y*-1-BIG_OFFSET, GOAL_Z), Vector(R_SCORE+10, GOAL_Y+BIG_OFFSET, BIG_OFFSET)}
+	--bcs[2].draw = true
 
 	-- top of dire goal post, ball reflector
-	bcs[3].box = {Vector(BIG_OFFSET, GOAL_Y*-1, GOAL_Z), Vector(D_SCORE, GOAL_Y, BIG_OFFSET)}
+	bcs[3].box = {Vector(BIG_OFFSET, GOAL_Y*-1-BIG_OFFSET, GOAL_Z), Vector(D_SCORE-10, GOAL_Y+BIG_OFFSET, BIG_OFFSET)}
+	--bcs[3].draw = true
 
 	for i,bc in ipairs(bcs) do
 		bc.test = function(self, unit)
@@ -239,6 +238,8 @@ function DotaStrikers:OnGoal(team)
 			ParticleManager:CreateParticle("particles/legion_duel_victory/legion_commander_duel_victory.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
 		end
 		
+		--ball:AddNewModifier(hero, nil, "modifier_camera_follow", {})
+
 	--[[
 		local animType = t[1]
 		local unit = t[2]
@@ -444,18 +445,13 @@ end
 
 function GetGoalUnitIsWithin( unit )
 	local pos = unit:GetAbsOrigin()
-	--[[if pos.x < (RECT_X_MIN-5) then
-		return DOTA_TEAM_GOODGUYS
-	elseif pos.x > (RECT_X_MAX+5) then
-		return DOTA_TEAM_BADGUYS
-	end]]
 
 	local goal_neg = -1*GOAL_Y-GC_INCREASE_SIDE
 	local goal_pos = GOAL_Y+GC_INCREASE_SIDE
 
-	if pos.x < (RECT_X_MIN+GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+	if pos.x < R_OUTWARDNESS and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_GOODGUYS
-	elseif pos.x > (RECT_X_MAX-GOAL_OUTWARDNESS) and (pos.y > goal_neg and pos.y < goal_pos) then
+	elseif pos.x > D_OUTWARDNESS and (pos.y > goal_neg and pos.y < goal_pos) then
 		return DOTA_TEAM_BADGUYS
 	end
 	return nil
@@ -471,6 +467,7 @@ function OnBoundsCollision( self, unit, bc )
 	local passTest = true
 	local unitPos = unit:GetAbsOrigin()
 	--print(bc.name)
+	--print(VectorString(unitPos))
 
 	-- top of radiant, top of dire goals
 	if bc.name == "bounds_collider_2" or bc.name == "bounds_collider_3" then
@@ -575,4 +572,28 @@ function StopAnimation( anim, unit )
 	if unit:HasModifier(anim) then
 		unit:RemoveModifierByName(anim)
 	end
+end
+
+function DotaStrikers:InitCreeps(  )
+	RadiantCreepSpecs = Entities:FindAllByName("rs*")
+	NeutralCreepSpecs = Entities:FindAllByName("ns*")
+	BrewSpecs = Entities:FindAllByName("brew*")
+	
+	--LootGreevil = Entities:FindAllByName("loot_greevil")
+	--Entities:FindByName(nil, )
+
+	local allCreepSpecs = MergeTables({RadiantCreepSpecs, NeutralCreepSpecs, BrewSpecs})
+
+	for i,creep in ipairs(allCreepSpecs) do
+		if creep.GetUnitName then
+			--print(creep:GetUnitName() .. " success")
+			ClearAbilities( creep )
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, creep, "modifier_creep_spectator", {})
+			AddDisarmed( creep )
+			AddEndgameRoot(creep)
+			creep.isCreepSpectator = true
+		end
+	end
+
+
 end

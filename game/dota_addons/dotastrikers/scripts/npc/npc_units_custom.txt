@@ -366,7 +366,7 @@
 		// Abilities
 		//----------------------------------------------------------------
 		
-		"Ability1"					"dummy_no_invuln_passive"			
+		"Ability1"					""			
 		"Ability2"					""		
 		"Ability3"					""	
 		"Ability4"					""	

@@ -296,7 +296,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 				else
 					ball.controller = hero
-					if hero.goalie and ball.velocityMagnitude > 2*CrackThreshSq then
+					if hero.goalie and (ball.velocityMagnitude > 2*CrackThreshSq or hero.isUsingGoalieJump) then
 						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN, hero)
 						--ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
 						ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
@@ -507,25 +507,39 @@ function TryPlayCracks( ... )
 		--end
 
 		if checkFence then
-			EmitSoundAtPosition("fence_smash_2", unitPos)
+			if unit.velocityMagnitude > 2*CrackThreshSq then
+				EmitSoundAtPosition("Fence_Heavy", unitPos)
+			else
+				EmitSoundAtPosition("Fence_Light", unitPos)
+			end
 			soundPlayed = true
 		end
 
 		if not soundPlayed then
-			local impactSound = "Impact_Light" .. RandomInt(1, NumLightImpactSounds)
+			--local impactSound = "Impact_Light" .. RandomInt(1, NumLightImpactSounds)
+			local impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
+			--local impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 			-- default: play a light or heavy impact sound.
-			if unit.velocityMagnitude > CrackThreshSq*4 then
+			--if unit.velocityMagnitude > CrackThreshSq*4 then
+			--	impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
+			if unit.velocityMagnitude > CrackThreshSq*3 then
+				--impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 				impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
-			elseif unit.velocityMagnitude > CrackThreshSq*3 then
-				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 			elseif unit.velocityMagnitude > CrackThreshSq*2 then
-				impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
+				--impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
+				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 			end
 			if bPlayerPlayerColl then
 				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+
+				if unit.isUsingPull then
+					impactSound = "Wisp_Collision"
+				end
+
+				--impactSound = "ThunderClapCaster"
 				PlayCentaurBloodEffect(unit)
 			end
-			print("sound played: " .. impactSound)
+			--print("sound played: " .. impactSound)
 			EmitSoundAtPosition(impactSound, unitPos)
 		end
 		unit.lastCrackTime = currTime
