@@ -197,6 +197,18 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_phased_off", {})
 			--print("removing phased.")
 		end
+
+		if hero.isUsingPowersprint then
+			hero:SetForwardVector(hero.psprint_dir)
+			if hero.last_psprint_vel then
+				hero:SetPhysicsVelocity(hero:GetPhysicsVelocity()-(hero.last_psprint_vel-hero.last_psprint_vel*hero:GetPhysicsFriction()))
+			end
+			hero.last_psprint_vel = hero:GetPhysicsVelocity() + hero.psprint_dir*PSPRINT_VELOCITY
+			hero:SetPhysicsVelocity(hero.last_psprint_vel)
+
+
+		end
+
 	end
 end
 
@@ -297,9 +309,9 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 				else
 					ball.controller = hero
 					if hero.goalie and (ball.velocityMagnitude > 2*CrackThreshSq or hero.isUsingGoalieJump) then
-						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN, hero)
-						--ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
-						ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
+						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
+						ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
+						--ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
 						--[[if CurrSavedSound then
 
 						end]]
@@ -615,7 +627,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 		
-		if TryWaitComponent(collider) then return true end
+		if TryWaitComponent(collider) then print("yeah") return true end
 
 		if collided.isSwapDummy and hero ~= collided.caster then
 			-- technically treat this as a collision, but return false since we don't want the momentum stuff
@@ -643,13 +655,10 @@ function DotaStrikers:SetupPersonalColliders(hero)
 							end)
 						end)
 					end)
-					local sprint_break_abil = collided:GetAbilityByIndex(SprintAbilIndex)
-					local sprint_break_abil_name = sprint_break_abil:GetAbilityName()
-					--[[if string.ends(sprint_break_abil_name, "break") and collided:HasAbility(sprint_break_abil_name) then
-						collided:CastAbilityNoTarget(sprint_break_abil, 0)
-					end]]
+
 					collided.last_time_tackled = GameRules:GetGameTime()
 					AddMovementComponent(collided, "tackle", -9999)
+
 					-- give collided a small push
 					local pushDir = (collided:GetAbsOrigin() - hero:GetAbsOrigin()):Normalized()
 					collided:AddPhysicsVelocity(pushDir*TACKLE_PUSH)
@@ -721,7 +730,7 @@ function DotaStrikers:OnPreGridNavBounce( unit, normal )
 	-- "if not TryWaitComponent(unit) then" is the same as saying "if the semaphore can't decrement, i.e. it's at 0"
 	if unit.isComponent and not TryWaitComponent(unit) then
 		unit.rollback_sem = unit.rollback_sem + 1
-		print("adding vel to rollback: " .. unit:GetPhysicsVelocity():Length())
+		--print("adding vel to rollback: " .. unit:GetPhysicsVelocity():Length())
 		table.insert(unit.rollback_vels, 1, unit:GetPhysicsVelocity())
 	end
 end

@@ -1,4 +1,4 @@
-package {
+﻿package {
     // Flash Libraries
     import flash.display.MovieClip;
     import flash.utils.getQualifiedClassName;
@@ -299,6 +299,9 @@ package {
             }
 
             return arr;
+        }
+        public static function startsWith(haystack:String, needle:String):Boolean {
+            return haystack.indexOf(needle) == 0;
         }
     }
 }

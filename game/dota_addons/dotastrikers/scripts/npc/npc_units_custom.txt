@@ -10,7 +10,7 @@
 		"BaseClass"					"npc_dota_roshan"	// Class of entity of link to.
 		"Model"						"models\creeps\roshan\roshan.mdl"	// Model.
 		"SoundSet"					"Roshan"					// Name of sound set.
-		"ModelScale"				".8"
+		"ModelScale"				".9"
 		"MinimapIcon"				"minimap_roshancamp"
 		"MinimapIconSize"			"260"
 				

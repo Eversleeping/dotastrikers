@@ -201,7 +201,18 @@ function DotaStrikers:OnGoal(team)
 	local scorer = ball.lastMovedBy
 	scorer.personalScore = scorer.personalScore + 1
 
-	-- special effect for scorer?
+	local nWinningTeam = DOTA_TEAM_BADGUYS
+	if team == "Radiant" then
+		nWinningTeam = DOTA_TEAM_GOODGUYS
+	end
+
+	if scorer:GetTeam() ~= team then
+		scorer.scoredParticle = ParticleManager:CreateParticle("particles/scored_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, scorer)
+		ParticleManager:SetParticleControlEnt(scorer.scoredParticle, 4, scorer, 4, "follow_origin", scorer:GetAbsOrigin(), true)
+		--ParticleManager:SetParticleControl( scorer.scoredParticle, 2, scorer:GetAbsOrigin() )
+	else
+
+	end
 
 	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
@@ -217,11 +228,6 @@ function DotaStrikers:OnGoal(team)
 	end)
 
 	CleanUp(ball)
-
-	local nWinningTeam = DOTA_TEAM_BADGUYS
-	if team == "Radiant" then
-		nWinningTeam = DOTA_TEAM_GOODGUYS
-	end
 
 	-- force activate the break abil if hero has it.
 	for _,hero in ipairs(DotaStrikers.vHeroes) do

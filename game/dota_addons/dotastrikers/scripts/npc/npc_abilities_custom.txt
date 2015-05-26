@@ -120,12 +120,89 @@
 			"01"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"distance"					"700"
+				"distance"					"800"
 			}
 			"02"
 			{
 				"var_type"					"FIELD_FLOAT"
 				"wait_time"					".3"
+			}
+			"03"
+			{
+				"var_type"						"FIELD_INTEGER"
+				"time_to_use_backtrack"					"2"
+			}
+			"04"
+			{
+				"var_type"						"FIELD_INTEGER"
+				"cd_if_backtrack_used"					"30"
+			}
+		}
+	}
+
+	"blink_backtrack"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"blink_backtrack"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityManaCost"				"0"
+		"MaxLevel"						"1"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"blink"
+			}
+		}
+
+		"AbilitySpecial"
+		{
+		}
+	}
+
+	"queenofpain_blink_datadriven"
+	{
+		// General
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
+		"BaseClass"             		"queenofpain_blink"
+		"MaxLevel" 						"1"
+
+		// Casting
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"9000"
+		"AbilityCastPoint"				"0"
+
+		// Time		
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCooldown"				"0"
+		
+		// Cost
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityManaCost"				"0"
+		
+		// Special	
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"blink_range"			"3000"
+			}
+			
+			"02"
+			{
+				"var_type"				"FIELD_INTEGER"
+				"min_blink_range"		"0"
 			}
 		}
 	}
@@ -277,9 +354,9 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"9999"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"0"
+		"AbilityCooldown"				"2"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_GHOST_WALK"
-		"AnimationPlaybackRate"			"3"
+		"AnimationPlaybackRate"			".01" // doesn't seem to matter
 
 		"AbilityManaCost"				"0"
 		
@@ -313,6 +390,154 @@
 			}
 		}
 	}
+
+	"powersprint_break"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"powersprint_break"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge_break"
+			}
+		}
+	}
+
+	"powersprint"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"invoker_ghost_walk"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityManaCost"				"25"
+		"MaxLevel"						"1"
+		
+		"precache"
+		{
+			//"particle"		"particles\units\heroes\hero_pugna\pugna_decrepify.vpcf"
+			
+		}
+
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge"
+			}
+		}
+
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"40"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_recovery_rate"		"10"
+			}
+		}
+	}
+
+	"powersprint_real"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"invoker_ghost_walk"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"0"
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"AbilityManaCost"				"25"
+		"MaxLevel"						"1"
+		
+		"precache"
+		{
+			//"particle"		"particles\units\heroes\hero_pugna\pugna_decrepify.vpcf"
+			
+		}
+
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"40"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"mana_recovery_rate"		"10"
+			}
+		}
+
+		"OnSpellStart"
+		{
+			"FireSound"
+			{
+				"EffectName"	"Powersprint"
+				"Target" 		"CASTER"
+			}
+			"ApplyModifier"
+			{
+				"ModifierName"	"modifier_powersprint"
+				"Target" 		"CASTER"
+			}
+		}
+
+		"Modifiers"
+		{
+			"modifier_powersprint"
+			{
+				"IsBuff"	"1"
+
+				"StatusEffectName" 		"particles/status_fx/status_effect_alacrity.vpcf" 	   
+				"StatusEffectPriority"  "10"
+
+				"TextureName"     	"invoker_ghost_walk"
+				"OverrideAnimation"     "ACT_DOTA_CAST_COLD_SNAP"
+
+				"OnCreated"
+				{
+					"AttachEffect"
+					{
+						"EffectName"        "particles/units/heroes/hero_invoker/invoker_alacrity.vpcf"
+						"EffectAttachType"  "follow_overhead"
+						"Target"            "CASTER"
+					}
+
+					"AttachEffect"
+					{
+						"EffectName"        "particles/units/heroes/hero_invoker/invoker_alacrity_buff.vpcf"
+						"EffectAttachType"  "follow_overhead"
+						"Target"            "CASTER"
+					}
+				}
+			}
+		}
+	}
+
 
 	"ninja_invis_sprint_break"
 	{

@@ -37,10 +37,9 @@
 		public function onLoaded() : void {		
 			trace("[CustomUI] OnLoaded");
 			
-			welcome.visible = false
+			welcome.visible = true
 			options.visible = false
-			optionsButton.visible = false
-			//loading_screen.visible = true
+			learn_about_heroes.visible = true
 
 			//globals.Loader_heroselection.movieClip.heroselection.addChild(welcome)
 			globals.Loader_shared_heroselectorandloadout.movieClip.addChild(welcome)
@@ -48,7 +47,7 @@
 
 			//this.gameAPI.SubscribeToGameEvent("show_main_ability", showMainAbility);
 			gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility);
-			gameAPI.SubscribeToGameEvent("show_welcome_popup", showWelcomePopup);
+			//gameAPI.SubscribeToGameEvent("show_welcome_popup", showWelcomePopup);
 			gameAPI.SubscribeToGameEvent("show_options_popup", showOptionsPopup);
 
 			var oldChatSay:Function = globals.Loader_hud_chat.movieClip.gameAPI.ChatSay;
@@ -70,11 +69,12 @@
 			//pass the gameAPI on to the modules
 			welcome.setup(gameAPI, globals);
 			options.setup(gameAPI, globals);
-			loading_screen.setup(gameAPI, globals);
+			learn_about_heroes.setup(gameAPI, globals);
 
 			_optionsButton = replaceWithValveComponent(optionsButton, "chrome_button_normal");
 			_optionsButton.addEventListener(ButtonEvent.CLICK, onOptionsButtonClicked);
 			_optionsButton.label = "Options";
+			_optionsButton.visible = false
 
 			//addEventListener(Event.ENTER_FRAME, myEnterFrame);
 
@@ -87,10 +87,6 @@
 			} else {
 				options.visible = true
 			}
-		}
-
-		public function showWelcomePopup(args:Object) : void {
-			welcome.visible = true
 		}
 		public function showOptionsPopup(args:Object) : void {
 			options.visible = true
@@ -166,7 +162,7 @@
 			//pass the resize event to our module, we pass the width and height of the screen, as well as the INVERSE of the stage scaling ratios.
 			welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			options.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
-			loading_screen.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
+			learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			//waitForPlayers.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 
 			// optionsButton resize

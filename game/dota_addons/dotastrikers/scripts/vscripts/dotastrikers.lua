@@ -115,7 +115,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 	end)
 
 	Timers:CreateTimer(.06, function()
-		FireGameEvent("show_welcome_popup", {})
+		--FireGameEvent("show_welcome_popup", {})
 	end)
 
 	Timers:CreateTimer(function()
@@ -452,7 +452,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	-- this is useful in between rounds, swapping ability bars. it's in initmap.lua
 	self:GetRoundAbils(hero)
 
-	self:SetupPersonalColliders(hero) -- in myball_and_phys.lua
+	self:SetupPersonalColliders(hero)
 
 	Timers:CreateTimer(.04, function()
 		if hero:GetPlayerOwner():GetAssignedHero() == nil then print("Hero still nil.") end
@@ -475,6 +475,10 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 					if hero:HasAbility("ninja_invis_sprint_break") then
 						hero:CastAbilityNoTarget(hero:FindAbilityByName("ninja_invis_sprint_break"), 0)
 					end
+				elseif hero.isPowershot then
+					if hero:HasAbility("powersprint_break") then
+						hero:CastAbilityNoTarget(hero:FindAbilityByName("powersprint_break"), 0)
+					end
 				else
 					if hero:HasAbility("surge_break") then
 						hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
@@ -482,6 +486,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 				end
 			end
 			if hero.isSprinter then
+				manaDrainInterval = SURGE_TICK*40
+			elseif hero.isPowershot then
 				manaDrainInterval = SURGE_TICK*40
 			end
 			hero:SetMana(currMana - manaDrainInterval)

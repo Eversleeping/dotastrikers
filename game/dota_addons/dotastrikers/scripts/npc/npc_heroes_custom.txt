@@ -3,6 +3,7 @@
 	//npc_dota_hero_vengefulspirit
 	"hook"
 	{
+		"DS_Name"				"Pudge"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_pudge"
 		"SoundSet"				"0"	
@@ -59,6 +60,7 @@
 
 	"swap"
 	{
+		"DS_Name"				"Puck"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_puck"
 		"SoundSet"				"0"	
@@ -115,6 +117,7 @@
 
 	"blink"
 	{
+		"DS_Name"				"Queen of Pain"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_queenofpain"
 		"SoundSet"				"0"	
@@ -126,7 +129,7 @@
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
-		"Ability9"				""
+		"Ability9"				"queenofpain_blink_datadriven"
 		"Ability10"				""
 		"Ability11"				""
 		"Ability12"				""
@@ -170,6 +173,7 @@
 	}
 	"tackle"
 	{
+		"DS_Name"				"Bloodseeker"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_bloodseeker"
 		"SoundSet"				"0"	
@@ -223,8 +227,10 @@
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
 	}
+
 	"black_hole"
 	{
+		"DS_Name"				"Enigma"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_enigma"
 		"SoundSet"				"0"	
@@ -281,18 +287,19 @@
 
 	"powershot"
 	{
+		"DS_Name"				"Invoker"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_invoker"
 		"SoundSet"				"0"	
 		"Ability1"				"powershot"
 		"Ability2"				"throw_ball"
-		"Ability3"				"surge"
+		"Ability3"				"powersprint"
 		"Ability4"				"pass_me"
 		"Ability5"				"dotastrikers_empty5"
 		"Ability6"				"dotastrikers_empty6"
 		"Ability7"				"throw_target"
 		"Ability8"				"hero_passive"
-		"Ability9"				""
+		"Ability9"				"powersprint_real"
 		"Ability10"				""
 		"Ability11"				""
 		"Ability12"				""
@@ -337,6 +344,7 @@
 
 	"sprint"
 	{
+		"DS_Name"				"Antimage"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_antimage"
 		"SoundSet"				"0"	
@@ -393,6 +401,7 @@
 
 	"ninja"
 	{
+		"DS_Name"				"Slark"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_slark"
 		"SoundSet"				"0"	
@@ -449,6 +458,7 @@
 
 	"pull"
 	{
+		"DS_Name"				"Wisp"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_wisp"
 		"SoundSet"				"0"	
@@ -505,6 +515,7 @@
 
 	"slam"
 	{
+		"DS_Name"				"Earthshaker"
 		"AbilityLayout" 		"6"
 		"override_hero"			"npc_dota_hero_earthshaker"
 		"SoundSet"				"0"	

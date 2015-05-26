@@ -5,7 +5,7 @@ SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1700
 PSHOT_ONHIT_VEL = 1200
-PSHOT_COOLDOWN = 10
+PSPRINT_VELOCITY = 900
 
 NINJA_JUMP_Z = 1500
 NINJA_JUMP_XY = 800
@@ -14,7 +14,7 @@ PULL_ACCEL_FORCE = 2300
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL_FORCE = 1000
+SPRINT_ACCEL_FORCE = 2000 --1000
 SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 6
 
@@ -27,15 +27,19 @@ BH_FORCE_MIN = 3900
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
-TACKLE_DURATION = .5
+TACKLE_DURATION = .55
 TACKLE_VEL_FORCE = 1500
 TACKLE_PUSH = 300
+TACKLE_SLOW_RADIUS = PP_COLLISION_RADIUS+70
 
 BLINK_WAIT_TIME = .3
-BLINK_DISTANCE = 700
+BLINK_DISTANCE = 800
+TIME_HAS_TO_BACKTRACK = 2
+BLINK_CD_USED_BACKTRACK = 30
 
 SWAP_PROJ_VELOCITY = 1400
 SWAP_DURATION = 2
+SWAP_COLLISION_RADIUS = PP_COLLISION_RADIUS+20
 
 -- ball goes up a lil in the z direction if hero throws ball while in the air.
 KICK_BALL_Z_PUSH = 280
@@ -112,9 +116,9 @@ function DotaStrikers:on_powershot_succeeded( keys, dir )
 
 	ball.controller = nil
 
-	if not Testing then
+	--[[if not Testing then
 		caster:FindAbilityByName("powershot"):StartCooldown(PSHOT_COOLDOWN)
-	end
+	end]]
 end
 
 function DotaStrikers:throw_ball( keys )
@@ -155,6 +159,7 @@ end
 
 function DotaStrikers:surge( keys )
 	local caster = keys.caster
+	local ball = Ball.unit
 
 	--[[if caster.isTackled then
 		--Timers:CreateTimer(.03, function()
@@ -237,6 +242,21 @@ function DotaStrikers:surge( keys )
 
 		AddMovementComponent(caster, "surge", caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 
+	elseif caster.isPowershot then
+		if caster == ball.controller then
+			caster.surgeOn = false
+			caster:SetMana(caster:GetMana() + keys.ability:GetManaCost(1))
+			ShowErrorMsg(caster, "Can't cast Powersprint as the ball controller")
+		else
+			caster:CastAbilityNoTarget(caster:FindAbilityByName("powersprint_real"), 0)
+			caster:RemoveAbility("powersprint")
+			caster:AddAbility("powersprint_break")
+			caster:FindAbilityByName("powersprint_break"):SetLevel(1)
+			caster.psprint_dir = caster:GetForwardVector()
+			AddEndgameRoot(caster)
+			caster.isUsingPowersprint = true
+			-- physics are in myphysics.lua
+		end
 	else
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
@@ -270,8 +290,8 @@ function DotaStrikers:surge_break( keys )
 		Timers:RemoveTimer(caster.dist_check_timer)
 		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
 
-		print("caster curr vel: " .. caster:GetPhysicsVelocity():Length())
-		print("caster new vel: " .. (caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4)):Length())
+		--print("caster curr vel: " .. caster:GetPhysicsVelocity():Length())
+		--print("caster new vel: " .. (caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4)):Length())
 
 		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4))
 		caster.super_sprint_component:RemoveComponent()
@@ -306,6 +326,19 @@ function DotaStrikers:surge_break( keys )
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
+	elseif caster.isPowershot then
+		caster:RemoveAbility("powersprint_break")
+		caster:AddAbility("powersprint")
+		local powersprint = caster:FindAbilityByName("powersprint")
+		powersprint:SetLevel(1)
+
+		if caster:HasModifier("modifier_powersprint") then
+			caster:RemoveModifierByName("modifier_powersprint")
+		end
+		caster.isUsingPowersprint = false
+		RemoveEndgameRoot(caster)
+		caster.last_psprint_vel = nil
+
 	else
 		caster:RemoveAbility("surge_break")
 		caster:AddAbility("surge")
@@ -744,28 +777,41 @@ end
 
 function DotaStrikers:blink( keys )
 	local caster = keys.caster
+	local ability = keys.ability
+
+	if ability:GetAbilityName() == "blink_backtrack" then
+		caster:RemoveAbility("blink_backtrack")
+		caster:AddAbility("blink")
+		local blinkAbil = caster:FindAbilityByName("blink")
+		blinkAbil:SetLevel(1)
+		blinkAbil:StartCooldown(BLINK_CD_USED_BACKTRACK)
+
+		local fv = caster:GetForwardVector()
+
+		caster:CastAbilityOnPosition(caster.pos_before_blink, caster:FindAbilityByName("queenofpain_blink_datadriven"), 0)
+
+		return
+	end
 
 	caster.blink_timer = Timers:CreateTimer(BLINK_WAIT_TIME, function()
 		local fv = caster:GetForwardVector()
 
-		local part = ParticleManager:CreateParticle("particles/units/heroes/hero_queenofpain/queen_blink_start.vpcf", PATTACH_ABSORIGIN, caster)
-		ParticleManager:SetParticleControlEnt(part, 1, caster, 1, "attach_hitloc", caster:GetAbsOrigin(), true)
-		--caster:EmitSound("Hero_QueenOfPain.Blink_out")
-		EmitSoundAtPosition("Hero_QueenOfPain.Blink_out", caster:GetAbsOrigin())
-
-		-- execute a movement order in the current fv direction, to prevent hero from immediately moving backwards after teleporting.
-		if not caster:IsIdle() then
-			ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
-				Position = caster:GetAbsOrigin() + fv*1500, Queue = false})
-		end
-
+		caster.pos_before_blink = caster:GetAbsOrigin()
+		caster.vel_before_blink = caster:GetPhysicsVelocity()
 		local newPos = caster:GetAbsOrigin() + BLINK_DISTANCE*fv
-		caster:SetAbsOrigin(newPos)
+		caster:CastAbilityOnPosition(newPos, caster:FindAbilityByName("queenofpain_blink_datadriven"), 0)
 
-		local part2 = ParticleManager:CreateParticle("particles/units/heroes/hero_queenofpain/queen_blink_end.vpcf", PATTACH_CUSTOMORIGIN, caster)
-		ParticleManager:SetParticleControl(part2, 0, newPos)
-		EmitSoundAtPosition("Hero_QueenOfPain.Blink_in",newPos )
+		caster:RemoveAbility("blink")
+		caster:AddAbility("blink_backtrack")
+		caster:FindAbilityByName("blink_backtrack"):SetLevel(1)
 
+		Timers:CreateTimer(TIME_HAS_TO_BACKTRACK, function()
+			if caster:HasAbility("blink_backtrack") then
+				caster:RemoveAbility("blink_backtrack")
+				caster:AddAbility("blink")
+				caster:FindAbilityByName("blink"):SetLevel(1)
+			end
+		end)
 	end)
 
 	if Testing then keys.ability:EndCooldown() end
