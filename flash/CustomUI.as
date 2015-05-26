@@ -41,8 +41,6 @@
 			options.visible = false
 			learn_about_heroes.visible = true
 
-			//globals.Loader_heroselection.movieClip.heroselection.addChild(welcome)
-			globals.Loader_shared_heroselectorandloadout.movieClip.addChild(welcome)
 			visible = true;
 
 			//this.gameAPI.SubscribeToGameEvent("show_main_ability", showMainAbility);
