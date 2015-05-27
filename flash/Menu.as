@@ -15,14 +15,18 @@
 	import ValveLib.Globals;
 	import ValveLib.ResizeManager;
 	
-	public class Welcome extends MovieClip {
+	public class Menu extends MovieClip {
 		
 		public var gameAPI:Object;
 		public var globals:Object;
 
-		var _gotItBtn:Object;
+		var _optionsBtn:Object
+		var _leaguesBtn:Object
+		var _changelogBtn:Object
+		var nextX:int
+		var radioNames:Array
 
-		public function Welcome() {
+		public function Menu() {
 			// constructor code
 		}
 		
@@ -30,27 +34,47 @@
 		public function setup(api:Object, globals:Object) {
 			this.gameAPI = api;
 			this.globals = globals;
+
+			//var radioNames:Object = new Object()
+			radioNames = new Array(3) // # of radio buttons. remember to change this when new radio buttons are added.
+			nextX = x
 			
-			// Font Labels
-			var txFormatBold:TextFormat = new TextFormat;
-			txFormatBold.font = "Radiance-Semibold";
-			var txFormatTitle:TextFormat = new TextFormat;
-			txFormatTitle.font = "$TitleFontBold";
+			for (var i:int = 0; i < numChildren; i++) {
+				var e:MovieClip = getChildAt(i) as MovieClip;
+				if (e != null && e.name != null) {
+					if (Util.startsWith(e.name, "radio")) {
+						var index:int = parseInt(e.name.substr(5,1))
+						radioNames[index] = e.name
+					}
+				}
+			}
 
+			for (var i:int = 0; i < radioNames.length; i++) {
+				setupRadioButton(getChildByName(radioNames[i]) as MovieClip)
+			}
 
-			bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
+			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
 
-			_gotItBtn = replaceWithValveComponent(gotItBtn, "ButtonThinPrimary", true);
-			_gotItBtn.addEventListener(ButtonEvent.CLICK, onGotItBtn);
-			_gotItBtn.label = "Got It!"
-			//_gotItBtn.label = Globals.instance.GameInterface.Translate("#GotIt");
-
-			trace("##Called Welcome Setup!");
+			trace("##Called Menu Setup!");
 		}
 		
-        public function onGotItBtn(event:ButtonEvent)
+		public function setupRadioButton(btn) {
+			var str:String = btn.name
+			var name:String = str.substr(7, str.length-7)
+			var tmp:Object = replaceWithValveComponent(btn, "d_RadioButton_2nd");
+			tmp.label = name
+			tmp["btn_name"] = name
+			tmp.addEventListener(ButtonEvent.CLICK, onRadioBtnClicked);
+			trace("setup valve component: " + name)
+
+			tmp.x = nextX
+			nextX = nextX + tmp.width
+
+		}
+
+        public function onRadioBtnClicked(e:ButtonEvent)
         {
-			visible = false
+			trace(e.target.label + " CLICK!")
         }
 
 		//Parameters: 
@@ -81,7 +105,6 @@
 
 		//onScreenResize
 		public function screenResize(stageW:int, stageH:int, xScale:Number, yScale:Number, wide:Boolean) {
-			trace("Stage Size: ",stageW,stageH);
 
 			this.width = this.width*yScale;
 			this.height	 = this.height*yScale;
@@ -90,7 +113,7 @@
 			this.x = stageW/2-this.width/2;
 			this.y = stageH/2 - this.height/2-45*yScale;
 			
-			trace("#Result Resize: ",this.x,this.y,yScale);
+			trace("#Menu Resize: ",this.x,this.y,yScale);
 			
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
 			this.scaleX = xScale;

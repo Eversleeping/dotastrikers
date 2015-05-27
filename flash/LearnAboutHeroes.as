@@ -39,41 +39,53 @@
 		public function setup(api:Object, globals:Object) {
 			this.gameAPI = api;
 			this.globals = globals;
-			
+
 			// Font Labels
 			var txFormatBold:TextFormat = new TextFormat;
 			txFormatBold.font = "Radiance-Semibold";
 			var txFormatTitle:TextFormat = new TextFormat;
 			txFormatTitle.font = "$TitleFontBold";
 
-			//clickOnTheHeroes
 			var tf:TextFormat = clickOnTheHeroes.getTextFormat()
 			clickOnTheHeroes.text = Globals.instance.GameInterface.Translate("#ClickOnTheHeroes")
 
 			abilitiesText.text = Globals.instance.GameInterface.Translate("#Abilities")
+
+			//heroesLabel.defaultTextFormat = heroesLabel.getTextFormat()
+
+			if (heroesLabel.filters == null) {
+				trace("heroesLabel.filters is null.")
+			}
+
+			var _filters = heroesLabel.filters
+			//heroesLabel.useRichTextClipboard = true
+			//heroesLabel.text = Globals.instance.GameInterface.Translate("#Heroes")
+			//heroesLabel.filters = _filters
+
+
 			hoverOverThem.text = Globals.instance.GameInterface.Translate("#HoverOverThem")
 			heroNameText.text = Globals.instance.GameInterface.Translate("#HeroName")
-			abilitiesText.text = Globals.instance.GameInterface.Translate("#Abilities")
+			itemsLabel.text = Globals.instance.GameInterface.Translate("#Items")
 			tip_1.text = Globals.instance.GameInterface.Translate("#Tip") + " #1:"
 			tip_2.text = Globals.instance.GameInterface.Translate("#Tip") + " #2:"
-			//hoverOverThem
 
 			heroes = globals.GameInterface.LoadKVFile('scripts/npc/npc_heroes_custom.txt');
 			abilities = globals.GameInterface.LoadKVFile('scripts/npc/npc_abilities_custom.txt');
 
-			trace("numChildren: " + numChildren)
 			for (var i:int = 0; i < numChildren; i++) {
 				var e:MovieClip = getChildAt(i) as MovieClip;
 				if (e != null && e.name != null) {
 					if (Util.startsWith(e.name, "hero")) {
 						e.addEventListener(MouseEvent.CLICK, onMouseClickHero);
 						var heroName:String = e.name.substr(5,e.name.length-5)
-						trace("heroName: " + heroName)
+						//trace("heroName: " + heroName)
 						heroToAbils[heroName] = new Array(6)
 						heroToMC[heroName] = e
 
+					} else if (Util.startsWith(e.name, "item")) {
+						setupItem(e)
 					}
-					trace("name: " + e.name)
+					//trace("name: " + e.name)
 				}
 			}
 
@@ -111,11 +123,27 @@
 				}
 			}
 
+			onHeroClicked(getChildByName("hero_sprint"))
+
 			trace("##Called LearnAboutHeroes Setup!");
+		}
+
+		public function setupItem(item) {
+			var itemName:String = item.name
+			globals.LoadImage("images/items/" + itemName.substr(5, itemName.length-5) + ".png", item, true);
+			item["abil"] = itemName
+
+			item.addEventListener(MouseEvent.ROLL_OVER, onMouseRollOverAbility);
+			item.addEventListener(MouseEvent.ROLL_OUT, onMouseRollOutAbility);
+
 		}
 
 		public function onMouseClickHero(keys:MouseEvent) {
        		var hero:MovieClip = keys.target as MovieClip;
+       		onHeroClicked(hero)
+       	}
+
+       	public function onHeroClicked(hero) {
        		currentHeroMC = hero
        		var heroName:String = hero.name.substr(5,hero.name.length-5)
        		
@@ -132,7 +160,6 @@
 				mc.addEventListener(MouseEvent.ROLL_OVER, onMouseRollOverAbility);
 				mc.addEventListener(MouseEvent.ROLL_OUT, onMouseRollOutAbility);
        		}
-
        		trace("CLICK! " + heroName);
        	}
 
@@ -170,14 +197,11 @@
 				if (k == abilName) {
 					for (var k2:String in abilities[k]) {
 						if (k2 == "AbilityTextureName") {
-
-							trace("found AbilityTextureName: " + abilities[k][k2])
 							return abilities[k][k2]
 						}
 					}
 				}
 			}
-
 		}
 
 		//Parameters: 
@@ -212,17 +236,18 @@
 			this.stageW = stageW
 
 			width = width*yScale;
-			height	 = height*yScale;
-
-			// this is always called at the resolution the player is currently at.
-			x = width/2;
-			y = stageH - height/2;
+			height = height*yScale;
 			
 			//trace("#Result Resize: ",x,y,yScale);
 			
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
 			scaleX = xScale;
 			scaleY = yScale;
+
+			// this is always called at the resolution the player is currently at.
+			x = width/2;
+			y = stageH - height/2;
+
 		}
 	}	
 }

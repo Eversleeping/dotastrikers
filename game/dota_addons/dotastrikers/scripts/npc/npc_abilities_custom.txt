@@ -356,7 +356,7 @@
 		"AbilityCastPoint"				"0"
 		"AbilityCooldown"				"2"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_GHOST_WALK"
-		"AnimationPlaybackRate"			".01" // doesn't seem to matter
+		"AnimationPlaybackRate"			".001" // doesn't seem to matter
 
 		"AbilityManaCost"				"0"
 		

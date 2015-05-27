@@ -115,7 +115,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 	end)
 
 	Timers:CreateTimer(.06, function()
-		--FireGameEvent("show_welcome_popup", {})
+		FireGameEvent("all_players_loaded", {})
 	end)
 
 	Timers:CreateTimer(function()

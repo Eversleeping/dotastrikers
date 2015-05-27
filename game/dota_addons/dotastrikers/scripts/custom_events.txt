@@ -30,7 +30,7 @@
         "player_ID"    			  "short"
         "ability_index"      	  "short"
     }
-    "show_welcome_popup" { }
+    "all_players_loaded" { }
 	
     // Stat collection
     "stat_collection_part"

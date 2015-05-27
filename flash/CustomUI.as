@@ -15,18 +15,19 @@
 	public class CustomUI extends MovieClip {
 		
 		//these three variables are required by the engine
-		public var gameAPI:Object;
-		public var globals:Object;
-		public var elementName:String;
+		public var gameAPI:Object
+		public var globals:Object
+		public var elementName:String
 		
 		// resizing stuff
-		private var ScreenWidth:int;
-		private var ScreenHeight:int;
-		public var scaleRatioY:Number;
+		private var ScreenWidth:int
+		private var ScreenHeight:int
+		public var scaleRatioY:Number
 
 		// my vars
 		//var map:Dictionary = new Dictionary();
-		var _optionsButton:Object;
+		var _optionsButton:Object
+		var _menuButton:Object
 
 		//constructor, you usually will use onLoaded() instead
 		public function CustomUI() : void {
@@ -47,6 +48,7 @@
 			gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility);
 			//gameAPI.SubscribeToGameEvent("show_welcome_popup", showWelcomePopup);
 			gameAPI.SubscribeToGameEvent("show_options_popup", showOptionsPopup);
+			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded);
 
 			var oldChatSay:Function = globals.Loader_hud_chat.movieClip.gameAPI.ChatSay;
 			globals.Loader_hud_chat.movieClip.gameAPI.ChatSay = function(obj:Object, bool:Boolean){
@@ -65,27 +67,33 @@
 			//dota_hud_healthbar_number
 
 			//pass the gameAPI on to the modules
-			welcome.setup(gameAPI, globals);
-			options.setup(gameAPI, globals);
-			learn_about_heroes.setup(gameAPI, globals);
+			welcome.setup(gameAPI, globals)
+			options.setup(gameAPI, globals)
+			learn_about_heroes.setup(gameAPI, globals)
+			ds_menu.setup(gameAPI, globals)
 
-			_optionsButton = replaceWithValveComponent(optionsButton, "chrome_button_normal");
-			_optionsButton.addEventListener(ButtonEvent.CLICK, onOptionsButtonClicked);
-			_optionsButton.label = "Options";
-			_optionsButton.visible = false
+			_menuButton = replaceWithValveComponent(menuButton, "chrome_button_primary")
+			_menuButton.addEventListener(ButtonEvent.CLICK, onMenuButtonClicked)
+			_menuButton.label = "Dota Strikers Menu"
+			_menuButton.visible = true
 
 			//addEventListener(Event.ENTER_FRAME, myEnterFrame);
 
 			trace("[CustomUI] OnLoaded finished!");
 		}
 
-		public function onOptionsButtonClicked(event:ButtonEvent) {
-			if (options.visible) {
-				options.visible = false
+		public function onMenuButtonClicked(event:ButtonEvent) {
+			if (ds_menu.visible) {
+				ds_menu.visible = false
 			} else {
-				options.visible = true
+				ds_menu.visible = true
 			}
 		}
+
+		public function onAllPlayersLoaded(args:Object) : void {
+			learn_about_heroes.visible = false
+		}
+
 		public function showOptionsPopup(args:Object) : void {
 			options.visible = true
 		}
@@ -161,18 +169,10 @@
 			welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			options.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
-			//waitForPlayers.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
+			ds_menu.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 
-			// optionsButton resize
-			//optionsButton.width = optionsButton.width*scaleRatioY;
-			//optionsButton.height = optionsButton.height*scaleRatioY;
-
-			optionsButton.x = 250*scaleRatioY;
-			optionsButton.y = 7*scaleRatioY;
-			
-			//optionsButton.scaleX = scaleRatioY;
-			//optionsButton.scaleY = scaleRatioY;
-			// end optionsButton resize
+			menuButton.x = 246*scaleRatioY;
+			menuButton.y = 8*scaleRatioY;
 
 		}
 	}
