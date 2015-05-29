@@ -841,7 +841,7 @@ function DotaStrikers:InitDotaStrikers()
 
 	Convars:RegisterCommand('click_radio_button', function(...)
 		local cmdPlayer = Convars:GetCommandClient()
-		--EmitSoundOnClient("ui.profile_open", cmdPlayer)
+		EmitSoundOnClient("ui.click_toptab", cmdPlayer)
 	end, '', 0)
 
 	-- Change random seed

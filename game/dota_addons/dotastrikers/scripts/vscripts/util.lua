@@ -34,68 +34,68 @@ function CreateNeutralParticle( particle, pos, attach_type, duration )
 	return part
 end
 
-function AddHasteAnimation( hero )
-	if not hero:HasModifier("modifier_haste_anim") then
-		GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_haste_anim", {})
+function AddHasteAnimation( unit )
+	if not unit:HasModifier("modifier_haste_anim") then
+		GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_haste_anim", {})
 	end
 end
 
-function RemoveHasteAnimation( hero )
-	if hero:HasModifier("modifier_haste_anim") then
-		hero:RemoveModifierByName("modifier_haste_anim")
+function RemoveHasteAnimation( unit )
+	if unit:HasModifier("modifier_haste_anim") then
+		unit:RemoveModifierByName("modifier_haste_anim")
 	end
 end
 
-function AddStun( hero )
-	if not hero:HasAbility("stun_passive") then
-		hero:AddAbility("stun_passive")
-		hero:FindAbilityByName("stun_passive"):SetLevel(1)
+function AddStun( unit )
+	if not unit:HasAbility("stun_passive") then
+		unit:AddAbility("stun_passive")
+		unit:FindAbilityByName("stun_passive"):SetLevel(1)
 	end
 end
 
-function RemoveStun( hero )
-	if hero:HasAbility("stun_passive") then
-		hero:RemoveAbility("stun_passive")
-		hero:RemoveModifierByName("modifier_stun_passive")
+function RemoveStun( unit )
+	if unit:HasAbility("stun_passive") then
+		unit:RemoveAbility("stun_passive")
+		unit:RemoveModifierByName("modifier_stun_passive")
 	end
 end
 
-function AddSilence( hero )
-	if not hero:HasModifier("modifier_endround_silenced_passive") then
-		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_silenced_passive", {})
+function AddSilence( unit )
+	if not unit:HasModifier("modifier_endround_silenced_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, unit, "modifier_endround_silenced_passive", {})
 	end
 end
 
-function RemoveSilence( hero )
-	if hero:HasModifier("modifier_endround_silenced_passive") then
-		hero:RemoveModifierByName("modifier_endround_silenced_passive")
+function RemoveSilence( unit )
+	if unit:HasModifier("modifier_endround_silenced_passive") then
+		unit:RemoveModifierByName("modifier_endround_silenced_passive")
 	end
 end
 
-function AddEndgameRoot( hero )
-	if not hero:HasModifier("modifier_endround_rooted_passive") then
-		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, hero, "modifier_endround_rooted_passive", {})
+function AddEndgameRoot( unit )
+	if not unit:HasModifier("modifier_endround_rooted_passive") then
+		EndRoundDummy.endround_passive:ApplyDataDrivenModifier(EndRoundDummy, unit, "modifier_endround_rooted_passive", {})
 	end
 end
 
-function RemoveEndgameRoot( hero )
-	if hero:HasModifier("modifier_endround_rooted_passive") then
-		hero:RemoveModifierByName("modifier_endround_rooted_passive")
+function RemoveEndgameRoot( unit )
+	if unit:HasModifier("modifier_endround_rooted_passive") then
+		unit:RemoveModifierByName("modifier_endround_rooted_passive")
 	end
 end
 
-function AddDisarmed( hero )
-	if hero:HasModifier("modifier_disarmed_off") then
-		hero:RemoveModifierByName("modifier_disarmed_off")
+function AddDisarmed( unit )
+	if unit:HasModifier("modifier_disarmed_off") then
+		unit:RemoveModifierByName("modifier_disarmed_off")
 	end
-	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_disarmed_on", {})
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_disarmed_on", {})
 end
 
-function RemoveDisarmed( hero )
-	if hero:HasModifier("modifier_disarmed_on") then
-		hero:RemoveModifierByName("modifier_disarmed_on")
+function RemoveDisarmed( unit )
+	if unit:HasModifier("modifier_disarmed_on") then
+		unit:RemoveModifierByName("modifier_disarmed_on")
 	end
-	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_disarmed_off", {})
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, "modifier_disarmed_off", {})
 end
 
 function InitAbility( ... )

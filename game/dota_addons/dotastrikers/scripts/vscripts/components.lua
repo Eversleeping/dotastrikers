@@ -25,6 +25,13 @@ function AddMovementComponent( ... )
 			end
 			--unit:SetBaseMoveSpeed(total)
 			total = math.floor(total)
+
+			if total > 600 then
+				total = 600
+			elseif total < 1 then
+				total = 1
+			end
+
 			local needsNewAbil = false
 
 			if unit.movespeedAbil and IsValidEntity(unit.movespeedAbil) then
@@ -46,13 +53,14 @@ function AddMovementComponent( ... )
 				needsNewAbil = true
 			end
 
-			if needsNewAbil and total <= 600 then
+			if needsNewAbil then
 				--unit:SetBaseMoveSpeed(0)
 				local abilName = "movespeed_" .. total
 				unit:AddAbility(abilName)
 				unit.movespeedAbil = unit:FindAbilityByName(abilName)
 				unit.movespeedAbil:SetLevel(1)
 				unit.movespeedModifierName = "modifier_movespeed_" .. total
+				--print("change to " .. "modifier_movespeed_" .. total)
 			end
 
 			return .01

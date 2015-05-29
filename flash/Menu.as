@@ -24,6 +24,7 @@
 		var _leaguesBtn:Object
 		var _changelogBtn:Object
 		var nextX:int = 0
+		var nextY:int = 0
 		var radioBtnHeight:Number
 		var radioNames:Array
 		var radioNamesToValveObjs:Object = new Object()
@@ -65,13 +66,14 @@
 				setupRadioButton(getChildByName(radioNames[i]) as MovieClip)
 			}
 
-			x = stageW/2-nextX/2
-			y = 80*yScale
+			//x = stageW/2-nextX/2
+			x=0
+			y = 40*yScale
 
 			for (var k:String in nameToMenuMCs) {
 				var mc:MovieClip = nameToMenuMCs[k]
-				mc.x = -100*yScale
-				mc.y = 35*yScale
+				mc.x = 0
+				mc.y = 10*yScale
 				if (k == "News") {
 					mc.visible = true
 					currentMenuMC = mc

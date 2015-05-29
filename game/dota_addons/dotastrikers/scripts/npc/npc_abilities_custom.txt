@@ -1256,6 +1256,15 @@
 					"MODIFIER_STATE_NOT_ON_MINIMAP"			"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
+			//"modifier_movespeed"
+			//{
+			//	"Passive"                        "1"
+			//	"IsHidden"                       "1"    
+			//	"Properties"
+			//	{
+			//	    "MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE" "1" 
+			//	}
+			//}
 			"modifier_flail_passive"
 			{
 				"Passive"                        "1"

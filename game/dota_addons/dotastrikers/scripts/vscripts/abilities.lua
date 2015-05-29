@@ -5,7 +5,7 @@ SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1700
 PSHOT_ONHIT_VEL = 1200
-PSPRINT_VELOCITY = 700
+PSPRINT_VELOCITY = 800
 
 NINJA_JUMP_Z = 1500
 NINJA_JUMP_XY = 800
@@ -14,7 +14,7 @@ PULL_ACCEL_FORCE = 2300
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL_FORCE = 1100 --1000
+SPRINT_ACCEL_FORCE = 1150 --1000
 SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 6
 
@@ -266,11 +266,12 @@ function DotaStrikers:surge( keys )
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/items2_fx/phase_boots.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
 		-- play local phaseboots sound.
-		local phaseBoots = CreateItem("item_phase", caster, caster)
+		--[[local phaseBoots = CreateItem("item_phase", caster, caster)
 		-- apparently this works fine without timers.
 		caster:AddItem(phaseBoots)
 		caster:CastAbilityImmediately(phaseBoots, 0)
-		caster:RemoveItem(phaseBoots)
+		caster:RemoveItem(phaseBoots)]]
+		caster:EmitSound("DOTA_Item.PhaseBoots.Activate")
 
 		AddMovementComponent(caster, "surge", caster.base_move_speed*SURGE_MOVESPEED_FACTOR)
 	end
@@ -836,19 +837,17 @@ function DotaStrikers:swap(keys)
 
 	swapDummy.swapParticle = ParticleManager:CreateParticle("particles/illusory_orb/puck_illusory_orb.vpcf", PATTACH_ABSORIGIN_FOLLOW, swapDummy)
 	local part = swapDummy.swapParticle
-	--ParticleManager:SetParticleControlEnt(part, 1, swapDummy, 1, "follow_origin", swapDummy:GetAbsOrigin(), true)
 	
 	swapDummy:EmitSound("Hero_Puck.Illusory_Orb")
 
 	self:SetupPhysicsSettings( swapDummy )
-	--Physics:Unit(swapDummy)
 	swapDummy:SetPhysicsFriction(0)
 	local dir = (point-caster:GetAbsOrigin()):Normalized()
 	local vel = dir*SWAP_PROJ_VELOCITY
 	swapDummy:SetPhysicsVelocity(vel)
 
 	swapDummy:OnPhysicsFrame(function(x)
-		DebugDrawCircle(swapDummy:GetAbsOrigin(), Vector(255,0,0), 30, 50, true, .03)
+		--DebugDrawCircle(swapDummy:GetAbsOrigin(), Vector(255,0,0), 30, 50, true, .03)
 		ParticleManager:SetParticleControl(part, 4, swapDummy:GetAbsOrigin())
 	end)
 

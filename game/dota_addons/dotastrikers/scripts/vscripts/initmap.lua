@@ -585,6 +585,7 @@ function PlayVictoryAndDeathAnimations( ... )
 	local t = {...}
 	local nWinningTeam = t[1]
 	local victory_only = t[2]
+	local this_team_only = t[3]
 
 	local winning_creep_group = "ds"
 	local losing_creep_group = "rs"
@@ -599,16 +600,18 @@ function PlayVictoryAndDeathAnimations( ... )
 		end
 	end
 
-	for i, creep_group in ipairs(CreepSpecs[losing_creep_group]) do
-		for i2,creep in ipairs(creep_group) do
-			local defeatAnim = "act_dota_defeat"
-			if RandomInt(1, 100) <= 25 then
-				defeatAnim = "act_dota_die"
+	if not this_team_only then
+		for i, creep_group in ipairs(CreepSpecs[losing_creep_group]) do
+			for i2,creep in ipairs(creep_group) do
+				local defeatAnim = "act_dota_defeat"
+				if RandomInt(1, 100) <= 25 then
+					defeatAnim = "act_dota_die"
+				end
+				if victory_only then
+					defeatAnim = "act_dota_victory"
+				end
+				PlayAnimation(defeatAnim, creep)
 			end
-			if victory_only then
-				defeatAnim = "act_dota_victory"
-			end
-			PlayAnimation(defeatAnim, creep)
 		end
 	end
 end

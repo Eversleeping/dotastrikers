@@ -312,10 +312,8 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
 						ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
 						--ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
-						--[[if CurrSavedSound then
-
-						end]]
 						EmitGlobalSound("Saved" .. RandomInt(1, NumSavedSounds))
+						PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
 					end
 
 				end
