@@ -26,7 +26,6 @@
 
 		// my vars
 		//var map:Dictionary = new Dictionary();
-		var _optionsButton:Object
 		var _menuButton:Object
 
 		//constructor, you usually will use onLoaded() instead
@@ -39,15 +38,14 @@
 			trace("[CustomUI] OnLoaded");
 			
 			welcome.visible = true
-			options.visible = false
 			learn_about_heroes.visible = true
+			ds_menu.visible = false
 
 			visible = true;
 
 			//this.gameAPI.SubscribeToGameEvent("show_main_ability", showMainAbility);
 			gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility);
 			//gameAPI.SubscribeToGameEvent("show_welcome_popup", showWelcomePopup);
-			gameAPI.SubscribeToGameEvent("show_options_popup", showOptionsPopup);
 			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded);
 
 			var oldChatSay:Function = globals.Loader_hud_chat.movieClip.gameAPI.ChatSay;
@@ -68,7 +66,6 @@
 
 			//pass the gameAPI on to the modules
 			welcome.setup(gameAPI, globals)
-			options.setup(gameAPI, globals)
 			learn_about_heroes.setup(gameAPI, globals)
 			ds_menu.setup(gameAPI, globals)
 
@@ -85,17 +82,21 @@
 		public function onMenuButtonClicked(event:ButtonEvent) {
 			if (ds_menu.visible) {
 				ds_menu.visible = false
+				if (ds_menu.getCurrentMenuMC()) {
+					ds_menu.getCurrentMenuMC().visible = false
+				}
+				gameAPI.SendServerCommand("close_menu")
 			} else {
 				ds_menu.visible = true
+				if (ds_menu.getCurrentMenuMC()) {
+					ds_menu.getCurrentMenuMC().visible = true
+				}
+				gameAPI.SendServerCommand("open_menu")
 			}
 		}
 
 		public function onAllPlayersLoaded(args:Object) : void {
 			learn_about_heroes.visible = false
-		}
-
-		public function showOptionsPopup(args:Object) : void {
-			options.visible = true
 		}
 
 		public function toggleSilenceAbility(args:Object) : void {
@@ -167,7 +168,6 @@
 
 			//pass the resize event to our module, we pass the width and height of the screen, as well as the INVERSE of the stage scaling ratios.
 			welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
-			options.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			ds_menu.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 

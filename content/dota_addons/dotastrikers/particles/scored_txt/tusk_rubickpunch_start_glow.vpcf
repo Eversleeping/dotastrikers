@@ -17,7 +17,7 @@ float m_flMaxRecreationTime = 0.000000
 string m_hFallback = ""
 int m_nFallbackMaxCount = -1
 string m_hLowViolenceDef = ""
-uint(4) m_ConstantColor = ( 128, 255, 255, 128 )
+uint(4) m_ConstantColor = ( 255, 128, 255, 255 )
 float(3) m_ConstantNormal = (0.000000,0.000000,1.000000)
 float m_flConstantRadius = 5.000000
 float m_flConstantRotation = 0.000000
@@ -210,7 +210,7 @@ string m_Notes = ""
 }
 C_OP_ColorInterpolate C_OP_ColorInterpolate_5
 {
-uint(4) m_ColorFade = ( 128, 255, 255, 128 )
+uint(4) m_ColorFade = ( 255, 128, 255, 255 )
 float m_flFadeStartTime = 0.000000
 float m_flFadeEndTime = 1.000000
 int m_nFieldOutput = 6
@@ -380,7 +380,7 @@ float m_flLightDistance = 0.000000
 float m_flStartFalloff = 0.100000
 float m_flDistanceFalloff = 0.000000
 float m_flSpotFoV = 60.000000
-uint(4) m_ColorScale = ( 128, 255, 255, 128 )
+uint(4) m_ColorScale = ( 255, 128, 255, 255 )
 int m_nAlphaTestPointField = 13
 int m_nAlphaTestRangeField = 23
 int m_nAlphaTestSharpnessField = 18

@@ -5,7 +5,7 @@ SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1700
 PSHOT_ONHIT_VEL = 1200
-PSPRINT_VELOCITY = 900
+PSPRINT_VELOCITY = 700
 
 NINJA_JUMP_Z = 1500
 NINJA_JUMP_XY = 800
@@ -335,6 +335,10 @@ function DotaStrikers:surge_break( keys )
 		if caster:HasModifier("modifier_powersprint") then
 			caster:RemoveModifierByName("modifier_powersprint")
 		end
+
+		-- remove curr vel boost
+		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.last_psprint_vel-caster.last_psprint_vel*caster:GetPhysicsFriction()))
+
 		caster.isUsingPowersprint = false
 		RemoveEndgameRoot(caster)
 		caster.last_psprint_vel = nil
@@ -789,6 +793,8 @@ function DotaStrikers:blink( keys )
 		local fv = caster:GetForwardVector()
 
 		caster:CastAbilityOnPosition(caster.pos_before_blink, caster:FindAbilityByName("queenofpain_blink_datadriven"), 0)
+
+		if Testing then blinkAbil:EndCooldown() end
 
 		return
 	end

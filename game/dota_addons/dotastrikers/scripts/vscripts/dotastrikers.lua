@@ -363,6 +363,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	hero.components = {}
 	AddMovementComponent(hero, "base", hero.base_move_speed)
 
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_hero_passive", {})
+
 	-- Store the player's name inside this hero handle.
 	hero.playerName = PlayerResource:GetPlayerName(hero.plyID)
 	if hero.playerName == nil or hero.playerName == "" then
@@ -826,6 +828,21 @@ function DotaStrikers:InitDotaStrikers()
 			self:PlayerSay(keys)
 		end
 	end, 'player say', 0)
+
+	Convars:RegisterCommand('close_menu', function(...)
+		local cmdPlayer = Convars:GetCommandClient()
+		EmitSoundOnClient("ui.profile_close", cmdPlayer)
+	end, '', 0)
+
+	Convars:RegisterCommand('open_menu', function(...)
+		local cmdPlayer = Convars:GetCommandClient()
+		EmitSoundOnClient("ui.profile_open", cmdPlayer)
+	end, '', 0)
+
+	Convars:RegisterCommand('click_radio_button', function(...)
+		local cmdPlayer = Convars:GetCommandClient()
+		--EmitSoundOnClient("ui.profile_open", cmdPlayer)
+	end, '', 0)
 
 	-- Change random seed
 	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0','')

@@ -245,7 +245,7 @@
 			scaleY = yScale;
 
 			// this is always called at the resolution the player is currently at.
-			x = width/2;
+			x = stageW - width/2;
 			y = stageH - height/2;
 
 		}

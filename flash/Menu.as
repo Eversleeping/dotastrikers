@@ -5,8 +5,8 @@
 	import flash.utils.Dictionary;
 	import scaleform.clik.events.*;
 	import scaleform.clik.data.DataProvider;
-	import flash.events.TimerEvent; 
-    import flash.utils.Timer; 
+	import flash.events.*; 
+    import flash.utils.Timer;
 
 	import ValveLib.*;
 	import flash.text.TextFormat;
@@ -23,8 +23,16 @@
 		var _optionsBtn:Object
 		var _leaguesBtn:Object
 		var _changelogBtn:Object
-		var nextX:int
+		var nextX:int = 0
+		var radioBtnHeight:Number
 		var radioNames:Array
+		var radioNamesToValveObjs:Object = new Object()
+		var nameToMenuMCs:Object = new Object()
+		var radioTxtFormat:TextFormat
+		var stageW:int
+		var stageH:int
+		var yScale:Number
+		var currentMenuMC:MovieClip
 
 		public function Menu() {
 			// constructor code
@@ -35,9 +43,13 @@
 			this.gameAPI = api;
 			this.globals = globals;
 
-			//var radioNames:Object = new Object()
-			radioNames = new Array(3) // # of radio buttons. remember to change this when new radio buttons are added.
-			nextX = x
+			radioTxtFormat = new TextFormat()
+			radioTxtFormat.size = 16
+
+			addEventListener(Event.ENTER_FRAME, myEnterFrame)
+
+			radioNames = new Array(4) // # of radio buttons. remember to change this when new radio buttons are added.
+			//nextX = 0
 			
 			for (var i:int = 0; i < numChildren; i++) {
 				var e:MovieClip = getChildAt(i) as MovieClip;
@@ -53,6 +65,20 @@
 				setupRadioButton(getChildByName(radioNames[i]) as MovieClip)
 			}
 
+			x = stageW/2-nextX/2
+			y = 80*yScale
+
+			for (var k:String in nameToMenuMCs) {
+				var mc:MovieClip = nameToMenuMCs[k]
+				mc.x = -100*yScale
+				mc.y = 35*yScale
+				if (k == "News") {
+					mc.visible = true
+					currentMenuMC = mc
+				}
+
+			}
+
 			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
 
 			trace("##Called Menu Setup!");
@@ -62,19 +88,46 @@
 			var str:String = btn.name
 			var name:String = str.substr(7, str.length-7)
 			var tmp:Object = replaceWithValveComponent(btn, "d_RadioButton_2nd");
+			radioNamesToValveObjs[name] = tmp
 			tmp.label = name
-			tmp["btn_name"] = name
-			tmp.addEventListener(ButtonEvent.CLICK, onRadioBtnClicked);
+			tmp.addEventListener(ButtonEvent.CLICK, onRadioBtnClicked)
 			trace("setup valve component: " + name)
 
 			tmp.x = nextX
 			nextX = nextX + tmp.width
+			radioBtnHeight = tmp.height
 
+			var mc:MovieClip = getChildByName(name.toLowerCase()) as MovieClip
+			nameToMenuMCs[name] = mc
+
+			if (name == "News") {
+				// make it highlighted at the start.
+				tmp.selected = true
+				//tmp.toggle = true
+				//Util.PrintTable(tmp)
+			}
+		}
+
+		private function myEnterFrame(e:Event) : void {
+			for (var k:String in radioNamesToValveObjs) {
+				if (radioNamesToValveObjs[k].textField.getTextFormat() != radioTxtFormat) {
+					radioNamesToValveObjs[k].textField.setTextFormat(radioTxtFormat)
+				}
+			}
 		}
 
         public function onRadioBtnClicked(e:ButtonEvent)
         {
-			trace(e.target.label + " CLICK!")
+			var mc:MovieClip = nameToMenuMCs[e.target.label]
+			currentMenuMC.visible = false
+			currentMenuMC = mc
+			mc.visible = true
+			gameAPI.SendServerCommand("click_radio_button")
+			trace(mc.name + " is now visible. ")
+        }
+
+        public function getCurrentMenuMC():MovieClip {
+        	return currentMenuMC
         }
 
 		//Parameters: 
@@ -105,19 +158,21 @@
 
 		//onScreenResize
 		public function screenResize(stageW:int, stageH:int, xScale:Number, yScale:Number, wide:Boolean) {
+			width = width*yScale
+			height = height*yScale
 
-			this.width = this.width*yScale;
-			this.height	 = this.height*yScale;
+			this.stageW = stageW
+			this.stageH = stageH
 
 			// this is always called at the resolution the player is currently at.
-			this.x = stageW/2-this.width/2;
-			this.y = stageH/2 - this.height/2-45*yScale;
-			
-			trace("#Menu Resize: ",this.x,this.y,yScale);
+			//x = stageW/2-width/2;
+			//y = stageH/2 - height/2-45*yScale;
 			
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
-			this.scaleX = xScale;
-			this.scaleY = yScale;
+			scaleX = xScale
+			scaleY = yScale
+
+			this.yScale = yScale
 		}
 	}	
 }

@@ -206,10 +206,15 @@ function DotaStrikers:OnGoal(team)
 		nWinningTeam = DOTA_TEAM_GOODGUYS
 	end
 
+	PlayVictoryAndDeathAnimations(nWinningTeam)
+
 	if scorer:GetTeam() ~= team then
 		scorer.scoredParticle = ParticleManager:CreateParticle("particles/scored_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, scorer)
 		ParticleManager:SetParticleControlEnt(scorer.scoredParticle, 4, scorer, 4, "follow_origin", scorer:GetAbsOrigin(), true)
 		--ParticleManager:SetParticleControl( scorer.scoredParticle, 2, scorer:GetAbsOrigin() )
+
+		local part = ParticleManager:CreateParticle("particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_chakra_magic.vpcf", PATTACH_OVERHEAD_FOLLOW, scorer)
+		ParticleManager:SetParticleControlEnt(part, 1, scorer, 1, "follow_origin", scorer:GetAbsOrigin(), true)
 	else
 
 	end
@@ -237,32 +242,23 @@ function DotaStrikers:OnGoal(team)
 			hero:CastAbilityNoTarget(surge_break, 0)
 		end
 
-		-- root losing heroes only
+		AddEndgameRoot(hero)
+
 		if hero:GetTeam() ~= nWinningTeam then
-			AddEndgameRoot(hero)
+			--modifier_victory_anim
+			--Timers:CreateTimer(.03, function()
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_defeat_anim", {})
+				--PlayAnimation("act_dota_die", hero)
+			--end)
 		else
 			ParticleManager:CreateParticle("particles/legion_duel_victory/legion_commander_duel_victory.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
+			--Timers:CreateTimer(.03, function()
+				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_victory_anim", {})
+			--end)
 		end
-		
+
 		--ball:AddNewModifier(hero, nil, "modifier_camera_follow", {})
 
-	--[[
-		local animType = t[1]
-		local unit = t[2]
-		local unitKVName = t[3]
-		local maxDuration = t[4]
-		local singleDuration = t[5]
-		local repeatAnim = t[6]
-	]]
-
-		-- play victory/defeat animation
-		--[[if not hero:HasModifier("modifier_flail_passive") then
-			if hero:GetTeam() == nWinningTeam then
-				hero.victory_anim = PlayAnimation("victory", hero )
-			else
-				hero.defeat_anim = PlayAnimation("defeat", hero )
-			end
-		end]]
 	end
 
 	-- Allot time for the break ability to execute.
@@ -333,8 +329,17 @@ function DotaStrikers:OnGoal(team)
 						DotaStrikers:RemoveGoalieJump(hero)
 					end]]
 
-					StopAnimation("modifier_flail_passive", hero)
+					if hero:HasModifier("modifier_flail_passive") then
+						hero:RemoveModifierByName("modifier_flail_passive")
+					end
+
 					AddEndgameRoot(hero)
+
+					if hero:HasModifier("modifier_victory_anim") then
+						hero:RemoveModifierByName("modifier_victory_anim")
+					elseif hero:HasModifier("modifier_defeat_anim") then
+						hero:RemoveModifierByName("modifier_defeat_anim")
+					end
 
 					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
@@ -357,11 +362,7 @@ function DotaStrikers:OnGoal(team)
 
 						Timers:CreateTimer(.03, function()
 							hero:AddNewModifier(ball, nil, "modifier_camera_follow", {})
-
-							InitAbility("spawn_anim", hero, function(abil)
-								hero:CastAbilityNoTarget(abil, 0)
-							end, true)
-
+							PlayAnimation("act_dota_spawn", hero)
 						end)
 					end)
 				end
@@ -410,6 +411,8 @@ function DotaStrikers:OnGoal(team)
 		Say(nil, "PLAY!!", false)
 		local roundStartSound = "Round_Start" .. RandomInt(1, NumRoundStartSounds)
 		EmitGlobalSound(roundStartSound)
+		-- make all creeps cheer
+		PlayVictoryAndDeathAnimations(DOTA_TEAM_GOODGUYS, true)
 		print("playing " .. roundStartSound)
 	end)
 end
@@ -517,89 +520,95 @@ function DotaStrikers:PlayReflectParticle( unit )
 	end
 end
 
-
-function PlayAnimation( ... )
-	local t = {...}
-	local animType = t[1]
-	local unit = t[2]
-	local unitKVName = t[3]
-	local maxDuration = t[4]
-	local singleDuration = t[5]
-	local repeatAnim = t[6]
-
-	if not t[3] then
-		if not unit:IsRealHero() then
-			unitKVName = unit:GetUnitName()
-		else
-			unitKVName = unit.heroes_kv_name
-		end
-	end
-
-	local anim = "modifier_victory_anim_" .. unitKVName
-	if animType == "victory" then
-		if not DotaStrikers.AbilitiesKV["global_dummy_passive"]["Modifiers"][anim] then
-			anim = "modifier_victory_anim"
-		end
-	elseif animType == "defeat" then
-		anim = "modifier_defeat_anim_" .. unitKVName
-		if not DotaStrikers.AbilitiesKV["global_dummy_passive"]["Modifiers"][anim] then
-			print("getting defeat anim.")
-			anim = "modifier_defeat_anim"
-		end
-	end
-	print("anim: " .. anim)
-
-	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, anim, {})
-
-	if maxDuration then
-		if repeatAnim then
-			local animStopTime = GameRules:GetGameTime() + maxDuration
-			local firstRun = singleDuration
-			if not firstRun then firstRun = 2 end
-			Timers:CreateTimer(firstRun, function()
-				StopAnimation(anim, unit)
-				if GameRules:GetGameTime() > animStopTime then
-					return
-				end
-				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, unit, anim, {})
-
-				return firstRun
-			end)
-		else
-			Timers:CreateTimer(maxDuration, function()
-				StopAnimation(anim, unit)
-			end)
-		end
-	end
-end
-
-function StopAnimation( anim, unit )
-	if anim == nil then return end
-	if unit:HasModifier(anim) then
-		unit:RemoveModifierByName(anim)
-	end
+function PlayAnimation( name, unit )
+    unit:AddAbility(name)
+    local anim = unit:FindAbilityByName(name)
+    anim:SetLevel(1)
+    -- waiting a frame may be necessary, to prevent a crash, but feel free to try without the timer.
+    Timers:CreateTimer(.03, function()
+        unit:CastAbilityNoTarget(anim, 0)
+        -- need to wait a frame here, i checked and some animations won't play if the abil is removed right away.
+        Timers:CreateTimer(.03, function()
+            unit:RemoveAbility(name)
+        end)
+    end)    
 end
 
 function DotaStrikers:InitCreeps(  )
-	RadiantCreepSpecs = Entities:FindAllByName("rs*")
-	NeutralCreepSpecs = Entities:FindAllByName("ns*")
-	BrewSpecs = Entities:FindAllByName("brew*")
-	
-	--LootGreevil = Entities:FindAllByName("loot_greevil")
-	--Entities:FindByName(nil, )
+	CreepSpecs = {[1] = "rs", [2] = "ds", [3] = "ns", [4] = "brew"}
 
-	local allCreepSpecs = MergeTables({RadiantCreepSpecs, NeutralCreepSpecs, BrewSpecs})
+	for i,spec_team in ipairs(CreepSpecs) do
+		CreepSpecs[spec_team] = {}
+		local spec_team_table = CreepSpecs[spec_team]
+		local ptr = 1
+		local t = Entities:FindAllByName(spec_team .. ptr .. "*")
+		--ptr = ptr + 1
+		while t and #t > 0 do
+			spec_team_table[ptr] = {}
+			for i2,ent in ipairs(t) do
+				spec_team_table[ptr][i2] = ent
+				--print("adding " .. ent:GetName() .. " to " .. spec_team .. " " .. ptr .. " " .. i2)
+				InitCreepSpec(ent)
+			end
+			ptr = ptr + 1
+			t = Entities:FindAllByName(spec_team .. ptr .. "*")
+		end
+	end
+	--DeepPrintTable(CreepSpecs)
+end
 
-	for i,creep in ipairs(allCreepSpecs) do
-		if creep.GetUnitName then
-			--print(creep:GetUnitName() .. " success")
-			ClearAbilities( creep )
-			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, creep, "modifier_creep_spectator", {})
-			AddDisarmed( creep )
-			AddEndgameRoot(creep)
-			creep.isCreepSpectator = true
+function InitCreepSpec( creep )
+	if creep.GetUnitName then
+		--print(creep:GetUnitName() .. " success")
+		ClearAbilities( creep )
+		GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, creep, "modifier_creep_spectator", {})
+		AddDisarmed( creep )
+		AddEndgameRoot(creep)
+		creep.isCreepSpectator = true
+
+		if string.starts(creep:GetName(), "brew") then
+			Timers:CreateTimer(RandomFloat(5, 20), function()
+				local anim = "act_dota_spawn"
+				--[[if RandomInt(1, 100) <= 25 then
+					anim = "act_dota_cast_ability_1"
+				end]]
+
+				PlayAnimation(anim, creep)
+
+				return RandomFloat(5, 20)
+			end)
+		end
+	end
+end
+
+function PlayVictoryAndDeathAnimations( ... )
+	local t = {...}
+	local nWinningTeam = t[1]
+	local victory_only = t[2]
+
+	local winning_creep_group = "ds"
+	local losing_creep_group = "rs"
+	if nWinningTeam == DOTA_TEAM_GOODGUYS then
+		winning_creep_group = "rs"
+		losing_creep_group = "ds"
+	end
+
+	for i, creep_group in ipairs(CreepSpecs[winning_creep_group]) do
+		for i2,creep in ipairs(creep_group) do
+			PlayAnimation("act_dota_victory", creep)
 		end
 	end
 
-
+	for i, creep_group in ipairs(CreepSpecs[losing_creep_group]) do
+		for i2,creep in ipairs(creep_group) do
+			local defeatAnim = "act_dota_defeat"
+			if RandomInt(1, 100) <= 25 then
+				defeatAnim = "act_dota_die"
+			end
+			if victory_only then
+				defeatAnim = "act_dota_victory"
+			end
+			PlayAnimation(defeatAnim, creep)
+		end
+	end
 end

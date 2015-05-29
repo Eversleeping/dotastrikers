@@ -380,33 +380,33 @@ function ColorIt( ... )
 		end
 	else
 		if sColor == "green" then
-			color = "ADFF2F"
+			color = "22fd23"
 		elseif sColor == "purple" then
-			color = "EE82EE"
+			color = "ba10bb"
 		elseif sColor == "blue" then
-			color = "00BFFF"
+			color = "347dee"
 		elseif sColor == "orange" then
-			color = "FFA500"
+			color = "fa771f"
 		elseif sColor == "pink" then
-			color = "DDA0DD"
+			color = "f88dbb"
 		elseif sColor == "red" then
-			color = "FF0033"
+			color = "fd0618"
 		elseif sColor == "cyan" then
-			color = "00FFFF"
+			color = "75fbc6"
 		elseif sColor == "yellow" then
-			color = "FFFF00"
+			color = "ecf739"
 		elseif sColor == "brown" then
-			color = "A52A2A"
+			color = "a16f26"
 		elseif sColor == "magenta" then
 			color = "FF00FF"
 		elseif sColor == "teal" then
 			color = "008080"
 		elseif sColor == "light_green" then
-			color = "99FF00"
+			color = "a0b453"
 		elseif sColor == "sky_blue" then
-			color = "008080"
+			color = "6edee9"
 		elseif sColor == "dark_green" then
-			color = "003300"
+			color = "087d2f"
 		end
 	end
 
