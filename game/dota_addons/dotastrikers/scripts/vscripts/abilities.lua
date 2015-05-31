@@ -5,7 +5,7 @@ SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1700
 PSHOT_ONHIT_VEL = 1200
-PSPRINT_VELOCITY = 800
+PSPRINT_VELOCITY = 850
 
 NINJA_JUMP_Z = 1500
 NINJA_JUMP_XY = 800
@@ -14,9 +14,10 @@ PULL_ACCEL_FORCE = 2300
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL_FORCE = 1150 --1000
+SPRINT_ACCEL_FORCE = 1100
 SPRINT_INITIAL_FORCE = 600
 SPRINT_COOLDOWN = 6
+SPRINT_VEL_MIN = 200
 
 TACKLE_SLOW_DURATION = 4
 
@@ -190,12 +191,13 @@ function DotaStrikers:surge( keys )
 		local component = AddPhysicsComponent("super_sprint", caster)
 		component:SetPhysicsAcceleration(caster.sprint_accel)
 		component:OnPhysicsFrame(function(x)
+			component:SetPhysicsFriction(caster:GetPhysicsFriction())
 			if not caster:HasAbility("super_sprint_break") then
 				return
 			end
 
 			if GameRules:GetGameTime() - caster.last_supersprint_time > .1 then
-				if caster.velocityMagnitude < 200*200 then
+				if caster.velocityMagnitude < SPRINT_VEL_MIN*SPRINT_VEL_MIN then
 					caster:CastAbilityNoTarget(caster:FindAbilityByName("super_sprint_break"), 0)
 				end
 			end
@@ -338,12 +340,18 @@ function DotaStrikers:surge_break( keys )
 		end
 
 		-- remove curr vel boost
-		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.last_psprint_vel-caster.last_psprint_vel*caster:GetPhysicsFriction()))
+		local newVel = caster:GetPhysicsVelocity()-(caster.last_psprint_vel-caster.last_psprint_vel*caster:GetPhysicsFriction())
+		if newVel:Length() <= caster:GetPhysicsVelocity():Length() then
+			caster:SetPhysicsVelocity(newVel)
+		end
 
 		caster.isUsingPowersprint = false
 		RemoveEndgameRoot(caster)
 		caster.last_psprint_vel = nil
 
+		if Testing then
+			caster:SetMana(caster:GetMaxMana())
+		end
 	else
 		caster:RemoveAbility("surge_break")
 		caster:AddAbility("surge")
@@ -505,6 +513,7 @@ function DotaStrikers:text_particle( keys )
 		if caster.tauntItem then
 			caster.tauntItem:StartCooldown(SMILEY_COOLDOWN)
 		end
+		EmitSoundOnClient("Item_Click", caster:GetPlayerOwner())
 
 	elseif abilName == "item_taunt" then
 		local tauntIndex = RandomInt(1, NUM_TAUNTS)
@@ -514,6 +523,7 @@ function DotaStrikers:text_particle( keys )
 		if caster.frownItem then
 			caster.frownItem:StartCooldown(SMILEY_COOLDOWN)
 		end
+		EmitSoundOnClient("Item_Click", caster:GetPlayerOwner())
 	end
 
 	if abilName == "pass_me" then

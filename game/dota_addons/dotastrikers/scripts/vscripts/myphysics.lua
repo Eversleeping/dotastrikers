@@ -30,6 +30,7 @@ NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
 NumRoundStartSounds = 5
 NUM_ROUNDEND_SOUNDS = 12
+NUM_FAIL_SOUNDS = 2
 NumGiantImpactSounds = 1
 NumHeavyImpactSounds = 2
 NumMediumImpactSounds = 4
@@ -200,13 +201,12 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 		if hero.isUsingPowersprint then
 			hero:SetForwardVector(hero.psprint_dir)
+			local baseVel = hero:GetPhysicsVelocity()
 			if hero.last_psprint_vel then
-				hero:SetPhysicsVelocity(hero:GetPhysicsVelocity()-(hero.last_psprint_vel-hero.last_psprint_vel*hero:GetPhysicsFriction()))
-			end
-			hero.last_psprint_vel = hero:GetPhysicsVelocity() + hero.psprint_dir*PSPRINT_VELOCITY
-			hero:SetPhysicsVelocity(hero.last_psprint_vel)
-
-
+				baseVel = hero:GetPhysicsVelocity()-(hero.last_psprint_vel-hero.last_psprint_vel*hero:GetPhysicsFriction())
+			else print("not removing last.") end
+			hero.last_psprint_vel = hero.psprint_dir*PSPRINT_VELOCITY
+			hero:SetPhysicsVelocity(baseVel + hero.last_psprint_vel)
 		end
 
 	end
@@ -619,7 +619,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 		
-		if TryWaitComponent(collider) then print("yeah") return true end
+		if TryWaitComponent(collider) then return true end
 
 		if collided.isSwapDummy and hero ~= collided.caster then
 			-- technically treat this as a collision, but return false since we don't want the momentum stuff

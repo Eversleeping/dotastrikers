@@ -1,4 +1,4 @@
-TIME_TILL_NEXT_ROUND = 8
+TIME_TILL_NEXT_ROUND = 9
 
 RECT_X_MAX = 2585.02
 RECT_X_MIN = -1*RECT_X_MAX
@@ -204,22 +204,25 @@ function DotaStrikers:OnGoal(team)
 	local nWinningTeam = DOTA_TEAM_BADGUYS
 	if team == "Radiant" then
 		nWinningTeam = DOTA_TEAM_GOODGUYS
+		print("winning team is radiant.")
 	end
 
 	PlayVictoryAndDeathAnimations(nWinningTeam)
 
-	if scorer:GetTeam() ~= nWinningTeam then
+	if scorer:GetTeam() == nWinningTeam then
 		scorer.scoredParticle = ParticleManager:CreateParticle("particles/scored_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, scorer)
 		ParticleManager:SetParticleControlEnt(scorer.scoredParticle, 4, scorer, 4, "follow_origin", scorer:GetAbsOrigin(), true)
 		--ParticleManager:SetParticleControl( scorer.scoredParticle, 2, scorer:GetAbsOrigin() )
 
 		local part = ParticleManager:CreateParticle("particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_chakra_magic.vpcf", PATTACH_OVERHEAD_FOLLOW, scorer)
 		ParticleManager:SetParticleControlEnt(part, 1, scorer, 1, "follow_origin", scorer:GetAbsOrigin(), true)
-	else
 
+		EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
+	else
+		print("fail.")
+		EmitGlobalSound("Fail" .. RandomInt(1, NUM_FAIL_SOUNDS))
 	end
 
-	EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
 	ball.dontChangeFriction = true
 

@@ -111,7 +111,6 @@ function AddPhysicsComponent( ... )
 		if not IsValidEntity(component) or not component:IsAlive() then
 			return nil
 		end
-		component:SetPhysicsFriction(unit:GetPhysicsFriction())
 		component:SetAbsOrigin(unit:GetAbsOrigin())
 		--DebugDrawCircle(unit:GetAbsOrigin(), Vector(255,0,0), 30, 40, false, .06)
 
