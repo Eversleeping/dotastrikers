@@ -526,27 +526,21 @@ function TryPlayCracks( ... )
 		end
 
 		if not soundPlayed then
-			--local impactSound = "Impact_Light" .. RandomInt(1, NumLightImpactSounds)
-			local impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
-			--local impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
-			-- default: play a light or heavy impact sound.
-			--if unit.velocityMagnitude > CrackThreshSq*4 then
-			--	impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
+			--local impactSound = "ThunderClapCaster"
+			--local impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
+			local impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 			if unit.velocityMagnitude > CrackThreshSq*3 then
-				--impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
 				impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
 			elseif unit.velocityMagnitude > CrackThreshSq*2 then
-				--impactSound = "Impact_Medium" .. RandomInt(1, NumMediumImpactSounds)
-				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+				--impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+				impactSound = "Impact_Giant" .. RandomInt(1, NumGiantImpactSounds)
 			end
 			if bPlayerPlayerColl then
-				impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
-
+				--impactSound = "Impact_Heavy" .. RandomInt(1, NumHeavyImpactSounds)
+				impactSound = "ThunderClapCaster"
 				if unit.isUsingPull then
 					impactSound = "Wisp_Collision"
 				end
-
-				--impactSound = "ThunderClapCaster"
 				PlayCentaurBloodEffect(unit)
 			end
 			--print("sound played: " .. impactSound)

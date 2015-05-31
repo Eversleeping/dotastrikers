@@ -18,7 +18,7 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 	string m_hLowViolenceDef = ""
 	uint(4) m_ConstantColor = ( 255, 201, 72, 255 )
 	float(3) m_ConstantNormal = ( 0.000000, 0.000000, 1.000000 )
-	float m_flConstantRadius = 30.000000
+	float m_flConstantRadius = 60.000000
 	float m_flConstantRotation = 0.000000
 	float m_flConstantRotationSpeed = 0.000000
 	float m_flConstantLifespan = 1.000000
@@ -61,7 +61,8 @@ CParticleSystemDefinition CParticleSystemDefinition_0
 		&C_OP_RampScalarLinearSimple_3,
 		&C_OP_InheritFromParentParticles_4,
 		&C_OP_InheritFromParentParticles_5,
-		&C_OP_InheritFromParentParticles_6
+		&C_OP_InheritFromParentParticles_6,
+		&C_OP_InheritFromParentParticles_0
 	]
 	CParticleOperatorInstance*[] m_Renderers = 
 	[
@@ -238,6 +239,32 @@ C_OP_InheritFromParentParticles C_OP_InheritFromParentParticles_6
 {
 	float m_flScale = 1.000000
 	int m_nFieldOutput = 3
+	int m_nIncrement = 1
+	bool m_bRandomDistribution = false
+	float m_flOpStartFadeInTime = 0.000000
+	float m_flOpEndFadeInTime = 0.000000
+	float m_flOpStartFadeOutTime = 0.000000
+	float m_flOpEndFadeOutTime = 0.000000
+	float m_flOpFadeOscillatePeriod = 0.000000
+	float m_flOpTimeOffsetMin = 0.000000
+	float m_flOpTimeOffsetMax = 0.000000
+	int m_nOpTimeOffsetSeed = 0
+	int m_nOpStrengthScaleSeed = 0
+	float m_flOpStrengthMinScale = 1.000000
+	float m_flOpStrengthMaxScale = 1.000000
+	int m_nOpTimeScaleSeed = 0
+	float m_flOpTimeScaleMin = 1.000000
+	float m_flOpTimeScaleMax = 1.000000
+	bool m_bDisableOperator = false
+	int m_nOpEndCapState = -1
+	int m_nOpScaleCP = -1
+	string m_Notes = ""
+}
+
+C_OP_InheritFromParentParticles C_OP_InheritFromParentParticles_0
+{
+	float m_flScale = 1.000000
+	int m_nFieldOutput = 6
 	int m_nIncrement = 1
 	bool m_bRandomDistribution = false
 	float m_flOpStartFadeInTime = 0.000000

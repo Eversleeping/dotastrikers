@@ -23,6 +23,7 @@
 		private var ScreenWidth:int
 		private var ScreenHeight:int
 		public var scaleRatioY:Number
+		var menuButtonTxtFormat:TextFormat
 
 		// my vars
 		//var map:Dictionary = new Dictionary();
@@ -37,9 +38,12 @@
 		public function onLoaded() : void {		
 			trace("[CustomUI] OnLoaded");
 			
-			welcome.visible = true
+			//welcome.visible = true
 			learn_about_heroes.visible = true
 			ds_menu.visible = false
+
+			menuButtonTxtFormat = new TextFormat()
+			menuButtonTxtFormat.size = 14
 
 			visible = true;
 
@@ -65,16 +69,18 @@
 			//dota_hud_healthbar_number
 
 			//pass the gameAPI on to the modules
-			welcome.setup(gameAPI, globals)
+			//welcome.setup(gameAPI, globals)
 			learn_about_heroes.setup(gameAPI, globals)
 			ds_menu.setup(gameAPI, globals)
 
 			_menuButton = replaceWithValveComponent(menuButton, "chrome_button_primary")
 			_menuButton.addEventListener(ButtonEvent.CLICK, onMenuButtonClicked)
-			_menuButton.label = "Dota Strikers Menu"
+			_menuButton.label = "MENU"
+			//_menuButton.height = _menuButton.height + _menuButton.height*1/4
 			_menuButton.visible = true
+			ds_menu.visible = true
 
-			//addEventListener(Event.ENTER_FRAME, myEnterFrame);
+			addEventListener(Event.ENTER_FRAME, myEnterFrame)
 
 			trace("[CustomUI] OnLoaded finished!");
 		}
@@ -97,6 +103,10 @@
 
 		public function onAllPlayersLoaded(args:Object) : void {
 			learn_about_heroes.visible = false
+			ds_menu.visible = false
+			if (ds_menu.getCurrentMenuMC()) {
+				ds_menu.getCurrentMenuMC().visible = false
+			}
 		}
 
 		public function toggleSilenceAbility(args:Object) : void {
@@ -129,8 +139,9 @@
 		}
 
 		private function myEnterFrame(e:Event) : void {
-			//trace("new frame.")
-			
+			/*if (_menuButton != null && _menuButton.textField.getTextFormat() != menuButtonTxtFormat) {
+				_menuButton.textField.setTextFormat(menuButtonTxtFormat)
+			}*/
 		}
 
 		public function replaceWithValveComponent(mc:MovieClip, type:String, keepDimensions:Boolean = false) : MovieClip {
@@ -167,12 +178,12 @@
 			ScreenHeight = re.ScreenHeight;
 
 			//pass the resize event to our module, we pass the width and height of the screen, as well as the INVERSE of the stage scaling ratios.
-			welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
+			//welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			ds_menu.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 
-			menuButton.x = 246*scaleRatioY;
-			menuButton.y = 8*scaleRatioY;
+			menuButton.x = 243*scaleRatioY;
+			menuButton.y = 6*scaleRatioY;
 
 		}
 	}

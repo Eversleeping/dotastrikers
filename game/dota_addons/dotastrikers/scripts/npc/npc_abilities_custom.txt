@@ -992,31 +992,6 @@
 		}
 	}
 
-	"throw_target"
-	{
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
-		"BaseClass"						"ability_datadriven"
-		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
-		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
-		"AbilityTextureName"			"rubick_empty1"
-
-		"AbilityCastRange"				"3000"
-		"IsHidden"						"1"
-		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"0"
-		"AbilityManaCost"				"0"
-
-		"OnSpellStart"
-		{
-			"RunScript"
-			{
-				"Target"				"TARGET"
-				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
-				"Function"				"throw_target"
-			}
-		}
-  	}
-
 	"throw_ball"
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"

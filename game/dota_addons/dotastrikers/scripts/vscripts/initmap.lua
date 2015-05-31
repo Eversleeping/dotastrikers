@@ -208,7 +208,7 @@ function DotaStrikers:OnGoal(team)
 
 	PlayVictoryAndDeathAnimations(nWinningTeam)
 
-	if scorer:GetTeam() ~= team then
+	if scorer:GetTeam() ~= nWinningTeam then
 		scorer.scoredParticle = ParticleManager:CreateParticle("particles/scored_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, scorer)
 		ParticleManager:SetParticleControlEnt(scorer.scoredParticle, 4, scorer, 4, "follow_origin", scorer:GetAbsOrigin(), true)
 		--ParticleManager:SetParticleControl( scorer.scoredParticle, 2, scorer:GetAbsOrigin() )

@@ -63,7 +63,7 @@
 			//heroesLabel.filters = _filters
 
 
-			hoverOverThem.text = Globals.instance.GameInterface.Translate("#HoverOverThem")
+			//hoverOverThem.text = Globals.instance.GameInterface.Translate("#HoverOverThem")
 			heroNameText.text = Globals.instance.GameInterface.Translate("#HeroName")
 			itemsLabel.text = Globals.instance.GameInterface.Translate("#Items")
 			tip_1.text = Globals.instance.GameInterface.Translate("#Tip") + " #1:"
@@ -141,6 +141,7 @@
 		public function onMouseClickHero(keys:MouseEvent) {
        		var hero:MovieClip = keys.target as MovieClip;
        		onHeroClicked(hero)
+       		gameAPI.SendServerCommand("click_hero")
        	}
 
        	public function onHeroClicked(hero) {

@@ -1,6 +1,120 @@
 //sound\ui\compendium_levelup.wav
 //sound\ui\acknowledge.wav
 
+"Close_Menu"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "wave0"     "sound/ui/menu/filter_close.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.500000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.500000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Open_Menu"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "wave0"     "sound/ui/menu/filter_open.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.600000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.600000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
 "Powersprint"
 {
     "operator_stacks"
@@ -2416,7 +2530,7 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.700000"
+                        "value"     "0.400000"
                     }
                     "volume_max"
                     {
@@ -2424,11 +2538,11 @@
                     }
                     "pitch_min"
                     {
-                        "value"     "0.950000"
+                        "value"     "0.800000"
                     }
                     "pitch_max"
                     {
-                        "value"     "1.050000"
+                        "value"     "1.200000"
                     }
                     "chan_type"
                     {
@@ -2477,11 +2591,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2533,11 +2647,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2589,11 +2703,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2645,11 +2759,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2701,11 +2815,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2757,11 +2871,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2813,11 +2927,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2869,11 +2983,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2925,11 +3039,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -2981,11 +3095,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3037,11 +3151,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3093,11 +3207,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3149,11 +3263,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3205,11 +3319,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3261,11 +3375,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3317,11 +3431,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3373,11 +3487,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3429,11 +3543,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3485,11 +3599,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {
@@ -3541,11 +3655,11 @@
                     }
                     "volume_min"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "volume_max"
                     {
-                        "value"     "0.800000"
+                        "value"     "0.600000"
                     }
                     "pitch_min"
                     {

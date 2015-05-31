@@ -482,10 +482,23 @@ function DotaStrikers:text_particle( keys )
 		abilName = keys.ability:GetAbilityName()
 	end
 
+	-- remove the current text particle above the caster, if any. to avoid clutter
+	if caster.textParticle then
+		if type(caster.textParticle) == "table" then
+			for i,v in ipairs(caster.textParticle) do
+				ParticleManager:DestroyParticle(v, true)
+			end
+		else
+			ParticleManager:DestroyParticle(caster.textParticle, true)
+		end
+		caster.textParticle = nil
+	end
+
 	local particle = "particles/pass_me.vpcf"
 
 	if abilName == "item_frown" then
 		local frownIndex = RandomInt(1, NUM_FROWNS)
+		--local frownIndex = 3
 		particle = "particles/frowns/frown" .. frownIndex .. ".vpcf"
 
 		-- helps reduce spam
@@ -503,35 +516,46 @@ function DotaStrikers:text_particle( keys )
 		end
 	end
 
-	-- remove the current text particle above the caster, if any. to avoid clutter
-	if caster.textParticle then
-		if type(caster.textParticle) == "table" then
-			for i,v in ipairs(caster.textParticle) do
-				ParticleManager:DestroyParticle(v, true)
-			end
-		else
-			ParticleManager:DestroyParticle(caster.textParticle, true)
-		end
-		caster.textParticle = nil
-	end
-
 	if abilName == "pass_me" then
 		local parts = {}
-		local teammates = GetTeammates(caster)
-		local part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
+		for _,hero in pairs(DotaStrikers.vHeroes) do
+			if hero:GetTeam() == caster:GetTeam() then
+				local part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, hero:GetPlayerOwner())
+				ParticleManager:SetParticleControl(part, 1, Vector(0,255,0))
+				table.insert(parts, part)
+			end
+		end
+		caster.textParticle = parts
+
+		--[[local teammates = GetTeammates(caster)
+		local part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
 		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
 		table.insert(parts, part)
 		for i,hero2 in ipairs(teammates) do
-			part = ParticleManager:CreateParticleForPlayer("particles/pass_me.vpcf", PATTACH_OVERHEAD_FOLLOW, caster, hero2:GetPlayerOwner())
+			part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, hero2:GetPlayerOwner())
 			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
 			table.insert(parts, part)
 		end
-		caster.textParticle = parts
-	else
-		if keys.exclamation then
-			particle = "particles/exclamation.vpcf"
+		caster.textParticle = parts]]
+	elseif abilName == "item_frown" or abilName == "item_taunt" then
+		local parts = {}
+		for _,hero in pairs(DotaStrikers.vHeroes) do
+			local part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, hero:GetPlayerOwner())
+			if hero:GetTeam() == caster:GetTeam() then
+				ParticleManager:SetParticleControl(part, 1, Vector(0,255,0))
+			else
+				ParticleManager:SetParticleControl(part, 1, Vector(255,0,0))
+			end
+			table.insert(parts, part)
 		end
+		caster.textParticle = parts
+	end
 
+	if keys.exclamation then
+		particle = "particles/exclamation.vpcf"
+	end
+
+	if not caster.textParticle then
 		caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
 		if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
 			ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))

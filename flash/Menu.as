@@ -68,13 +68,13 @@
 
 			//x = stageW/2-nextX/2
 			x=0
-			y = 40*yScale
+			y = 44*yScale
 
 			for (var k:String in nameToMenuMCs) {
 				var mc:MovieClip = nameToMenuMCs[k]
 				mc.x = 0
-				mc.y = 10*yScale
-				if (k == "News") {
+				mc.y = 3*yScale
+				if (k == "Home") {
 					mc.visible = true
 					currentMenuMC = mc
 				}
@@ -82,6 +82,11 @@
 			}
 
 			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
+
+			home.setup(gameAPI, globals)
+			//options.setup(gameAPI, globals)
+			//leagues.setup(gameAPI, globals)
+			//changelogs.setup(gameAPI, globals)
 
 			trace("##Called Menu Setup!");
 		}
@@ -102,7 +107,7 @@
 			var mc:MovieClip = getChildByName(name.toLowerCase()) as MovieClip
 			nameToMenuMCs[name] = mc
 
-			if (name == "News") {
+			if (name == "Home") {
 				// make it highlighted at the start.
 				tmp.selected = true
 				//tmp.toggle = true
@@ -175,6 +180,11 @@
 			scaleY = yScale
 
 			this.yScale = yScale
+
+			home.screenResize(stageW, stageH, yScale, yScale, wide)
+			//options.screenResize(stageW, stageH, yScale, yScale, wide
+			//leagues.screenResize(stageW, stageH, yScale, yScale, wide
+			//changelogs.screenResize(stageW, stageH, yScale, yScale, wide
 		}
 	}	
 }

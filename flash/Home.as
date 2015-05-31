@@ -3,6 +3,7 @@
 	import flash.events.MouseEvent;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.Dictionary;
+	//import scaleform.clik.controls;
 	import scaleform.clik.events.*;
 	import scaleform.clik.data.DataProvider;
 	import flash.events.TimerEvent; 
@@ -15,14 +16,13 @@
 	import ValveLib.Globals;
 	import ValveLib.ResizeManager;
 	
-	public class Welcome extends MovieClip {
+	public class Home extends MovieClip {
 		
 		public var gameAPI:Object;
 		public var globals:Object;
+		var _scrollBar:Object
 
-		var _gotItBtn:Object;
-
-		public function Welcome() {
+		public function Home() {
 			// constructor code
 		}
 		
@@ -37,22 +37,15 @@
 			var txFormatTitle:TextFormat = new TextFormat;
 			txFormatTitle.font = "$TitleFontBold";
 
+			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
 
-			bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
+			//_scrollBar = replaceWithValveComponent(scrollBar, "ScrollBarDota");
+			//_scrollBar.scrollTarget = bodyText
+			//_scrollBar.direction = ScrollBarDirection.VERTICAL
+			//_scrollBar.addEventListener(Event.SCROLL, onScrollBarScroll);
 
-			_gotItBtn = replaceWithValveComponent(gotItBtn, "ButtonThinPrimary", true);
-			_gotItBtn.addEventListener(ButtonEvent.CLICK, onGotItBtn);
-			_gotItBtn.label = "Got It!"
-			//_gotItBtn.label = Globals.instance.GameInterface.Translate("#GotIt");
-
-			trace("##Called Welcome Setup!");
+			trace("##Called Home Setup!");
 		}
-		
-        public function onGotItBtn(event:ButtonEvent)
-        {
-			visible = false
-        }
-
 		//Parameters: 
 		//	mc - The movieclip to replace
 		//	type - The name of the class you want to replace with
@@ -83,18 +76,18 @@
 		public function screenResize(stageW:int, stageH:int, xScale:Number, yScale:Number, wide:Boolean) {
 			//trace("Stage Size: ",stageW,stageH);
 
-			width = width*yScale;
-			height = height*yScale;
+			//width = width*yScale;
+			//height = height*yScale;
 
 			// this is always called at the resolution the player is currently at.
-			x = stageW/2 - width/2;
-			y = stageH/2 - height/2-45*yScale;
+			//x = stageW/2 - width/2;
+			//y = stageH/2 - height/2-45*yScale;
 			
 			//trace("#Result Resize: ",x,y,yScale);
 			
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
-			scaleX = xScale;
-			scaleY = yScale;
+			//scaleX = xScale;
+			//scaleY = yScale;
 		}
 	}	
 }

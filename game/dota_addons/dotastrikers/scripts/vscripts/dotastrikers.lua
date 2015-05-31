@@ -215,6 +215,9 @@ function DotaStrikers:PlayerSay( keys )
 			print("txt==silence")
 			FireGameEvent("toggle_show_ability_silenced", {player_ID=hero:GetPlayerID(), ability_index=2})
 		end
+		if txt == "particle" then
+			ParticleManager:CreateParticle("particles/generic_gameplay/radiant_fountain_regen.vpcf", PATTACH_ABSORIGIN, hero)
+		end
 	end
 end
 
@@ -831,17 +834,22 @@ function DotaStrikers:InitDotaStrikers()
 
 	Convars:RegisterCommand('close_menu', function(...)
 		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("ui.profile_close", cmdPlayer)
+		EmitSoundOnClient("Close_Menu", cmdPlayer)
 	end, '', 0)
 
 	Convars:RegisterCommand('open_menu', function(...)
 		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("ui.profile_open", cmdPlayer)
+		EmitSoundOnClient("Open_Menu", cmdPlayer)
 	end, '', 0)
 
 	Convars:RegisterCommand('click_radio_button', function(...)
 		local cmdPlayer = Convars:GetCommandClient()
 		EmitSoundOnClient("ui.click_toptab", cmdPlayer)
+	end, '', 0)
+
+	Convars:RegisterCommand('click_hero', function(...)
+		local cmdPlayer = Convars:GetCommandClient()
+		EmitSoundOnClient("ui.browser_click_common", cmdPlayer)
 	end, '', 0)
 
 	-- Change random seed
