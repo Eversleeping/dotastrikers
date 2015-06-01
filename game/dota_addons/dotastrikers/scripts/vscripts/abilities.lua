@@ -1,9 +1,9 @@
-THROW_VELOCITY = 1700
+THROW_VELOCITY = 1675
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
 
-PSHOT_VELOCITY = 1700
+PSHOT_VELOCITY = 1600
 PSHOT_ONHIT_VEL = 1200
 PSPRINT_VELOCITY = 850
 
@@ -23,8 +23,8 @@ TACKLE_SLOW_DURATION = 4
 
 BH_RADIUS = 470
 BH_DURATION = 6
-BH_FORCE_MAX = 4500
-BH_FORCE_MIN = 3900
+BH_FORCE_MAX = 4200
+BH_FORCE_MIN = 3400
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
@@ -561,12 +561,13 @@ function DotaStrikers:text_particle( keys )
 		caster.textParticle = parts
 	end
 
-	if keys.exclamation then
-		particle = "particles/exclamation.vpcf"
-	end
-
 	if not caster.textParticle then
-		caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
+		if keys.exclamation then
+			particle = "particles/exclamation.vpcf"
+			caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_ABSORIGIN, caster)
+		else
+			caster.textParticle = ParticleManager:CreateParticle(particle, PATTACH_OVERHEAD_FOLLOW, caster)
+		end
 		if caster:GetTeam() == DOTA_TEAM_GOODGUYS then
 			ParticleManager:SetParticleControl(caster.textParticle, 1, Vector(0,255,0))
 		else
