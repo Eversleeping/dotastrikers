@@ -1,3 +1,29 @@
+--[[
+	ExecuteOrderFromTable({
+		UnitIndex = caster:GetEntityIndex(),
+		AbilityIndex = caster:FindAbilityByName("queenofpain_blink_datadriven"):GetEntityIndex(),
+		OrderType = DOTA_UNIT_ORDER_CAST_POSITION, 
+		Position = caster.newPos,
+		Queue = true })
+]]
+
+function DummyCastBlink(caster, startPos, endPos )
+	local dummy = CreateUnitByName("dummy", startPos, false, nil, nil, caster:GetTeam())
+	dummy:AddAbility("queenofpain_blink_datadriven")
+	local blinkAbil = dummy:FindAbilityByName("queenofpain_blink_datadriven")
+	blinkAbil:SetLevel(1)
+	Timers:CreateTimer(.03, function()
+		dummy:SetForwardVector((endPos-startPos):Normalized())
+		Timers:CreateTimer(.03, function()
+			dummy:CastAbilityOnPosition(endPos, blinkAbil, 0)
+		end)
+	end)
+
+	Timers:CreateTimer(2, function()
+		dummy:ForceKill(true)
+	end)
+end
+
 function MergeTables( tableOfTables )
 	local index = 1
 	local newTable = {}

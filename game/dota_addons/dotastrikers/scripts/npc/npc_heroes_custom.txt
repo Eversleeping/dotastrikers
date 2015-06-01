@@ -127,7 +127,7 @@
 		"Ability4"				"pass_me"
 		"Ability5"				"dotastrikers_empty5"
 		"Ability6"				"dotastrikers_empty6"
-		"Ability7"				"queenofpain_blink_datadriven"
+		"Ability7"				""
 		"Ability8"				""
 		"Ability9"				""
 		"Ability10"				""

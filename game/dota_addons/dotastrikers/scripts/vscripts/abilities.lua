@@ -33,7 +33,7 @@ TACKLE_VEL_FORCE = 1500
 TACKLE_PUSH = 300
 TACKLE_SLOW_RADIUS = PP_COLLISION_RADIUS+70
 
-BLINK_WAIT_TIME = .3
+BLINK_WAIT_TIME = .4
 BLINK_DISTANCE = 800
 TIME_HAS_TO_BACKTRACK = 2
 BLINK_CD_USED_BACKTRACK = 30
@@ -824,13 +824,17 @@ function DotaStrikers:blink( keys )
 		caster:AddAbility("blink")
 		local blinkAbil = caster:FindAbilityByName("blink")
 		blinkAbil:SetLevel(1)
-		blinkAbil:StartCooldown(BLINK_CD_USED_BACKTRACK)
 
 		local fv = caster:GetForwardVector()
 
-		caster:CastAbilityOnPosition(caster.pos_before_blink, caster:FindAbilityByName("queenofpain_blink_datadriven"), 0)
+		DummyCastBlink(caster, caster:GetAbsOrigin(), caster.pos_before_blink )
+		caster:SetAbsOrigin(caster.pos_before_blink)
 
-		if Testing then blinkAbil:EndCooldown() end
+		if Testing then 
+			blinkAbil:EndCooldown()
+		else
+			blinkAbil:StartCooldown(BLINK_CD_USED_BACKTRACK)
+		end
 
 		return
 	end
@@ -841,7 +845,9 @@ function DotaStrikers:blink( keys )
 		caster.pos_before_blink = caster:GetAbsOrigin()
 		caster.vel_before_blink = caster:GetPhysicsVelocity()
 		local newPos = caster:GetAbsOrigin() + BLINK_DISTANCE*fv
-		caster:CastAbilityOnPosition(newPos, caster:FindAbilityByName("queenofpain_blink_datadriven"), 0)
+
+		DummyCastBlink(caster, caster:GetAbsOrigin(), newPos )
+		caster:SetAbsOrigin(newPos)
 
 		caster:RemoveAbility("blink")
 		caster:AddAbility("blink_backtrack")
@@ -851,12 +857,18 @@ function DotaStrikers:blink( keys )
 			if caster:HasAbility("blink_backtrack") then
 				caster:RemoveAbility("blink_backtrack")
 				caster:AddAbility("blink")
-				caster:FindAbilityByName("blink"):SetLevel(1)
+				local blink = caster:FindAbilityByName("blink")
+				blink:SetLevel(1)
+
+				if Testing then
+					blink:EndCooldown()
+				else
+					blink:StartCooldown(blink:GetCooldown(1))
+				end
 			end
 		end)
 	end)
-
-	if Testing then keys.ability:EndCooldown() end
+	--if Testing then keys.ability:EndCooldown() end
 
 end
 

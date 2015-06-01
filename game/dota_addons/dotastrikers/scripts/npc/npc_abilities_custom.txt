@@ -125,7 +125,7 @@
 			"02"
 			{
 				"var_type"					"FIELD_FLOAT"
-				"wait_time"					".3"
+				"wait_time"					".4"
 			}
 			"03"
 			{

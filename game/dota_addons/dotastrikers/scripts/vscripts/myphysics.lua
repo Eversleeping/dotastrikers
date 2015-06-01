@@ -200,7 +200,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 		if hero.isUsingPowersprint then
-			hero:SetForwardVector(hero.psprint_dir)
+			--hero:SetForwardVector(hero.psprint_dir)
 			local baseVel = hero:GetPhysicsVelocity()
 			if hero.last_psprint_vel then
 				baseVel = hero:GetPhysicsVelocity()-(hero.last_psprint_vel-hero.last_psprint_vel*hero:GetPhysicsFriction())
