@@ -225,6 +225,7 @@ function Ball:Init(  )
 	ball.last_peak_z = 0
 	ball.lastPos = Vector(0,0,GroundZ)
 	ball.isRotating = false
+	ball.lastMovedBy = Referee
 
 	-- this is for black holes.
 	ball.last_bh_accels = {}
@@ -307,15 +308,34 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 				if ball.lastMovedBy == Referee and hero.goalie and hero:GetTeam() == ball.goal then
 
 				else
+					if not ball.controller then
+						-- determine if catch was a pass
+						if ball.velocityMagnitude < 150*150 then
+							hero.pickups = hero.pickups + 1
+						else
+							if hero:GetTeam() == ball.lastMovedBy:GetTeam() then
+								ball.lastMovedBy.numPasses = ball.lastMovedBy.numPasses + 1
+								hero.passesReceived = hero.passesReceived + 1
+							else
+								hero.steals = hero.steals + 1
+								ball.lastMovedBy.turnovers = ball.lastMovedBy.turnovers + 1
+							end
+						end
+					end
+
 					ball.controller = hero
-					if hero.goalie and (ball.velocityMagnitude > 2*CrackThreshSq or hero.isUsingGoalieJump) then
+					-- determine if catch was a "SAVE!"
+					--and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()
+					if hero.goalie and (hero.isUsingGoalieJump or ball.velocityMagnitude > CrackThreshSq or
+						ball.velocityMagnitude > 200*200 and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()) then
+
 						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
 						ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
 						--ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
 						EmitGlobalSound("Saved" .. RandomInt(1, NumSavedSounds))
 						PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
+						hero.numSaves = hero.numSaves + 1
 					end
-
 				end
 
 				if ball.affectedByPowershot then
@@ -399,6 +419,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 			elseif ballPos.x > D_SCORE and ballPos.y > -1*GOAL_Y and ballPos.y < GOAL_Y and ballPos.z < GOAL_Z then
 				DotaStrikers:OnGoal("Radiant")
 			end
+
 		end
 	end
 
@@ -438,6 +459,8 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 				end
 			end
 		end)
+
+		ball.lastMovedBy.shotsAgainst = ball.lastMovedBy.shotsAgainst + 1
 
 		ball.hoggedProc = true
 

@@ -348,11 +348,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 			end
 			--print("accel mag: " .. hero:GetPhysicsAcceleration():Length())
 		end
-
-
 	end
-
-
 
 	hero.base_move_speed = 320
 
@@ -374,7 +370,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		hero.playerName = DummyNames[hero.plyID+1]
 	end
 
-	hero.personalScore = 0
+	SetupStats(hero)
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = self.gcs[1]
@@ -885,6 +881,8 @@ function DotaStrikers:InitDotaStrikers()
 
 	RefereeSpawnPos = Vector(2780,1550,GroundZ)
 	Referee = CreateUnitByName("referee", RefereeSpawnPos, true, nil, nil, DOTA_TEAM_NEUTRALS)
+	-- helps avoid runtime errors down the road.
+	SetupStats(Referee)
 
 	Timers:CreateTimer(.06, function()
 		AddEndgameRoot(Referee)
@@ -963,11 +961,17 @@ function DotaStrikers:InitDotaStrikers()
 
 
 	-- Main thinker
+	LastHeroThinkerTime = GameRules:GetGameTime()
 	Timers:CreateTimer(function()
+		local currTime = GameRules:GetGameTime()
 		for i,hero in ipairs(self.vHeroes) do
 			hero:OnThink()
-		end
 
+			if hero.goalie then
+				hero.time_as_goalie = hero.time_as_goalie + (currTime - LastHeroThinkerTime)
+			end
+		end
+		LastHeroThinkerTime = currTime
 		return NEXT_FRAME
 	end)
 

@@ -199,11 +199,13 @@ function DotaStrikers:OnGoal(team)
 	RoundOver = true
 	local ball = Ball.unit
 	local scorer = ball.lastMovedBy
-	scorer.personalScore = scorer.personalScore + 1
+	scorer.goalsAgainst = scorer.goalsAgainst + 1
 
 	local nWinningTeam = DOTA_TEAM_BADGUYS
+	local nLosingTeam = DOTA_TEAM_GOODGUYS
 	if team == "Radiant" then
 		nWinningTeam = DOTA_TEAM_GOODGUYS
+		nLosingTeam = DOTA_TEAM_BADGUYS
 		print("winning team is radiant.")
 	end
 
@@ -248,16 +250,17 @@ function DotaStrikers:OnGoal(team)
 		AddEndgameRoot(hero)
 
 		if hero:GetTeam() ~= nWinningTeam then
-			--modifier_victory_anim
-			--Timers:CreateTimer(.03, function()
-				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_defeat_anim", {})
-				--PlayAnimation("act_dota_die", hero)
-			--end)
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_defeat_anim", {})
+
+			if hero.goalie then
+				print("goalie didn't save.")
+				hero.non_saves = hero.non_saves + 1
+
+			end
+
 		else
 			ParticleManager:CreateParticle("particles/legion_duel_victory/legion_commander_duel_victory.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
-			--Timers:CreateTimer(.03, function()
-				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_victory_anim", {})
-			--end)
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_victory_anim", {})
 		end
 
 		--ball:AddNewModifier(hero, nil, "modifier_camera_follow", {})
@@ -421,11 +424,24 @@ function DotaStrikers:OnGoal(team)
 end
 
 function DotaStrikers:OnWonGame( nWinningTeam )
+	local shutout = false
 	local sWinningTeam = "Radiant"
 	if nWinningTeam == DOTA_TEAM_BADGUYS then
 		sWinningTeam = "Dire"
+		if self.radiantScore == 0 then
+			shutout = true
+		end
+	else
+		if self.direScore == 0 then
+			shutout = true
+		end
 	end
 	ShowCenterMsg(sWinningTeam .. " WINS!", 4 )
+
+	-- TODO:
+	--[[for _,hero in pairs(self.vHeroes) do
+		-- inc games won for player.
+	end]]
 
 	GameRules:SetGameWinner( nWinningTeam )
 	GameRules:SetSafeToLeave( true )
@@ -617,4 +633,17 @@ function PlayVictoryAndDeathAnimations( ... )
 			end
 		end
 	end
+end
+
+function SetupStats( hero )
+	hero.goalsAgainst = 0
+	hero.numSaves = 0
+	hero.numPasses = 0
+	hero.pickups = 0
+	hero.non_saves = 0
+	hero.time_as_goalie = 0
+	hero.shotsAgainst = 0
+	hero.passesReceived = 0
+	hero.steals = 0
+	hero.turnovers = 0
 end
