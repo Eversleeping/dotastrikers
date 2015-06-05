@@ -647,3 +647,145 @@ function SetupStats( hero )
 	hero.steals = 0
 	hero.turnovers = 0
 end
+
+function SummonTornado(  )
+	local ball = Ball.unit
+	--particles/tornado/tornado_ambient.vpcf
+	local offset = 90
+	local x = RandomFloat(RECT_X_MIN+offset, RECT_X_MAX-offset)
+	local y = RandomFloat(Bounds.min+offset, Bounds.max-offset)
+
+	local tornadoDummy = CreateUnitByName("dummy", Vector(x,y,GroundZ+1), true, nil, nil, DOTA_TEAM_NEUTRALS)
+	tornadoDummy.isTornadoDummy = true
+	tornadoDummy.tornado_particle = ParticleManager:CreateParticle("particles/tornado/tornado_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, tornadoDummy)
+	EmitGlobalSound("n_creep_Wildkin.SummonTornado")
+
+	tornadoDummy:SetBaseMoveSpeed(400)
+	tornadoDummy.duration = RandomFloat(20, 120)
+	tornadoDummy.end_time = GameRules:GetGameTime() + tornadoDummy.duration
+	tornadoDummy.next_move_time = GameRules:GetGameTime() + RandomFloat(.4, 4)
+	local id = DoUniqueString("id")
+	tornadoDummy.tornado_id = id
+	tornadoDummy.targets = {}
+	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, tornadoDummy, "modifier_flying_on", {})
+
+	for k,unit in pairs(DotaStrikers.colliderFilter) do
+		if unit.isDSHero or unit == ball then
+			unit.last_tornado_accels[id] = Vector(0,0,0)
+		end
+	end
+
+	Timers:CreateTimer(.03, function()
+		tornadoDummy:SetControllableByPlayer(0, true)
+		-- play loop
+		tornadoDummy:EmitSound("n_creep_Wildkin.Tornado")
+		tornadoDummy:MoveToPosition(tornadoDummy:GetAbsOrigin() + RandomVector(1000))
+	end)
+
+
+	Timers:CreateTimer(.03, function()
+		local currTime = GameRules:GetGameTime()
+		local pos = tornadoDummy:GetAbsOrigin()
+		if currTime > tornadoDummy.end_time or not IsValidEntity(tornadoDummy) or not tornadoDummy:IsAlive() then
+			tornadoDummy:StopSound("n_creep_Wildkin.Tornado")
+			if tornadoDummy:IsAlive() then
+				tornadoDummy:ForceKill(true)
+			end
+			ParticleManager:DestroyParticle(tornadoDummy.tornado_particle, false)
+			tornadoDummy.isTornadoDummy = false
+
+			for k,unit in pairs(DotaStrikers.colliderFilter) do
+				if unit.isDSHero or unit == ball then
+					unit:SetPhysicsAcceleration(unit:GetPhysicsAcceleration()-unit.last_tornado_accels[id])
+					unit.last_tornado_accels[id] = nil
+				end
+			end
+
+			return
+		end
+
+		if currTime > tornadoDummy.next_move_time then
+			tornadoDummy:MoveToPosition(pos + RandomVector(1000))
+
+			tornadoDummy.next_move_time = currTime + RandomFloat(.4, 4)
+		end
+
+		if tornadoDummy:IsIdle() then
+			local x = RandomFloat(RECT_X_MIN+offset, RECT_X_MAX-offset)
+			local y = RandomFloat(Bounds.min+offset, Bounds.max-offset)
+			tornadoDummy:MoveToPosition(pos + Vector(x,y,GroundZ+1))
+		end
+
+		-- check if tornado went out of bounds
+		--[[if tornadoDummy:IsIdle() or pos.x > (RECT_X_MAX-offset) or pos.x < (RECT_X_MIN+offset) or pos.y > (Bounds.max-offset) or pos.y < (Bounds.min+offset) then
+			local good = false
+			local newPos = Vector(0,0,0)
+			while not good do
+				local x = RandomFloat(RECT_X_MIN+offset, RECT_X_MAX-offset)
+				local y = RandomFloat(Bounds.min+offset, Bounds.max-offset)
+				if not (x > (RECT_X_MAX-offset) or x < (RECT_X_MIN+offset) or y > (Bounds.max-offset) or y < (Bounds.min+offset)) then
+					good = true
+					newPos = Vector(x,y,GroundZ+1)
+				end
+			end
+			tornadoDummy:MoveToPosition(pos + newPos)
+		end]]
+
+		-- do physics
+		--local point = tornadoDummy:GetAbsOrigin() + Vector(0,0,RandomFloat(GroundZ+40, 500))
+		local point = tornadoDummy:GetAbsOrigin()
+		for k,unit in pairs(DotaStrikers.colliderFilter) do
+			if unit.isDSHero or unit == ball then
+				local hero = unit
+				local p1 = hero:GetAbsOrigin()
+				local pID = 20 -- 20 is the ball
+				if hero ~= ball then
+					pID = hero:GetPlayerID()
+				end
+
+				-- make it easier for tornado to pickup ground units.
+
+				local len = (point-p1):Length()
+				if len <= (TORNADO_RADIUS) then
+					--local force = (len/TORNADO_RADIUS)*TORNADO_FORCE
+					--[[if force < BH_FORCE_MIN then
+						force = BH_FORCE_MIN
+					end]]
+					local force = TORNADO_FORCE
+
+					if not unit.last_tornado_accels[id] then
+						unit.last_tornado_accels[id] = Vector(0,0,0)
+					end
+
+
+
+					local dir = (Vector(point.x,point.y,point.z+RandomFloat(0, 300))-p1):Normalized()
+					local newForce = dir*force
+					--hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_tornado_accels[id])
+					local newAccel = hero:GetPhysicsAcceleration()-hero.last_tornado_accels[id]+newForce
+					hero:SetPhysicsAcceleration(newAccel)
+					hero.last_tornado_accels[id] = newForce
+
+				else
+					if hero.last_tornado_accels[id] ~= Vector(0,0,0) then
+						hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_tornado_accels[id])
+						hero.last_tornado_accels[id] = Vector(0,0,0)
+					end
+				end
+			end
+		end
+
+
+		return .01
+	end)
+
+	-- send notification
+	local lines = {
+		[1] = ColorIt("WARNING!", "red") ..  " a " .. ColorIt("tornado", "purple") .. " has entered the field!",
+	}
+	ShowQuickMessages(lines, .2)
+
+end
+
+TORNADO_RADIUS = 250
+TORNADO_FORCE = 3000

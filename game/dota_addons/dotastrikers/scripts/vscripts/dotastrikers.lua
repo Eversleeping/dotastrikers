@@ -218,6 +218,9 @@ function DotaStrikers:PlayerSay( keys )
 		if txt == "particle" then
 			ParticleManager:CreateParticle("particles/generic_gameplay/radiant_fountain_regen.vpcf", PATTACH_ABSORIGIN, hero)
 		end
+		if txt == "tornado" then
+			SummonTornado()
+		end
 	end
 end
 
@@ -337,14 +340,24 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 			local bh_accel = hero.last_bh_accels[i]
 			if bh_accel and bh_accel ~= Vector(0,0,0) then
 				isInBlackHole = true
+				break
 			end
 		end
+
+		local isInTornado = false
+		for id,vect in pairs(hero.last_tornado_accels) do
+			if vect ~= nil and vect ~= Vector(0,0,0) then
+				isInTornado = true
+				break
+			end
+		end
+
 		hero.isInBlackHole = isInBlackHole
+		hero.isInTornado = isInTornado
 
 		if hero.isSprinter then
-			if not hero.isInBlackHole and hero:GetPhysicsAcceleration():Length() < (-1*GRAVITY+50) then
+			if not hero.isInBlackHole and not hero.isInTornado and hero:GetPhysicsAcceleration():Length() < (-1*GRAVITY+50) then
 				hero:SetPhysicsAcceleration(Vector(0,0,GRAVITY))
-				--print("setting accel.")
 			end
 			--print("accel mag: " .. hero:GetPhysicsAcceleration():Length())
 		end
@@ -405,6 +418,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	-- this is for black holes.
 	hero.last_bh_accels = {}
+	hero.last_tornado_accels = {}
+
 	for i=0,9 do
 		hero.last_bh_accels[i] = Vector(0,0,0)
 	end

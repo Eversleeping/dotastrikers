@@ -996,7 +996,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"head_bump"
+		"AbilityTextureName"			"earth_spirit_boulder_smash"
 		"MaxLevel"						"1"
 
 		// Stats
@@ -1359,6 +1359,16 @@
 				"States"
 				{
 					"MODIFIER_STATE_NO_UNIT_COLLISION"		"MODIFIER_STATE_VALUE_DISABLED"
+				}
+			}
+			"modifier_flying_on"
+			{
+				"Passive"			"1"
+				"IsHidden"			"1"
+			
+				"States"
+				{
+					"MODIFIER_STATE_FLYING"		"MODIFIER_STATE_VALUE_ENABLED"
 				}
 			}
 			"modifier_hero_passive"

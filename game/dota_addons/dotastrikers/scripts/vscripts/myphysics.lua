@@ -231,6 +231,7 @@ function Ball:Init(  )
 
 	-- this is for black holes.
 	ball.last_bh_accels = {}
+	ball.last_tornado_accels = {}
 	for i=0,9 do
 		ball.last_bh_accels[i] = Vector(0,0,0)
 	end
@@ -623,7 +624,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 	local pshot_coll = hero:AddColliderFromProfile("momentum_full")
 	pshot_coll.radius = BALL_COLLISION_DIST
 	pshot_coll.filer = self.colliderFilter
-	pshot_coll.elasticity = .8
+	pshot_coll.elasticity = 1
 	pshot_coll.test = function(self, collider, collided)
 		local passTest = false
 		local ball = Ball.unit
