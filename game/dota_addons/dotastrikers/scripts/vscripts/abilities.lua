@@ -1,10 +1,12 @@
 THROW_VELOCITY = 1675
+HEADBUMP_BALL_Z_PUSH = 600
+TIME_TILL_HEADBUMP_EXPIRES = 4
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
 
 PSHOT_VELOCITY = 1600
-PSHOT_ONHIT_VEL = 1400
+PSHOT_ONHIT_VEL = 1600
 PSPRINT_VELOCITY = 850
 
 NINJA_JUMP_Z = 1500
@@ -144,11 +146,21 @@ function DotaStrikers:throw_ball( keys )
 		self:on_powershot_succeeded(keys, dir)
 	else
 		-- if caster is above ground, give the ball more of a push in z direction.
+		local velToAdd = dir*THROW_VELOCITY
 		if caster.isAboveGround then
-			ball:AddPhysicsVelocity(dir*THROW_VELOCITY + Vector(0,0,KICK_BALL_Z_PUSH))
-		else
-			ball:AddPhysicsVelocity(dir*THROW_VELOCITY)
+			velToAdd = dir*THROW_VELOCITY + Vector(0,0,KICK_BALL_Z_PUSH)
 		end
+
+		if keys.ability:GetAbilityName() == "head_bump" then
+			velToAdd = dir*THROW_VELOCITY + Vector(0,0,HEADBUMP_BALL_Z_PUSH)
+			if caster:HasAbility("head_bump") then
+				caster:RemoveAbility("head_bump")
+				caster:AddAbility("throw_ball")
+				caster:FindAbilityByName("throw_ball"):SetLevel(1)
+			end
+		end
+
+		ball:AddPhysicsVelocity(velToAdd)
 
 		ball:EmitSound("Kick" .. RandomInt(1, NUM_KICK_SOUNDS))
 
@@ -537,16 +549,6 @@ function DotaStrikers:text_particle( keys )
 		end
 		caster.textParticle = parts
 
-		--[[local teammates = GetTeammates(caster)
-		local part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, caster:GetPlayerOwner())
-		ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
-		table.insert(parts, part)
-		for i,hero2 in ipairs(teammates) do
-			part = ParticleManager:CreateParticleForPlayer(particle, PATTACH_OVERHEAD_FOLLOW, caster, hero2:GetPlayerOwner())
-			ParticleManager:SetParticleControlEnt(part, 3, caster, 3, "follow_overhead", caster:GetAbsOrigin(), true)
-			table.insert(parts, part)
-		end
-		caster.textParticle = parts]]
 	elseif abilName == "item_frown" or abilName == "item_taunt" then
 		local parts = {}
 		for _,hero in pairs(DotaStrikers.vHeroes) do
@@ -559,6 +561,20 @@ function DotaStrikers:text_particle( keys )
 			table.insert(parts, part)
 		end
 		caster.textParticle = parts
+	elseif keys.stolen then
+		local parts = {}
+		for _,hero in pairs(DotaStrikers.vHeroes) do
+			local part = nil
+			if hero:GetTeam() ~= caster:GetTeam() then
+				part = ParticleManager:CreateParticleForPlayer("particles/stolen_badguys/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster, hero:GetPlayerOwner())
+			else
+				part = ParticleManager:CreateParticleForPlayer("particles/stolen/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster, hero:GetPlayerOwner())
+			end
+			ParticleManager:SetParticleControlEnt(part, 4, caster, 4, "follow_origin", caster:GetAbsOrigin(), true)
+			table.insert(parts, part)
+		end
+		caster.textParticle = parts
+
 	end
 
 	if not caster.textParticle then

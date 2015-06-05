@@ -1,8 +1,10 @@
 BALL_PARTICLE_Z_OFFSET=50 --this makes the particle look nicer.
+
 GROUND_FRICTION = .035
 AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
+
 BALL_COLLISION_DIST = 125
 ABOVE_GROUND_Z = 20
 PEAK_Z_THRESH = 40
@@ -28,14 +30,14 @@ SprintAbilIndex = 2
 NUM_BOUNCE_SOUNDS = 5
 NUM_KICK_SOUNDS = 6
 NUM_CATCH_SOUNDS = 5
-NumRoundStartSounds = 5
-NUM_ROUNDEND_SOUNDS = 12
+NumRoundStartSounds = 6
+NUM_ROUNDEND_SOUNDS = 10
 NUM_FAIL_SOUNDS = 2
 NumGiantImpactSounds = 1
 NumHeavyImpactSounds = 2
 NumMediumImpactSounds = 4
 NumLightImpactSounds = 4
-NumSavedSounds = 4
+NumCheerSounds = 4
 
 RoundCountdownSounds =
 {
@@ -73,7 +75,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 		if currVel.z < PEAK_Z_THRESH and currVel.z > -1*PEAK_Z_THRESH then
-			if unitPos.z > unit.last_peak_z and unitPos.z > (GroundZ+ABOVE_GROUND_Z+30) then
+			if unitPos.z > (unit.last_peak_z+10) and unitPos.z > (GroundZ+ABOVE_GROUND_Z+30) then
 				--DebugDrawSphere(unitPos, Vector(255,0,0), 50, 30, false, 20)
 				unit.bounce_multiplier = BOUNCE_MULTIPLIER
 			end
@@ -204,7 +206,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			local baseVel = hero:GetPhysicsVelocity()
 			if hero.last_psprint_vel then
 				baseVel = hero:GetPhysicsVelocity()-(hero.last_psprint_vel-hero.last_psprint_vel*hero:GetPhysicsFriction())
-			else print("not removing last.") end
+			end
 			hero.last_psprint_vel = hero.psprint_dir*PSPRINT_VELOCITY
 			hero:SetPhysicsVelocity(baseVel + hero.last_psprint_vel)
 		end
@@ -308,9 +310,25 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 				if ball.lastMovedBy == Referee and hero.goalie and hero:GetTeam() == ball.goal then
 
 				else
-					if not ball.controller then
+					local saved = false
+					-- determine if catch was a "SAVE!"
+					--and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()
+					if hero.goalie and (hero.isUsingGoalieJump or ball.velocityMagnitude > CrackThreshSq or
+						ball.velocityMagnitude > 400*400 and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()) then
+
+						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
+						ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
+						--ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
+						EmitGlobalSound("Cheer" .. RandomInt(1, NumCheerSounds))
+						PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
+						hero.numSaves = hero.numSaves + 1
+						saved = true
+					end
+
+					-- do some stats stuff
+					if not ball.controller and not saved then
 						-- determine if catch was a pass
-						if ball.velocityMagnitude < 150*150 then
+						if ball.velocityMagnitude < 500*500 then
 							hero.pickups = hero.pickups + 1
 						else
 							if hero:GetTeam() == ball.lastMovedBy:GetTeam() then
@@ -319,23 +337,32 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 							else
 								hero.steals = hero.steals + 1
 								ball.lastMovedBy.turnovers = ball.lastMovedBy.turnovers + 1
+								EmitGlobalSound("Cheer" .. RandomInt(1, NumCheerSounds))
+								DotaStrikers:text_particle( {caster=hero, stolen=true} )
+								PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
 							end
 						end
 					end
 
-					ball.controller = hero
-					-- determine if catch was a "SAVE!"
-					--and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()
-					if hero.goalie and (hero.isUsingGoalieJump or ball.velocityMagnitude > CrackThreshSq or
-						ball.velocityMagnitude > 200*200 and hero:GetTeam() ~= ball.lastMovedBy:GetTeam()) then
+					if not hero.isAboveGround and ballPos.z > hero:GetAbsOrigin().z+BALL_COLLISION_DIST-40 then
+						if hero:HasAbility("throw_ball") then
+							hero:RemoveAbility("throw_ball")
+							hero:AddAbility("head_bump")
+							hero:FindAbilityByName("head_bump"):SetLevel(1)
 
-						hero.savedParticle = ParticleManager:CreateParticle("particles/saved_txt/tusk_rubickpunch_txt.vpcf", PATTACH_ABSORIGIN_FOLLOW, hero)
-						ParticleManager:SetParticleControlEnt(hero.savedParticle, 4, hero, 4, "follow_origin", hero:GetAbsOrigin(), true)
-						--ParticleManager:SetParticleControl( hero.savedParticle, 2, hero:GetAbsOrigin() )
-						EmitGlobalSound("Saved" .. RandomInt(1, NumSavedSounds))
-						PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
-						hero.numSaves = hero.numSaves + 1
+							Timers:CreateTimer(TIME_TILL_HEADBUMP_EXPIRES, function()
+								if hero:HasAbility("head_bump") then
+									hero:RemoveAbility("head_bump")
+									hero:AddAbility("throw_ball")
+									hero:FindAbilityByName("throw_ball"):SetLevel(1)
+								end
+
+							end)
+
+						end
 					end
+
+					ball.controller = hero
 				end
 
 				if ball.affectedByPowershot then
@@ -352,22 +379,20 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 			end
 		elseif hero == ball.controller then
 			local fv = hero:GetForwardVector()
+			local heroPos = hero:GetAbsOrigin()
 			-- reposition ball to in front of controller.
-			ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
-			--[[if ball.outOfBounds then
-				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET*3/4)
+			if hero:HasAbility("head_bump") then
+				ball:SetAbsOrigin(Vector(heroPos.x, heroPos.y, heroPos.z+BALL_HANDLED_OFFSET))
 			else
 				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
-			end]]
+			end
+
 			ball:SetForwardVector(fv)
 		end
 		-- reset the movespeed if this guy isn't the ball handler anymore.
-		if ball.controller ~= hero and hero.slowedByBall then
+		if ball.controller ~= hero and hero:HasModifier("modifier_ball_controller") then
 			RemoveMovementComponent(hero, "ball_slow")
-			if hero:HasModifier("modifier_ball_controller") then
-				hero:RemoveModifierByName("modifier_ball_controller")
-			end
-			hero.slowedByBall = false
+			hero:RemoveModifierByName("modifier_ball_controller")
 		end
 	end
 
@@ -386,12 +411,9 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 		-- slow the movespeed of the controller if we haven't already.
 		local controller = ball.controller
-		if not controller.slowedByBall then
+		if not controller:HasModifier("modifier_ball_controller") then
 			AddMovementComponent(controller, "ball_slow", -1*controller.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
-			if not controller:HasModifier("modifier_ball_controller") then
-				GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, controller, "modifier_ball_controller", {})
-			end
-			controller.slowedByBall = true
+			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, controller, "modifier_ball_controller", {})
 		end
 
 		-- if goalie, he can't have goalie jump while having the ball

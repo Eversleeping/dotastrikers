@@ -400,7 +400,7 @@
     }
 }
 
-"Saved1"
+"Cheer1"
 {
     "operator_stacks"
     {
@@ -457,7 +457,7 @@
     }
 }
 
-"Saved2"
+"Cheer2"
 {
     "operator_stacks"
     {
@@ -514,7 +514,7 @@
     }
 }
 
-"Saved3"
+"Cheer3"
 {
     "operator_stacks"
     {
@@ -571,7 +571,7 @@
     }
 }
 
-"Saved4"
+"Cheer4"
 {
     "operator_stacks"
     {
@@ -873,6 +873,63 @@
                         "value"
                         {
                             "wave0"     "sound/ui/acknowledge.vsnd"
+                        }
+                    }
+                    "volume_min"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "volume_max"
+                    {
+                        "value"     "0.800000"
+                    }
+                    "pitch_min"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "pitch_max"
+                    {
+                        "value"     "1.000000"
+                    }
+                    "chan_type"
+                    {
+                        "value"     "6"
+                    }
+                    "memory_type"
+                    {
+                        "value"     "0"
+                    }
+                    "soundlevel_min"
+                    {
+                        "value"     "100.000000"
+                    }
+                    "soundlevel_max"
+                    {
+                        "value"     "100.000000"
+                    }
+                }
+            }
+        }
+    }
+}
+
+"Round_Start6"
+{
+    "operator_stacks"
+    {
+        "update_stack"
+        {
+            "reference_operator"
+            {
+                "operator"          "sos_reference_stack"
+                "reference_stack"           "dota_src1_2d"
+                "operator_variables"
+                {
+                    "vsnd_files"
+                    {
+                        "value"
+                        {
+                            "wave0"     "sounds/Round_Start6.vsnd"
                         }
                     }
                     "volume_min"
