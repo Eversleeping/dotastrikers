@@ -231,7 +231,7 @@ function Ball:Init(  )
 
 	-- this is for black holes.
 	ball.last_bh_accels = {}
-	ball.last_tornado_accels = {}
+	ball.last_tornado_vels = {}
 	for i=0,9 do
 		ball.last_bh_accels[i] = Vector(0,0,0)
 	end

@@ -345,7 +345,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		end
 
 		local isInTornado = false
-		for id,vect in pairs(hero.last_tornado_accels) do
+		for id,vect in pairs(hero.last_tornado_vels) do
 			if vect ~= nil and vect ~= Vector(0,0,0) then
 				isInTornado = true
 				break
@@ -418,7 +418,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	-- this is for black holes.
 	hero.last_bh_accels = {}
-	hero.last_tornado_accels = {}
+	hero.last_tornado_vels = {}
 
 	for i=0,9 do
 		hero.last_bh_accels[i] = Vector(0,0,0)
