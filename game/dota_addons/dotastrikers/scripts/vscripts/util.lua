@@ -497,6 +497,11 @@ function TimeTillCollision(body1,body2)
 	return 2
 end
 
+function round(num, idp)
+	local mult = 10^(idp or 0)
+	return math.floor(num * mult + 0.5) / mult
+end
+
 function DotProduct(v1,v2)
   return (v1.x*v2.x)+(v1.y*v2.y)
 end

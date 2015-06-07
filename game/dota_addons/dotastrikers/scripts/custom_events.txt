@@ -32,6 +32,19 @@
     }
     "all_players_loaded" { }
 	
+    "activate_player"
+    {
+        "player_ID"               "short"
+        "player_name"             "string"
+    }
+
+    "update_scoreboard_value"
+    {
+        "player_ID"                "short"
+        "key"                      "string"
+        "value"                    "float"
+    }
+
     // Stat collection
     "stat_collection_part"
     {

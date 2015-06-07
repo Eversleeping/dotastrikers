@@ -637,6 +637,7 @@ end
 
 function SetupStats( hero )
 	hero.goalsAgainst = 0
+	hero.numAssists = 0
 	hero.numSaves = 0
 	hero.numPasses = 0
 	hero.pickups = 0
@@ -646,6 +647,23 @@ function SetupStats( hero )
 	hero.passesReceived = 0
 	hero.steals = 0
 	hero.turnovers = 0
+	hero.possession_time = 0
+
+	if Testing then
+		hero.goalsAgainst = RandomInt(1,5)
+		hero.numAssists = RandomInt(1,6)
+		hero.numSaves = RandomInt(1,5)
+		hero.numPasses = RandomInt(5,15)
+		hero.pickups = RandomInt(5,15)
+		hero.non_saves = RandomInt(1,5)
+		hero.time_as_goalie = RandomFloat(0, 400)
+		hero.shotsAgainst = RandomInt(3, 15)
+		hero.passesReceived = RandomInt(5, 15)
+		hero.steals = RandomInt(2, 10)
+		hero.turnovers = RandomInt(2, 10)
+		hero.possession_time = RandomFloat(40, 400)
+	end
+
 end
 
 function SummonTornado(  )
@@ -770,6 +788,38 @@ function SummonTornado(  )
 		[1] = ColorIt("WARNING!", "red") ..  " a " .. ColorIt("TORNADO", "purple") .. " has entered the field!",
 	}
 	ShowQuickMessages(lines, .2)
+
+end
+
+function DotaStrikers:InitScoreboard(  )
+	if ScoreboardTimer then return end
+
+	ScoreboardTimer = Timers:CreateTimer(.5, function()
+		for _,hero in pairs(DotaStrikers.vHeroes) do
+			local pID = hero:GetPlayerID()
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="goals",value=hero.goalsAgainst})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="assists",value=hero.numAssists})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="st",value=hero.steals-hero.turnovers})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pickups",value=hero.pickups})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="passes",value=hero.numPasses})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="poss",value=round(hero.possession_time/60,1)})
+
+			local savp = -1
+			if hero.numSaves ~= 0 or hero.non_saves ~= 0 then
+				savp = hero.numSaves/(hero.numSaves+hero.non_saves)*100
+			end
+			print("savp: " .. savp)
+
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="savp",value=savp})
+			--FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
+			--FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
+
+
+		end
+
+		return .5
+	end)
 
 end
 

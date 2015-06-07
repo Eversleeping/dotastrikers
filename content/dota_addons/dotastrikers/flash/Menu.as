@@ -62,7 +62,7 @@
 				}
 			}
 
-			for (var i:int = 0; i < radioNames.length; i++) {
+			for (i = 0; i < radioNames.length; i++) {
 				setupRadioButton(getChildByName(radioNames[i]) as MovieClip)
 			}
 
@@ -129,7 +129,7 @@
 			currentMenuMC.visible = false
 			currentMenuMC = mc
 			mc.visible = true
-			gameAPI.SendServerCommand("click_radio_button")
+			gameAPI.SendServerCommand("play_sound ui.click_toptab")
 			trace(mc.name + " is now visible. ")
         }
 

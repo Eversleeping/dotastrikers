@@ -278,6 +278,7 @@ function DotaStrikers:OnNPCSpawned(keys)
 			if not self.greetPlayers then
 				self:GreetPlayers()
 				Ball.unit:SpawnParticle()
+				DotaStrikers:InitScoreboard()
 				self.greetPlayers = true
 			end
 
@@ -384,6 +385,11 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	end
 
 	SetupStats(hero)
+
+	-- OnConnectFull doesn't run in alpha tools.
+	if Testing then
+		FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = DummyNames[hero.plyID+1]})
+	end
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = self.gcs[1]
@@ -521,6 +527,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	if #self.vHeroes >= PlayerCount then
 		AllPlayersSelectedHeroes = true
 		print("AllPlayersSelectedHeroes")
+
 	end
 
 	-- Physics thinker
@@ -843,25 +850,16 @@ function DotaStrikers:InitDotaStrikers()
 		end
 	end, 'player say', 0)
 
-	Convars:RegisterCommand('close_menu', function(...)
-		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("Close_Menu", cmdPlayer)
-	end, '', 0)
+	Convars:RegisterCommand('play_sound', function(...)
+		local arg = {...}
+		table.remove(arg,1)
 
-	Convars:RegisterCommand('open_menu', function(...)
-		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("Open_Menu", cmdPlayer)
-	end, '', 0)
+		local soundStr = arg[1]
 
-	Convars:RegisterCommand('click_radio_button', function(...)
 		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("ui.click_toptab", cmdPlayer)
-	end, '', 0)
+		EmitSoundOnClient(soundStr, cmdPlayer)
 
-	Convars:RegisterCommand('click_hero', function(...)
-		local cmdPlayer = Convars:GetCommandClient()
-		EmitSoundOnClient("ui.browser_click_common", cmdPlayer)
-	end, '', 0)
+	end, 'play_sound', 0)
 
 	-- Change random seed
 	local timeTxt = string.gsub(string.gsub(GetSystemTime(), ':', ''), '0','')
@@ -985,9 +983,13 @@ function DotaStrikers:InitDotaStrikers()
 			if hero.goalie then
 				hero.time_as_goalie = hero.time_as_goalie + (currTime - LastHeroThinkerTime)
 			end
+			if Ball.unit.controller == hero then
+				hero.possession_time = hero.possession_time + (currTime - LastHeroThinkerTime)
+			end
+
 		end
 		LastHeroThinkerTime = currTime
-		return NEXT_FRAME
+		return 1/30
 	end)
 
 end
@@ -1042,6 +1044,13 @@ function DotaStrikers:OnConnectFull(keys)
 
 	-- The Player ID of the joining player
 	local playerID = ply:GetPlayerID()
+
+	local playerName = PlayerResource:GetPlayerName(playerID)
+	if Testing then
+		playerName = DummyNames[playerID+1]
+	end
+
+	FireGameEvent("activate_player", {player_ID=playerID, player_name = playerName})
 
 	-- Update the user ID table with this user
 	self.vUserIds[keys.userid] = ply

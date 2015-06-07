@@ -25,7 +25,7 @@
 		public var scaleRatioY:Number
 
 		// my vars
-		//var _menuButton:Object
+		var _mbButton:Object
 
 		//constructor, you usually will use onLoaded() instead
 		public function Multiboard() : void {
@@ -36,50 +36,42 @@
 		public function onLoaded() : void {		
 			trace("[Multiboard] OnLoaded")
 
-			visible = false
-
 			//gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility);
+			visible = true
 
 			Globals.instance.resizeManager.AddListener(this);
 
 			//Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 
 			//pass the gameAPI on to the modules
-			//learn_about_heroes.setup(gameAPI, globals)
+			multiboard.setup(gameAPI, globals)
+
+			_mbButton = replaceWithValveComponent(mbButton, "chrome_button_primary")
+			_mbButton.addEventListener(ButtonEvent.CLICK, onMultiboardButtonClicked)
+			_mbButton.label = "SCOREBOARD"
+			//_mbButton.height = _mbButton.height + _mbButton.height*1/4
+			_mbButton.visible = true
 
 			addEventListener(Event.ENTER_FRAME, myEnterFrame)
 
 			trace("[Multiboard] OnLoaded finished!");
 		}
 
-		/*public function toggleSilenceAbility(args:Object) : void {
-
-			if (globals.Players.GetLocalPlayer() != args.player_ID)
-			{
-				return
-			}
-
-			var i:Number = args.ability_index
-			var silencedState:MovieClip = null
-			var isVisible:Boolean = false
-
-			if (i == 2) {
-				//trace("captured silencedState")
-				silencedState = globals.Loader_actionpanel.movieClip.middle.abilities.Ability2.silencedState
-			} else if (i == 3) {
-				silencedState = globals.Loader_actionpanel.movieClip.middle.abilities.Ability3.silencedState
-			} // ... extend this
-
-			isVisible = silencedState.visible
-
-			if (isVisible) {
-				trace("setting silencedState to false")
-				silencedState.visible = false
+		public function onMultiboardButtonClicked(event:ButtonEvent) {
+			if (multiboard.visible) {
+				multiboard.visible = false
+				/*if (ds_menu.getCurrentMenuMC()) {
+					ds_menu.getCurrentMenuMC().visible = false
+				}*/
+				gameAPI.SendServerCommand("play_sound Close_Menu")
 			} else {
-				trace("setting silencedState to true")
-				silencedState.visible = true
+				multiboard.visible = true
+				/*if (ds_menu.getCurrentMenuMC()) {
+					ds_menu.getCurrentMenuMC().visible = true
+				}*/
+				gameAPI.SendServerCommand("play_sound Open_Menu")
 			}
-		}*/
+		}
 
 		private function myEnterFrame(e:Event) : void {
 			/*if (_menuButton != null && _menuButton.textField.getTextFormat() != menuButtonTxtFormat) {
@@ -121,7 +113,11 @@
 			ScreenHeight = re.ScreenHeight;
 
 			//pass the resize event to our module, we pass the width and height of the screen, as well as the INVERSE of the stage scaling ratios.
-			//learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
+			multiboard.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
+
+			mbButton.x = ScreenWidth-460*scaleRatioY;
+			mbButton.y = 6*scaleRatioY;
+
 		}
 	}
 }

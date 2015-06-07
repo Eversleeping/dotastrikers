@@ -333,8 +333,10 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 							hero.pickups = hero.pickups + 1
 						else
 							if hero:GetTeam() == ball.lastMovedBy:GetTeam() then
-								ball.lastMovedBy.numPasses = ball.lastMovedBy.numPasses + 1
-								hero.passesReceived = hero.passesReceived + 1
+								if hero ~= ball.lastMovedBy then
+									ball.lastMovedBy.numPasses = ball.lastMovedBy.numPasses + 1
+									hero.passesReceived = hero.passesReceived + 1
+								end
 							else
 								hero.steals = hero.steals + 1
 								ball.lastMovedBy.turnovers = ball.lastMovedBy.turnovers + 1

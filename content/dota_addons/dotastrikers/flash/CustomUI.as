@@ -93,13 +93,13 @@
 				if (ds_menu.getCurrentMenuMC()) {
 					ds_menu.getCurrentMenuMC().visible = false
 				}
-				gameAPI.SendServerCommand("close_menu")
+				gameAPI.SendServerCommand("play_sound Close_Menu")
 			} else {
 				ds_menu.visible = true
 				if (ds_menu.getCurrentMenuMC()) {
 					ds_menu.getCurrentMenuMC().visible = true
 				}
-				gameAPI.SendServerCommand("open_menu")
+				gameAPI.SendServerCommand("play_sound Open_Menu")
 			}
 		}
 

@@ -141,7 +141,8 @@
 		public function onMouseClickHero(keys:MouseEvent) {
        		var hero:MovieClip = keys.target as MovieClip;
        		onHeroClicked(hero)
-       		gameAPI.SendServerCommand("click_hero")
+       		gameAPI.SendServerCommand("play_sound ui.browser_click_common")
+
        	}
 
        	public function onHeroClicked(hero) {
