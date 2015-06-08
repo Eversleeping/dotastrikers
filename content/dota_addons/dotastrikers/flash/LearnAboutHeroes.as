@@ -66,8 +66,8 @@
 			//hoverOverThem.text = Globals.instance.GameInterface.Translate("#HoverOverThem")
 			heroNameText.text = Globals.instance.GameInterface.Translate("#HeroName")
 			itemsLabel.text = Globals.instance.GameInterface.Translate("#Items")
-			tip_1.text = Globals.instance.GameInterface.Translate("#Tip") + " #1:"
-			tip_2.text = Globals.instance.GameInterface.Translate("#Tip") + " #2:"
+			//tip_1.text = Globals.instance.GameInterface.Translate("#Tip") + " #1:"
+			//tip_2.text = Globals.instance.GameInterface.Translate("#Tip") + " #2:"
 
 			heroes = globals.GameInterface.LoadKVFile('scripts/npc/npc_heroes_custom.txt');
 			abilities = globals.GameInterface.LoadKVFile('scripts/npc/npc_abilities_custom.txt');

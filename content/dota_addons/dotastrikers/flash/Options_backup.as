@@ -21,7 +21,7 @@
 		public var globals:Object;
 
 		var _cameraZoomSlider:Object;
-		var _saveSettings:Object
+		var _saveBtn:Object
 		var currCameraDistance:Number = 1800;
 
 		public function Options() {
@@ -50,10 +50,9 @@
 			_cameraZoomSlider.addEventListener( SliderEvent.VALUE_CHANGE, onCameraZoomSliderChanged );
 			//addChild(_cameraZoomSlider)
 
-			_saveSettings = replaceWithValveComponent(saveSettings, "chrome_button_primary", false);
-			_saveSettings.addEventListener(ButtonEvent.CLICK, onSaveSettings);
-			_saveSettings.label = "Save Settings"
-			//addChild(_saveSettings)
+			_saveBtn = replaceWithValveComponent(saveBtn, "chrome_button_primary", false);
+			_saveBtn.addEventListener(ButtonEvent.CLICK, onSaveBtnClick);
+			_saveBtn.label = "Save Settings"
 
 			trace("##Called Options Setup!");
 		}
@@ -65,7 +64,7 @@
 			Globals.instance.GameInterface.SetConvar("dota_camera_distance", _cameraZoomSlider.value.toString())
 		}
 
-        public function onSaveSettings(event:ButtonEvent)
+        public function onSaveBtnClick(event:ButtonEvent)
         {
         	//Globals.instance.GameInterface.SetConvar("dota_camera_distance", _cameraZoomSlider.value.toString())
 			visible = false

@@ -772,7 +772,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"slardar_sprint"
+		"AbilityTextureName"			"surge"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
@@ -1516,7 +1516,22 @@
 		"BaseClass" 					"ability_datadriven"
 		"AbilityTextureName"            "rubick_empty1"
 	}
+	"sbLabel_spag"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE"
+		"MaxLevel"						"0"
+		"BaseClass" 					"ability_datadriven"
+		"AbilityTextureName"            "rubick_empty1"
+	}
+	"sbLabel_gp"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_HIDDEN | DOTA_ABILITY_BEHAVIOR_NOT_LEARNABLE"
+		"MaxLevel"						"0"
+		"BaseClass" 					"ability_datadriven"
+		"AbilityTextureName"            "rubick_empty1"
+	}
 
+	
 	"movespeed_0" { "AbilityBehavior" "DOTA_ABILITY_BEHAVIOR_PASSIVE" "BaseClass" "ability_datadriven" "AbilityTextureName" "rubick_empty1" "MaxLevel" "1" "Modifiers" { "modifier_movespeed_0" { "Passive" "1" "IsHidden" "1" "Properties" { "MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE" "0" } } } }
 	"movespeed_1" { "AbilityBehavior" "DOTA_ABILITY_BEHAVIOR_PASSIVE" "BaseClass" "ability_datadriven" "AbilityTextureName" "rubick_empty1" "MaxLevel" "1" "Modifiers" { "modifier_movespeed_1" { "Passive" "1" "IsHidden" "1" "Properties" { "MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE" "1" } } } }
 	"movespeed_2" { "AbilityBehavior" "DOTA_ABILITY_BEHAVIOR_PASSIVE" "BaseClass" "ability_datadriven" "AbilityTextureName" "rubick_empty1" "MaxLevel" "1" "Modifiers" { "modifier_movespeed_2" { "Passive" "1" "IsHidden" "1" "Properties" { "MODIFIER_PROPERTY_MOVESPEED_BASE_OVERRIDE" "2" } } } }

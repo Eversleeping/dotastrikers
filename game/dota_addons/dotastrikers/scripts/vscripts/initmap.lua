@@ -199,7 +199,6 @@ function DotaStrikers:OnGoal(team)
 	RoundOver = true
 	local ball = Ball.unit
 	local scorer = ball.lastMovedBy
-	scorer.goalsAgainst = scorer.goalsAgainst + 1
 
 	local nWinningTeam = DOTA_TEAM_BADGUYS
 	local nLosingTeam = DOTA_TEAM_GOODGUYS
@@ -220,9 +219,12 @@ function DotaStrikers:OnGoal(team)
 		ParticleManager:SetParticleControlEnt(part, 1, scorer, 1, "follow_origin", scorer:GetAbsOrigin(), true)
 
 		EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
+
+		scorer.goalsAgainst = scorer.goalsAgainst + 1
 	else
-		print("fail.")
 		EmitGlobalSound("Fail" .. RandomInt(1, NUM_FAIL_SOUNDS))
+
+		scorer.goalsAgainst = scorer.goalsAgainst - 1
 	end
 
 
@@ -410,8 +412,9 @@ function DotaStrikers:OnGoal(team)
 		end
 		ball:StartPhysicsSimulation()
 		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
-		ball:SetPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
-
+		local ballVel = ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2]))
+		ball:SetPhysicsVelocity(ballVel)
+		ball:SetForwardVector(ballVel:Normalized())
 
 		RoundInProgress = true
 		Say(nil, "PLAY!!", false)
@@ -649,7 +652,7 @@ function SetupStats( hero )
 	hero.turnovers = 0
 	hero.possession_time = 0
 
-	if Testing then
+	--[[if Testing then
 		hero.goalsAgainst = RandomInt(1,5)
 		hero.numAssists = RandomInt(1,6)
 		hero.numSaves = RandomInt(1,5)
@@ -662,7 +665,7 @@ function SetupStats( hero )
 		hero.steals = RandomInt(2, 10)
 		hero.turnovers = RandomInt(2, 10)
 		hero.possession_time = RandomFloat(40, 400)
-	end
+	end]]
 
 end
 
@@ -803,7 +806,9 @@ function DotaStrikers:InitScoreboard(  )
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pickups",value=hero.pickups})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="passes",value=hero.numPasses})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
-			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="poss",value=round(hero.possession_time/60,1)})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="poss",value=round(hero.possession_time,0)})
+			-- seconds played as goalie. (spag)
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="spag",value=round(hero.time_as_goalie,0)})
 
 			local savp = -1
 			if hero.numSaves ~= 0 or hero.non_saves ~= 0 then

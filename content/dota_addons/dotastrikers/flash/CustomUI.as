@@ -67,7 +67,7 @@
 			Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 			Globals.instance.GameInterface.SetConvar("dota_hud_healthbar_number", "0")
 			// prevents mousewheel from fcking up the camera
-			Globals.instance.GameInterface.SetConvar("r_farz", "5000")
+			//Globals.instance.GameInterface.SetConvar("r_farz", "8000")
 			//dota_hud_healthbar_number
 
 			//pass the gameAPI on to the modules

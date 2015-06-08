@@ -84,7 +84,7 @@
 			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
 
 			home.setup(gameAPI, globals)
-			//options.setup(gameAPI, globals)
+			options.setup(gameAPI, globals)
 			//leagues.setup(gameAPI, globals)
 			//changelogs.setup(gameAPI, globals)
 
@@ -182,7 +182,7 @@
 			this.yScale = yScale
 
 			home.screenResize(stageW, stageH, yScale, yScale, wide)
-			//options.screenResize(stageW, stageH, yScale, yScale, wide
+			options.screenResize(stageW, stageH, yScale, yScale, wide)
 			//leagues.screenResize(stageW, stageH, yScale, yScale, wide
 			//changelogs.screenResize(stageW, stageH, yScale, yScale, wide
 		}

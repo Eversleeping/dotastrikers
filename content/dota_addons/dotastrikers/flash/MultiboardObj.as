@@ -8,6 +8,7 @@
 	import flash.events.TimerEvent; 
     import flash.utils.Timer;
     import flash.geom.Point;
+    import flash.events.MouseEvent;
 
 	import ValveLib.*;
 	import flash.text.TextFormat;
@@ -43,6 +44,8 @@
 			gameAPI.SubscribeToGameEvent("update_scoreboard_value", onUpdateScoreboardValue)
 
 			abilities = globals.GameInterface.LoadKVFile('scripts/npc/npc_abilities_custom.txt');
+
+			closeSBBtn.addEventListener(MouseEvent.CLICK, onCloseSBBtnClick)
 
 			// get the sbLabel names
 			for (var k:String in abilities) {
@@ -110,7 +113,7 @@
 			var _label:String = "p" + pID + key
 			var tf:TextField = getChildByName(_label) as TextField
 
-			if (key != "savp" && key != "poss") {
+			if (key != "savp") {
 				val = trim(val, 0)
 			} else {
 				val = trim(val, 1)
@@ -176,6 +179,11 @@
 			return newObject;
 		}
 
+		function onCloseSBBtnClick (e:MouseEvent):void {
+			visible = false
+			gameAPI.SendServerCommand("play_sound Close_Menu")
+		}
+
 		//onScreenResize
 		public function screenResize(stageW:int, stageH:int, xScale:Number, yScale:Number, wide:Boolean) {
 			trace("MultiboardObj. stageW: " + stageW + " stageH: " + stageH)
@@ -187,7 +195,7 @@
 			//trace("#Result Resize: ",x,y,yScale);
 			
 			x = stageW/2 - width/2;
-			y = stageH/2 - height/2-60*yScale;
+			y = stageH/2 - height/2-90*yScale;
 
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
 			scaleX = xScale;

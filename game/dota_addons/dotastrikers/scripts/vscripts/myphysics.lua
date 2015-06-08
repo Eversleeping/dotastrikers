@@ -329,7 +329,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 					-- do some stats stuff
 					if not ball.controller and not saved then
 						-- determine if catch was a pass
-						if ball.velocityMagnitude < 500*500 then
+						if ball.velocityMagnitude < 400*400 then
 							hero.pickups = hero.pickups + 1
 						else
 							if hero:GetTeam() == ball.lastMovedBy:GetTeam() then
@@ -743,6 +743,7 @@ function DotaStrikers:OnGridNavBounce( unit, normal )
 	-- done with passTest logic. move onto parsing that logic, add sounds, effects, etc.
 	if isBall and not ball.controller and not ball.affectedByPowershot then
 		unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
+		ball:SetForwardVector(ball:GetPhysicsVelocity():Normalized())
 	
 	elseif unit.isDSHero then
 		TryPlayCracks(unit, nil, true)

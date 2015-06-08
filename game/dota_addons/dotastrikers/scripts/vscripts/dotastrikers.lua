@@ -1001,7 +1001,7 @@ function DotaStrikers:CaptureDotaStrikers()
 	if mode == nil then
 		mode = GameRules:GetGameModeEntity()
 		mode:SetRecommendedItemsDisabled( true )
-		mode:SetCameraDistanceOverride( 2000 ) --1800
+		--mode:SetCameraDistanceOverride( 2000 ) --1800
 		mode:SetBuybackEnabled( false )
 		mode:SetTopBarTeamValuesOverride ( true )
 		mode:SetTopBarTeamValuesVisible( true )
