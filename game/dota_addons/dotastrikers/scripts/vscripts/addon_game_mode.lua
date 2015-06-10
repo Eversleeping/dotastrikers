@@ -18,6 +18,10 @@ function Precache( context )
 
 	print("[DOTASTRIKERS] Performing pre-load precache")
 
+	Timers:CreateTimer(1, function()
+		PrecacheContext = context
+	end)
+
 	-- Particles can be precached individually or by folder
 	-- It it likely that precaching a single particle system will precache all of its children, but this may not be guaranteed
 	--PrecacheResource("particle", "particles/econ/generic/generic_aoe_explosion_sphere_1/generic_aoe_explosion_sphere_1.vpcf", context)
@@ -35,6 +39,7 @@ function Precache( context )
 	PrecacheResource("particle_folder", "particles/stolen", context)
 	PrecacheResource("particle_folder", "particles/stolen_badguys", context)
 	PrecacheResource("particle_folder", "particles/tornado", context)
+	PrecacheResource("particle_folder", "particles/golden_doomling", context)
 	--PrecacheResource("particle_folder", "blah", context)
 	--PrecacheResource("particle_folder", "blah", context)
 	--PrecacheResource("particle_folder", "blah", context)
@@ -90,11 +95,11 @@ function Precache( context )
 
 	PrecacheResource("particle", "particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_chakra_magic.vpcf", context)
 	PrecacheResource("particle", "particles/generic_gameplay/radiant_fountain_regen.vpcf", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
-	--PrecacheResource("particle", "blah", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_brewmaster/brewmaster_fire_ambient.vpcf", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_jakiro/jakiro_liquid_fire_ready.vpcf", context)
+	PrecacheResource("particle", "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", context)
+	PrecacheResource("particle", "particles/econ/courier/courier_snapjaw/courier_snapjaw_ambient_rocket_sparks.vpcf", context)
+	PrecacheResource("particle", "particles/units/heroes/hero_techies/techies_suicide_sparks.vpcf", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)

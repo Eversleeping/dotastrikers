@@ -221,6 +221,9 @@ function DotaStrikers:PlayerSay( keys )
 		if txt == "tornado" then
 			SummonTornado()
 		end
+		if txt == "precache" then
+			DotaStrikers:PrecacheTest()
+		end
 	end
 end
 

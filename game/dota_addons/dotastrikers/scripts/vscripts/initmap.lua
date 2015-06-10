@@ -414,7 +414,7 @@ function DotaStrikers:OnGoal(team)
 		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
 		local ballVel = ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2]))
 		ball:SetPhysicsVelocity(ballVel)
-		ball:SetForwardVector(ballVel:Normalized())
+		ball:SetFV(ballVel:Normalized())
 
 		RoundInProgress = true
 		Say(nil, "PLAY!!", false)
@@ -827,6 +827,14 @@ function DotaStrikers:InitScoreboard(  )
 	end)
 
 end
+
+function DotaStrikers:PrecacheTest()
+	PrecacheResource("particle", "particles/econ/courier/courier_trail_international_2013_se/courier_international_2013_se.vpcf", PrecacheContext)
+
+
+
+end
+
 
 TORNADO_RADIUS = 230
 TORNADO_FORCE = 1600

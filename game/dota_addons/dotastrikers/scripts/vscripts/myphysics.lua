@@ -78,9 +78,20 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			if unitPos.z > (unit.last_peak_z+10) and unitPos.z > (GroundZ+ABOVE_GROUND_Z+30) then
 				--DebugDrawSphere(unitPos, Vector(255,0,0), 50, 30, false, 20)
 				unit.bounce_multiplier = BOUNCE_MULTIPLIER
+				if unit == ball then
+					--ParticleManager:CreateParticle("particles/units/heroes/hero_techies/techies_suicide_sparks.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				end
 			end
 			unit.last_peak_z = unitPos.z
 			unit.last_peak_time = GameRules:GetGameTime()
+		end
+
+		if not unit.airTrailP and unit.isBall and not ball.controller then
+			ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+			ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+		elseif unit.airTrailP and unit.isBall and ball.controller then
+			ParticleManager:DestroyParticle(unit.airTrailP, false)
+			unit.airTrailP = nil
 		end
 	else
 		if not unit.dontChangeFriction and unit:GetPhysicsFriction() ~= GROUND_FRICTION then
@@ -90,6 +101,12 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if unit:HasModifier("modifier_flail_passive") then
 			unit:RemoveModifierByName("modifier_flail_passive")
 		end
+
+		if unit.airTrailP then
+			ParticleManager:DestroyParticle(unit.airTrailP, false)
+			unit.airTrailP = nil
+		end
+
 	end
 
 	if inAir and not unit.isAboveGround then
@@ -274,6 +291,11 @@ function Ball:Init(  )
 		end
 	end
 
+	function ball:SetFV( fv )
+		ball:SetForwardVector(fv)
+		ball.lastForwardVector = fv
+	end
+
 	ball.controller = nil
 	DotaStrikers:SetupPhysicsSettings(ball)
 
@@ -340,14 +362,14 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 							else
 								hero.steals = hero.steals + 1
 								ball.lastMovedBy.turnovers = ball.lastMovedBy.turnovers + 1
-								EmitGlobalSound("Cheer" .. RandomInt(1, NumCheerSounds))
+								--EmitGlobalSound("Cheer" .. RandomInt(1, NumCheerSounds))
 								DotaStrikers:text_particle( {caster=hero, stolen=true} )
 								PlayVictoryAndDeathAnimations(hero:GetTeam(), nil, true)
 							end
 						end
 					end
 
-					if not hero.isAboveGround and ballPos.z > hero:GetAbsOrigin().z+BALL_COLLISION_DIST-40 then
+					if not hero.isAboveGround and ballPos.z > hero:GetAbsOrigin().z+BALL_COLLISION_DIST-50 then
 						if hero:HasAbility("throw_ball") then
 							hero:RemoveAbility("throw_ball")
 							hero:AddAbility("head_bump")
@@ -390,7 +412,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 				ball:SetAbsOrigin(hero:GetAbsOrigin() + Vector(fv.x,fv.y,0)*BALL_HANDLED_OFFSET)
 			end
 
-			ball:SetForwardVector(fv)
+			ball:SetFV(fv)
 		end
 		-- reset the movespeed if this guy isn't the ball handler anymore.
 		if ball.controller ~= hero and hero:HasModifier("modifier_ball_controller") then
@@ -424,16 +446,14 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 			DotaStrikers:RemoveGoalieJump(ball.controller)
 		end
 
-		ball:SetForwardVector(ball.controller:GetForwardVector())
+		ball:SetFV(ball.controller:GetForwardVector())
 
 	else -- ball.controller is nil
 		-- turn the facing direction of the ball for aesthetics.
 		local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
-		local ballFV = ball:GetForwardVector()
 
-		if ball.bStarted and ball.velocityMagnitude > 150*150 and ballFV ~= ball.lastForwardVector then
-			ball.lastForwardVector = ballFV
-			ball:SetForwardVector(ballVelocityDir)
+		if ball.bStarted and ball.velocityMagnitude > 150*150 and ball:GetForwardVector() ~= ballVelocityDir then
+			ball:SetFV(ballVelocityDir)
 		end
 
 		ballPos = ball:GetAbsOrigin()
@@ -743,7 +763,7 @@ function DotaStrikers:OnGridNavBounce( unit, normal )
 	-- done with passTest logic. move onto parsing that logic, add sounds, effects, etc.
 	if isBall and not ball.controller and not ball.affectedByPowershot then
 		unit:EmitSound("Bounce" .. RandomInt(1, NUM_BOUNCE_SOUNDS))
-		ball:SetForwardVector(ball:GetPhysicsVelocity():Normalized())
+		ball:SetFV(ball:GetPhysicsVelocity():Normalized())
 	
 	elseif unit.isDSHero then
 		TryPlayCracks(unit, nil, true)
