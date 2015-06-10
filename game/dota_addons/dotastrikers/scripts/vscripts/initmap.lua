@@ -814,7 +814,7 @@ function DotaStrikers:InitScoreboard(  )
 			if hero.numSaves ~= 0 or hero.non_saves ~= 0 then
 				savp = hero.numSaves/(hero.numSaves+hero.non_saves)*100
 			end
-			print("savp: " .. savp)
+			--print("savp: " .. savp)
 
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="savp",value=savp})
 			--FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})

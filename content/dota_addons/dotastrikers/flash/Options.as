@@ -30,7 +30,7 @@
 			
 			// set this to at least 2000 above the max slider value.
 			// it's necessary for the game to render properly while zooming
-			Globals.instance.GameInterface.SetConvar("r_farz", "6000")
+			Globals.instance.GameInterface.SetConvar("r_farz", "7000")
 
 			addEventListener(Event.ENTER_FRAME, myEnterFrame)
 

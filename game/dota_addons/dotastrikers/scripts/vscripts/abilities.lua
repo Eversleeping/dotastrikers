@@ -626,7 +626,7 @@ function DotaStrikers:slam( keys )
 	local slamAbil = echoDummy:FindAbilityByName("slam_dummy")
 	slamAbil:SetLevel(1)
 
-	Timers:CreateTimer(NEXT_FRAME, function()
+	Timers:CreateTimer(NF, function()
 		echoDummy:CastAbilityImmediately(slamAbil, 0)
 		Timers:CreateTimer(1, function()
 			echoDummy:ForceKill(true)
