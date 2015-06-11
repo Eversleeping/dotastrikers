@@ -19,7 +19,7 @@ SCORE_TO_WIN = 13
 
 if Testing then
 	PRE_FIRSTROUND_START = 1
-	--SCORE_TO_WIN = 4
+	SCORE_TO_WIN = 3
 end
 
 RoundsCompleted = 0
@@ -388,6 +388,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	end
 
 	SetupStats(hero)
+
+	FireGameEvent("hero_picked", {player_ID = hero.plyID})
 
 	-- OnConnectFull doesn't run in alpha tools.
 	if Testing then

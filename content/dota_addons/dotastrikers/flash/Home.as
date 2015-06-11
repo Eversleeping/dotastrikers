@@ -18,9 +18,10 @@
 	
 	public class Home extends MovieClip {
 		
-		public var gameAPI:Object;
-		public var globals:Object;
+		public var gameAPI:Object
+		public var globals:Object
 		var _scrollBar:Object
+		var _funModeCheckbox:Object
 
 		public function Home() {
 			// constructor code
@@ -30,19 +31,8 @@
 		public function setup(api:Object, globals:Object) {
 			this.gameAPI = api;
 			this.globals = globals;
-			
-			// Font Labels
-			var txFormatBold:TextFormat = new TextFormat;
-			txFormatBold.font = "Radiance-Semibold";
-			var txFormatTitle:TextFormat = new TextFormat;
-			txFormatTitle.font = "$TitleFontBold";
 
-			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
-
-			//_scrollBar = replaceWithValveComponent(scrollBar, "ScrollBarDota");
-			//_scrollBar.scrollTarget = bodyText
-			//_scrollBar.direction = ScrollBarDirection.VERTICAL
-			//_scrollBar.addEventListener(Event.SCROLL, onScrollBarScroll);
+			_funModeCheckbox = replaceWithValveComponent(funModeCheckbox, "DotaCheckBoxDota")
 
 			trace("##Called Home Setup!");
 		}
@@ -74,20 +64,7 @@
 
 		//onScreenResize
 		public function screenResize(stageW:int, stageH:int, xScale:Number, yScale:Number, wide:Boolean) {
-			//trace("Stage Size: ",stageW,stageH);
 
-			//width = width*yScale;
-			//height = height*yScale;
-
-			// this is always called at the resolution the player is currently at.
-			//x = stageW/2 - width/2;
-			//y = stageH/2 - height/2-45*yScale;
-			
-			//trace("#Result Resize: ",x,y,yScale);
-			
-			//Now we just set the scale of this element, because these parameters are already the inverse ratios
-			//scaleX = xScale;
-			//scaleY = yScale;
 		}
 	}	
 }

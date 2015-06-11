@@ -123,6 +123,10 @@
 			}
 		}
 
+		public function onGameOver() : void {
+			options.onGameOver()
+		}
+
         public function onRadioBtnClicked(e:ButtonEvent)
         {
 			var mc:MovieClip = nameToMenuMCs[e.target.label]

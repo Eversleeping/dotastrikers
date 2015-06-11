@@ -16,6 +16,8 @@
 		public var gameAPI:Object
 		public var globals:Object
 		var _camDistSlider:Object
+		var optionsKV:Object
+		var newOptionsKV:Object = new Object()
 		var currCamDist:int = 2000
 		var currDistLabelT:String // currDistLabel translated
 
@@ -25,12 +27,14 @@
 		
 		//set initialise this instance's gameAPI
 		public function setup(api:Object, globals:Object) {
-			this.gameAPI = api;
-			this.globals = globals;
-			
+			this.gameAPI = api
+			this.globals = globals
+
 			// set this to at least 2000 above the max slider value.
 			// it's necessary for the game to render properly while zooming
 			Globals.instance.GameInterface.SetConvar("r_farz", "7000")
+
+			optionsKV = globals.GameInterface.LoadKVFile('resource/flash3/dotastrikers_options.kv')
 
 			addEventListener(Event.ENTER_FRAME, myEnterFrame)
 
@@ -43,20 +47,42 @@
 			_camDistSlider.minimum = 900
 			_camDistSlider.maximum = 4000
 			_camDistSlider.value = 2000
-			_camDistSlider.snapInterval = 50
+			_camDistSlider.snapping = true
+			_camDistSlider.snapInterval = 10
 			_camDistSlider.addEventListener( SliderEvent.VALUE_CHANGE, onCamDistSliderChanged )
+
+			if (optionsKV != null) {
+				if (optionsKV["CameraDistance"]) {
+					var dist:int = parseInt(optionsKV["CameraDistance"])
+					if (!isNaN(dist)) {
+						trace("Saved CameraDistance found. value: " + dist)
+						_camDistSlider.value = dist
+					}
+
+				}
+			}
 
 			trace("##Called Options Setup!");
 		}
 
+		public function onGameOver() : void {
+			trace("onGameOver Options")
+
+			newOptionsKV["CameraDistance"] = String(currCamDist)
+
+			Globals.instance.GameInterface.SaveKVFile(newOptionsKV, 'resource/flash3/dotastrikers_options.kv', 'Options')
+
+		}
+
 		public function onCamDistSliderChanged(e:SliderEvent) {
-			var currVal:int = _camDistSlider.value
+			/*var currVal:int = _camDistSlider.value
 			trace("Current value: " + currVal)
-			currCamDist = currVal
+			currCamDist = currVal*/
 		}
 
 		private function myEnterFrame(e:Event) : void {
 			//trace("myEnterFrame Options")
+			currCamDist = _camDistSlider.value
 			Globals.instance.GameInterface.SetConvar("dota_camera_distance", currCamDist.toString())
 			currDistLabel.text = currDistLabelT + " " + currCamDist
 		}

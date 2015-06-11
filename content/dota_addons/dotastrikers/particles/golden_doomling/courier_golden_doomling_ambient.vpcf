@@ -50,7 +50,8 @@ ParticleChildrenInfo_t[]  m_Children =
 [
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient_b.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_ambient_b.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -58,7 +59,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_wing_l_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_wing_l_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -66,7 +68,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_wing_r_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_wing_r_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -74,7 +77,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient_glint.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_ambient_glint.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -82,7 +86,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_smoke_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_smoke_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -90,7 +95,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_smoke_b_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_smoke_b_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -98,7 +104,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_bloom_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_bloom_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -106,7 +113,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_glow_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_glow_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false

@@ -422,7 +422,7 @@ function DotaStrikers:OnGoal(team)
 		EmitGlobalSound(roundStartSound)
 		-- make all creeps cheer
 		PlayVictoryAndDeathAnimations(DOTA_TEAM_GOODGUYS, true)
-		print("playing " .. roundStartSound)
+		--print("playing " .. roundStartSound)
 	end)
 end
 
@@ -445,7 +445,7 @@ function DotaStrikers:OnWonGame( nWinningTeam )
 	--[[for _,hero in pairs(self.vHeroes) do
 		-- inc games won for player.
 	end]]
-
+	FireGameEvent("game_over", {})
 	GameRules:SetGameWinner( nWinningTeam )
 	GameRules:SetSafeToLeave( true )
 	-- TODO: show popup with elo rating change

@@ -50,7 +50,8 @@ ParticleChildrenInfo_t[]  m_Children =
 [
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_wing_ember_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_wing_ember_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false
@@ -58,7 +59,8 @@ bool m_bDisableChild = false
 },
 ParticleChildrenInfo_t
 {
-string m_ChildRef = "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_wing_ember_b_ambient.vpcf"
+string m_ChildRef = "particles/golden_doomling/courier_golden_doomling_wing_ember_b_ambient.vpcf"
+
 bool m_bPreventNameBasedLookup = false
 float m_flDelay = 0.000000
 bool m_bEndCap = false

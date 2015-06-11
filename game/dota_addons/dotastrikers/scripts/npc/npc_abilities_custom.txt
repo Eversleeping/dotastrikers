@@ -253,7 +253,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"0"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"6"
+		"AbilityCooldown"				"2"
 
 		"AbilityManaCost"				"0"
 		"MaxLevel"						"1"

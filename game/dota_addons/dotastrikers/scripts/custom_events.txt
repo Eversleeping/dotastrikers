@@ -30,7 +30,15 @@
         "player_ID"    			  "short"
         "ability_index"      	  "short"
     }
+
     "all_players_loaded" { }
+
+    "game_over" { }
+
+    "hero_picked"
+    {
+        "player_ID"             "short"
+    }
 	
     "activate_player"
     {

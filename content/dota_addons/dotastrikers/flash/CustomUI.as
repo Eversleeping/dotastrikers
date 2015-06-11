@@ -47,10 +47,10 @@
 
 			visible = true;
 
-			//this.gameAPI.SubscribeToGameEvent("show_main_ability", showMainAbility);
-			gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility);
-			//gameAPI.SubscribeToGameEvent("show_welcome_popup", showWelcomePopup);
-			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded);
+			gameAPI.SubscribeToGameEvent("toggle_show_ability_silenced", toggleSilenceAbility)
+			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded)
+			gameAPI.SubscribeToGameEvent("game_over", onGameOver)
+			gameAPI.SubscribeToGameEvent("hero_picked", onHeroPicked)
 
 			var oldChatSay:Function = globals.Loader_hud_chat.movieClip.gameAPI.ChatSay;
 			globals.Loader_hud_chat.movieClip.gameAPI.ChatSay = function(obj:Object, bool:Boolean){
@@ -66,9 +66,10 @@
 
 			Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 			Globals.instance.GameInterface.SetConvar("dota_hud_healthbar_number", "0")
-			// prevents mousewheel from fcking up the camera
-			//Globals.instance.GameInterface.SetConvar("r_farz", "8000")
-			//dota_hud_healthbar_number
+
+			// these prevent tooltips from fcking up at the start
+			Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "0")
+			//Globals.instance.GameInterface.SetConvar("dota_draw_portrait", "0")
 
 			//pass the gameAPI on to the modules
 			//welcome.setup(gameAPI, globals)
@@ -109,6 +110,20 @@
 			if (ds_menu.getCurrentMenuMC()) {
 				ds_menu.getCurrentMenuMC().visible = false
 			}
+		}
+
+		public function onHeroPicked(args:Object) : void {
+			if (globals.Players.GetLocalPlayer() != args.player_ID)
+			{
+				return
+			}
+			trace("onHeroPicked")
+			Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "1")
+			//Globals.instance.GameInterface.SetConvar("dota_draw_portrait", "1")
+		}
+
+		public function onGameOver() : void {
+			ds_menu.onGameOver()
 		}
 
 		public function toggleSilenceAbility(args:Object) : void {

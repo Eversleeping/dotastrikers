@@ -48,8 +48,10 @@
 
 			var tf:TextFormat = clickOnTheHeroes.getTextFormat()
 			clickOnTheHeroes.text = Globals.instance.GameInterface.Translate("#ClickOnTheHeroes")
-
 			abilitiesText.text = Globals.instance.GameInterface.Translate("#Abilities")
+			howToPlayLabel.text = Globals.instance.GameInterface.Translate("#HowToPlay")
+			howToPlayText.text = Globals.instance.GameInterface.Translate("#HowToPlayText")
+			heroesLabel.text = Globals.instance.GameInterface.Translate("#Heroes")
 
 			//heroesLabel.defaultTextFormat = heroesLabel.getTextFormat()
 
@@ -247,8 +249,8 @@
 			scaleY = yScale;
 
 			// this is always called at the resolution the player is currently at.
-			x = stageW - width/2;
-			y = stageH - height/2;
+			x = stageW - width;
+			y = stageH - height;
 
 		}
 	}	
