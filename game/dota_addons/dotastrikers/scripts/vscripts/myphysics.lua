@@ -27,9 +27,9 @@ CONTROLLER_MOVESPEED_FACTOR = 1/5
 SprintAbilIndex = 2
 
 --SOUNDS
-NUM_BOUNCE_SOUNDS = 5
-NUM_KICK_SOUNDS = 6
-NUM_CATCH_SOUNDS = 5
+NUM_BOUNCE_SOUNDS = 9
+NUM_KICK_SOUNDS = 10
+NUM_CATCH_SOUNDS = 6
 NumRoundStartSounds = 6
 NUM_ROUNDEND_SOUNDS = 10
 NUM_FAIL_SOUNDS = 2
@@ -44,6 +44,18 @@ RoundCountdownSounds =
 	-- set # vs. how many in set
 	[1] = 1,
 	[2] = 2
+}
+
+RollLoopSounds = 
+{
+	["grass"] =
+	{
+		[1] = 
+		{
+			["sound"] = "Roll_Grass_Loop1",
+			["duration"] = 4,
+		},
+	},
 }
 
 PlayerPlayerCollisionSounds = 
@@ -86,13 +98,17 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			unit.last_peak_time = GameRules:GetGameTime()
 		end
 
-		if not unit.airTrailP and unit.isBall and not ball.controller then
-			ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
-			ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
-		elseif unit.airTrailP and unit.isBall and ball.controller then
-			ParticleManager:DestroyParticle(unit.airTrailP, false)
-			unit.airTrailP = nil
+		if unit.isBall then
+			if not unit.airTrailP and not ball.controller then
+				ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+			elseif unit.airTrailP and ball.controller then
+				ParticleManager:DestroyParticle(unit.airTrailP, false)
+				unit.airTrailP = nil
+			end
+			StopBallRollLoopSound()
 		end
+
 	else
 		if not unit.dontChangeFriction and unit:GetPhysicsFriction() ~= GROUND_FRICTION then
 			unit:SetPhysicsFriction(GROUND_FRICTION)
@@ -102,11 +118,18 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			unit:RemoveModifierByName("modifier_flail_passive")
 		end
 
-		if unit.airTrailP then
-			ParticleManager:DestroyParticle(unit.airTrailP, false)
-			unit.airTrailP = nil
-		end
+		if unit.isBall then
+			if unit.airTrailP then
+				ParticleManager:DestroyParticle(unit.airTrailP, false)
+				unit.airTrailP = nil
+			end
 
+			if not ball.controller then
+				StartBallRollLoopSound()
+			else
+				StopBallRollLoopSound()
+			end
+		end
 	end
 
 	if inAir and not unit.isAboveGround then
@@ -561,6 +584,39 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 	ball.particleDummy:SetForwardVector(ball:GetForwardVector())
 	--print("rotating.")
+end
+
+function StopBallRollLoopSound(  )
+	local ball = Ball.unit
+	if ball.rollLoopSoundTimer then
+		if ball.rollLoopSound then
+			ball:StopSound(ball.rollLoopSound)
+			ball.rollLoopSound = nil
+		end
+		Timers:RemoveTimer(ball.rollLoopSoundTimer)
+		ball.rollLoopSoundTimer = nil
+	end
+end
+
+function StartBallRollLoopSound(  )
+	local ball = Ball.unit
+	if ball.rollLoopSoundTimer or ball.controller then
+		return
+	end
+
+	ball.rollLoopSoundTimer = Timers:CreateTimer(function()
+		if ball.rollLoopSound then
+			ball:StopSound(ball.rollLoopSound.sound)
+		end
+
+		local rollLoopSounds = RollLoopSounds[FIELD]
+		local rollLoopSound = rollLoopSounds[RandomInt(1, #rollLoopSounds)]
+		ball.rollLoopSound = rollLoopSound
+
+		ball:EmitSound(rollLoopSound.sound)
+
+		return rollLoopSound.duration
+	end)
 end
 
 function TryPlayCracks( ... )
