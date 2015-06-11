@@ -120,7 +120,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 			if not ball.controller then
 				StartBallRollLoopSound()
-			else
+			elseif ball.controller or not ball.rotateStarted then
 				StopBallRollLoopSound()
 			end
 		end
