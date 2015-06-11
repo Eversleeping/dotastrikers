@@ -99,13 +99,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 		if unit.isBall then
-			if not unit.airTrailP and not ball.controller then
-				ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
-				ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
-			elseif unit.airTrailP and ball.controller then
-				ParticleManager:DestroyParticle(unit.airTrailP, false)
-				unit.airTrailP = nil
-			end
+			PlayAirTrailParticle()
 			StopBallRollLoopSound()
 		end
 
@@ -671,6 +665,18 @@ function TryPlayCracks( ... )
 			EmitSoundAtPosition(impactSound, unitPos)
 		end
 		unit.lastCrackTime = currTime
+	end
+end
+
+function PlayAirTrailParticle( unit )
+	local ball = Ball.unit
+	
+	if not unit.airTrailP and not ball.controller then
+		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+	elseif unit.airTrailP and ball.controller then
+		ParticleManager:DestroyParticle(unit.airTrailP, false)
+		unit.airTrailP = nil
 	end
 end
 
