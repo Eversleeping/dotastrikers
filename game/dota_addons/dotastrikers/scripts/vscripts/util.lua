@@ -167,6 +167,11 @@ function EmitSoundAtPosition( ... )
 	local t = {...}
 	local soundName = t[1]
 	local pos = t[2]
+
+	if type(pos) ~= "userdata" and IsValidEntity(pos) then
+		pos = pos:GetAbsOrigin()
+	end
+
 	local duration = t[3]
 	local soundDummy = CreateUnitByName("dummy", pos, false, nil, nil, DOTA_TEAM_GOODGUYS)
 	soundDummy:EmitSound(soundName)

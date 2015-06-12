@@ -144,13 +144,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 
 				else
 					RemoveEndgameRoot(hero)
-
-					for i=1,6 do
-						local abil = hero:GetAbilityByIndex(i-1)
-						hero:RemoveAbility(abil:GetAbilityName())
-						hero:AddAbility(hero.round_in_progress_abils[i])
-						hero:FindAbilityByName(hero.round_in_progress_abils[i]):SetLevel(1)
-					end
+					RemoveSilence(hero)
 				end
 			end
 			print("RoundInProgress")
@@ -475,10 +469,6 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	end
 
 	hero.heroes_kv_name = heroes_kv_name
-	--print("heroes_kv_name: " .. heroes_kv_name)
-
-	-- this is useful in between rounds, swapping ability bars. it's in initmap.lua
-	self:GetRoundAbils(hero)
 
 	self:SetupPersonalColliders(hero)
 
@@ -541,16 +531,10 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		DotaStrikers:OnMyPhysicsFrame(hero)
 	end)
 
-	-- Replace the abils with the round_not_in_progress abils
 	if not RoundInProgress then
-		Timers:CreateTimer(.03, function()
+		Timers:CreateTimer(NF, function()
 			AddEndgameRoot(hero)
-			for i=1,6 do
-				local abil = hero:GetAbilityByIndex(i-1)
-				hero:RemoveAbility(abil:GetAbilityName())
-				hero:AddAbility(hero.round_not_in_progress_abils[i])
-				hero:FindAbilityByName(hero.round_not_in_progress_abils[i]):SetLevel(1)
-			end
+			AddSilence(hero)
 		end)
 	end
 end

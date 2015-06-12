@@ -19,40 +19,6 @@ GOAL_Z = 256+(465-128-20)
 D_OUTWARDNESS = -1*R_OUTWARDNESS
 D_SCORE = -1*R_SCORE
 
-function DotaStrikers:GetRoundAbils( hero )
-	--print("round_in_progress_abils:")
-	local ptr = 1
-	local round_in_progress_abils = {}
-	for k,v in pairs(self.HeroesKV) do
-		if k == hero.heroes_kv_name then
-			for k,v2 in pairs(v) do
-				--print(k .. ": " .. v2)
-				if k:sub(1,7) == "Ability" and k:len() == 8 then
-					local index = tonumber(k:sub(8,8))
-					if index and index <= 6 then
-						--print(k .. ": " .. v2)
-						round_in_progress_abils[index] = v2
-					end
-				end
-			end
-		end
-	end
-
-	hero.round_in_progress_abils = round_in_progress_abils
-
-	local round_not_in_progress_abils = {}
-	for i=1,6 do
-		if i == 4 then
-			round_not_in_progress_abils[i] = "pass_me"
-		else
-			round_not_in_progress_abils[i] = "dotastrikers_empty" .. i
-		end
-		--print(round_not_in_progress_abils[i])
-	end
-	hero.round_not_in_progress_abils = round_not_in_progress_abils
-end
-
-
 function DotaStrikers:InitMap()
 	local ball = Ball.unit
 
@@ -205,7 +171,6 @@ function DotaStrikers:OnGoal(team)
 	if team == "Radiant" then
 		nWinningTeam = DOTA_TEAM_GOODGUYS
 		nLosingTeam = DOTA_TEAM_BADGUYS
-		print("winning team is radiant.")
 	end
 
 	PlayVictoryAndDeathAnimations(nWinningTeam)
@@ -217,6 +182,8 @@ function DotaStrikers:OnGoal(team)
 
 		local part = ParticleManager:CreateParticle("particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_chakra_magic.vpcf", PATTACH_OVERHEAD_FOLLOW, scorer)
 		ParticleManager:SetParticleControlEnt(part, 1, scorer, 1, "follow_origin", scorer:GetAbsOrigin(), true)
+
+		scorer.highlightP = ParticleManager:CreateParticle("particles/econ/courier/courier_trail_05/courier_trail_05.vpcf", PATTACH_ABSORIGIN_FOLLOW, scorer)
 
 		EmitGlobalSound("Round_End" .. RandomInt(1, NUM_ROUNDEND_SOUNDS))
 
@@ -273,14 +240,7 @@ function DotaStrikers:OnGoal(team)
 	Timers:CreateTimer(.06, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
 			CleanUp(hero)
-
-			-- Replace the abils with the round_not_in_progress abils
-			for i=1,6 do
-				local abil = hero:GetAbilityByIndex(i-1)
-				hero:RemoveAbility(abil:GetAbilityName())
-				hero:AddAbility(hero.round_not_in_progress_abils[i])
-				hero:FindAbilityByName(hero.round_not_in_progress_abils[i]):SetLevel(1)
-			end
+			AddSilence(hero)
 		end
 	end)
 
@@ -327,12 +287,6 @@ function DotaStrikers:OnGoal(team)
 		Timers:CreateTimer(TIME_TILL_NEXT_ROUND-i, function()
 			if i == start then
 				for _,hero in ipairs(DotaStrikers.vHeroes) do
-					--[[if hero:GetTeam() == nWinningTeam then
-						StopAnimation(hero.victory_anim, hero)
-					else
-						StopAnimation(hero.defeat_anim, hero)
-					end]]
-
 					--[[if hero.goalie then
 						DotaStrikers:RemoveGoalieJump(hero)
 					end]]
@@ -361,6 +315,11 @@ function DotaStrikers:OnGoal(team)
 
 					-- return heroes back to their spawn positions.
 					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
+
+					if scorer.highlightP then
+						ParticleManager:DestroyParticle(scorer.highlightP, false)
+						scorer.highlightP = nil
+					end
 
 					-- make them all face the ball (looks nicer)
 					Timers:CreateTimer(.03, function()
@@ -391,21 +350,8 @@ function DotaStrikers:OnGoal(team)
 	Timers:CreateTimer(TIME_TILL_NEXT_ROUND, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
 			RemoveEndgameRoot(hero)
+			RemoveSilence(hero)
 
-			for i=1,6 do
-				local abil = hero:GetAbilityByIndex(i-1)
-				if abil then
-					hero:RemoveAbility(abil:GetAbilityName())
-					hero:AddAbility(hero.round_in_progress_abils[i])
-					local new_abil = hero:FindAbilityByName(hero.round_in_progress_abils[i])
-					new_abil:SetLevel(1)
-					Timers:CreateTimer(.03, function()
-						new_abil:EndCooldown()
-					end)
-				else
-					print("no abil at " .. i)
-				end
-			end
 			hero:StartPhysicsSimulation()
 			hero:SetPhysicsAcceleration(BASE_ACCELERATION)
 			hero:SetPhysicsVelocity(Vector(0,0,0))

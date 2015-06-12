@@ -489,6 +489,12 @@ function DotaStrikers:ninja_jump( keys )
 		caster:CastAbilityNoTarget(caster:FindAbilityByName("ninja_invis_sprint_break"), 0)
 	end
 
+	Timers:CreateTimer(1/30, function()
+		caster:EmitSound("Hero_Slark.Pounce.Cast")
+		caster.ninjaJumpP = ParticleManager:CreateParticle("particles/units/heroes/hero_slark/slark_dark_pact_pulses.vpcf", PATTACH_ABSORIGIN, caster)
+		ParticleManager:SetParticleControlEnt(caster.ninjaJumpP, 1, caster, 1, "follow_origin", caster:GetAbsOrigin(), true)
+	end)
+
 	if Testing then keys.ability:EndCooldown() end
 end
 

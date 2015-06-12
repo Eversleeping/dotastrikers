@@ -280,7 +280,7 @@ C_OP_OscillateVector C_OP_OscillateVector_5
 
 C_OP_BasicMovement C_OP_BasicMovement_6
 {
-	float(3) m_Gravity = ( 0.000000, 0.000000, 90.000000 )
+	float(3) m_Gravity = ( 0.000000, 0.000000, 50.000000 )
 	float m_fDrag = 0.000000
 	int m_nMaxConstraintPasses = 3
 	bool m_bLockULCorner = false
@@ -459,8 +459,8 @@ C_INIT_CreateWithinSphere C_INIT_CreateWithinSphere_8
 	bool m_bLocalCoords = false
 	bool m_bUseHighestEndCP = false
 	float m_flEndCPGrowthTime = 0.000000
-	float(3) m_LocalCoordinateSystemSpeedMin = ( 0.000000, 0.000000, 300.000000 )
-	float(3) m_LocalCoordinateSystemSpeedMax = ( 0.000000, 0.000000, 300.000000 )
+	float(3) m_LocalCoordinateSystemSpeedMin = ( 0.000000, 0.000000, 200.000000 )
+	float(3) m_LocalCoordinateSystemSpeedMax = ( 0.000000, 0.000000, 200.000000 )
 	bool m_bRunForParentApplyKillList = true
 	float m_flOpStartFadeInTime = 0.000000
 	float m_flOpEndFadeInTime = 0.000000
@@ -513,8 +513,8 @@ C_INIT_RandomRotation C_INIT_RandomRotation_9
 
 C_INIT_PositionOffset C_INIT_PositionOffset_10
 {
-	float(3) m_OffsetMin = ( 0.000000, 0.000000, 250.000000 )
-	float(3) m_OffsetMax = ( 0.000000, 0.000000, 250.000000 )
+	float(3) m_OffsetMin = ( 0.000000, 0.000000, 200.000000 )
+	float(3) m_OffsetMax = ( 0.000000, 0.000000, 200.000000 )
 	int m_nControlPointNumber = 0
 	bool m_bLocalCoords = false
 	bool m_bProportional = false
