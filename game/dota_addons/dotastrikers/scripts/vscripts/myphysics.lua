@@ -387,7 +387,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 							hero:AddAbility("head_bump")
 							hero:FindAbilityByName("head_bump"):SetLevel(1)
 
-							Timers:CreateTimer(TIME_TILL_HEADBUMP_EXPIRES, function()
+							hero.headBumpTimer = Timers:CreateTimer(TIME_TILL_HEADBUMP_EXPIRES, function()
 								if hero:HasAbility("head_bump") then
 									hero:RemoveAbility("head_bump")
 									hero:AddAbility("throw_ball")
@@ -668,8 +668,8 @@ function PlayAirTrailParticle( unit )
 	local ball = Ball.unit
 	
 	if not unit.airTrailP and not ball.controller then
-		--ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
-		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_trail_05/courier_trail_05.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		--ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_trail_05/courier_trail_05.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 		
 
 		ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)

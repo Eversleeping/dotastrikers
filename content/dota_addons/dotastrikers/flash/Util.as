@@ -303,5 +303,10 @@
         public static function startsWith(haystack:String, needle:String):Boolean {
             return haystack.indexOf(needle) == 0;
         }
+
+        public static function contains(haystack:String, needle:String):Boolean {
+            return haystack.indexOf(needle) >= 0;
+        }
+
     }
 }

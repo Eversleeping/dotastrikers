@@ -104,7 +104,7 @@
 			}
 		}
 
-		public function onAllPlayersLoaded(args:Object) : void {
+		public function onAllPlayersLoaded() : void {
 			learn_about_heroes.visible = false
 			ds_menu.visible = false
 			if (ds_menu.getCurrentMenuMC()) {

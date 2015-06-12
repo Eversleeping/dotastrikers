@@ -748,6 +748,8 @@ function DotaStrikers:InitScoreboard(  )
 			local pID = hero:GetPlayerID()
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="goals",value=hero.goalsAgainst})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="assists",value=hero.numAssists})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="steals",value=hero.steals})
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="turn",value=hero.turnovers})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="st",value=hero.steals-hero.turnovers})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pickups",value=hero.pickups})
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="passes",value=hero.numPasses})
@@ -763,7 +765,12 @@ function DotaStrikers:InitScoreboard(  )
 			--print("savp: " .. savp)
 
 			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="savp",value=savp})
-			--FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
+
+			--10 * Goals + 5 * Assists + (S - T) + Pickups + 2*Passes + 3*Saves - Non_Saves
+			-- Zealot Hockey formula.
+			local total = 10*hero.goalsAgainst + 5*hero.numAssists + (hero.steals-hero.turnovers) + hero.pickups + 2*hero.numPasses + 3*hero.numSaves - hero.non_saves
+
+			FireGameEvent("update_scoreboard_value", {player_ID=pID, key="tot",value=total})
 			--FireGameEvent("update_scoreboard_value", {player_ID=pID, key="pr",value=hero.passesReceived})
 
 

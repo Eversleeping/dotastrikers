@@ -9,6 +9,7 @@
     import flash.utils.Timer;
     import flash.geom.Point;
     import flash.events.MouseEvent;
+    import fl.motion.Color;
 
 	import ValveLib.*;
 	import flash.text.TextFormat;
@@ -40,6 +41,10 @@
 
 			visible = false
 
+			scoreboardLabel.text = Globals.instance.GameInterface.Translate("#Scoreboard")
+			notCounted.text = Globals.instance.GameInterface.Translate("#NotCounted")
+			hoverOver.text = Globals.instance.GameInterface.Translate("#HoverOver")
+
 			gameAPI.SubscribeToGameEvent("activate_player", onActivatePlayer)
 			gameAPI.SubscribeToGameEvent("update_scoreboard_value", onUpdateScoreboardValue)
 
@@ -63,6 +68,9 @@
 						sbLabelMCs[e.name] = e
 						e.addEventListener(MouseEvent.ROLL_OVER, onMouseRollOverSBLabel);
 						e.addEventListener(MouseEvent.ROLL_OUT, onMouseRollOutSBLabel);
+					}
+					if (Util.contains(e.name, "highlight")) {
+						e.visible = false
 					}
 				}
 			}
@@ -103,6 +111,16 @@
 					}
 				}
 			}
+
+			if (pID == globals.Players.GetLocalPlayer()) {
+				var hl:MovieClip = getChildByName("p" + pID + "highlight") as MovieClip
+				var c:Color = new Color();
+				// set the color of the tint and set the multiplier/alpha
+				c.setTint(0xffff00, 1.0);
+				hl.transform.colorTransform = c;
+				hl.visible = true
+			}
+
 			trace(pID + " activated!")
 		}
 
@@ -195,7 +213,7 @@
 			//trace("#Result Resize: ",x,y,yScale);
 			
 			x = stageW/2 - width/2;
-			y = stageH/2 - height/2-90*yScale;
+			y = stageH/2 - height/2-120*yScale;
 
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
 			scaleX = xScale;

@@ -45,7 +45,7 @@ SWAP_COLLISION_RADIUS = PP_COLLISION_RADIUS+20
 
 -- ball goes up a lil in the z direction if hero throws ball while in the air.
 KICK_BALL_Z_PUSH = 280
-GOALIE_JUMP_Z = 1300
+GOALIE_JUMP_Z = 1250
 GOALIE_JUMP_XY = 120
 
 NUM_FROWNS = 6
@@ -156,6 +156,7 @@ function DotaStrikers:throw_ball( keys )
 				caster:RemoveAbility("head_bump")
 				caster:AddAbility("throw_ball")
 				caster:FindAbilityByName("throw_ball"):SetLevel(1)
+				Timers:RemoveTimer(caster.headBumpTimer)
 			end
 		end
 

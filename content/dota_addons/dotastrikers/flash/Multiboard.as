@@ -41,6 +41,8 @@
 
 			Globals.instance.resizeManager.AddListener(this);
 
+			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded)
+
 			//Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 
 			//pass the gameAPI on to the modules
@@ -55,6 +57,10 @@
 			addEventListener(Event.ENTER_FRAME, myEnterFrame)
 
 			trace("[Multiboard] OnLoaded finished!");
+		}
+
+		public function onAllPlayersLoaded() : void {
+			//multiboard.onAllPlayersLoaded()
 		}
 
 		public function onMultiboardButtonClicked(event:ButtonEvent) {
