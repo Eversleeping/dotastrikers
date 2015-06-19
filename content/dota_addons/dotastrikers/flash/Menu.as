@@ -133,7 +133,7 @@
 			currentMenuMC.visible = false
 			currentMenuMC = mc
 			mc.visible = true
-			gameAPI.SendServerCommand("play_sound ui.click_toptab")
+			//gameAPI.SendServerCommand("play_sound ui.click_toptab")
 			trace(mc.name + " is now visible. ")
         }
 

@@ -1,17 +1,17 @@
-THROW_VELOCITY = 1675
+THROW_VELOCITY = 1700
 HEADBUMP_BALL_Z_PUSH = 600
 TIME_TILL_HEADBUMP_EXPIRES = 4
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
 
-PSHOT_VELOCITY = 1600
+PSHOT_VELOCITY = 1500
 PSPRINT_VELOCITY = 850
 
 NINJA_JUMP_Z = 1500
 NINJA_JUMP_XY = 800
 
-PULL_ACCEL_FORCE = 2300
+PULL_ACCEL_FORCE = 2400
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
@@ -57,7 +57,8 @@ SURGE_MOVESPEED_FACTOR = 1/3
 
 
 function DotaStrikers:OnAbilityUsed( keys )
-	local player = EntIndexToHScript(keys.PlayerID)
+	--DeepPrintTable(keys)
+	local player = PlayerResource:GetPlayer(keys.PlayerID)
 	local abilityname = keys.abilityname
 	local hero = player:GetAssignedHero()
 	local ball = Ball.unit
@@ -124,6 +125,7 @@ function DotaStrikers:on_powershot_succeeded( keys, dir )
 end
 
 function DotaStrikers:throw_ball( keys )
+	--print("throw_ball")
 	local caster = keys.caster
 	local ball = Ball.unit
 
@@ -141,7 +143,7 @@ function DotaStrikers:throw_ball( keys )
 	local dir = (targetpoint_at_ball_z-ballPos):Normalized()
 
 	if keys.ability:GetAbilityName() == "powershot" then
-		print("powershot")
+		--print("powershot")
 		self:on_powershot_succeeded(keys, dir)
 	else
 		-- if caster is above ground, give the ball more of a push in z direction.

@@ -35,6 +35,8 @@
 
     "game_over" { }
 
+    "custom_game_setup" { }
+
     "hero_picked"
     {
         "player_ID"             "short"

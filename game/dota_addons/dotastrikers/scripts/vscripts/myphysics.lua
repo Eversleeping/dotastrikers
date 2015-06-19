@@ -707,7 +707,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 	local pshot_coll = hero:AddColliderFromProfile("momentum_full")
 	pshot_coll.radius = BALL_COLLISION_DIST
 	pshot_coll.filer = self.colliderFilter
-	pshot_coll.elasticity = 1
+	pshot_coll.elasticity = 1.1
 	pshot_coll.test = function(self, collider, collided)
 		local passTest = false
 		local ball = Ball.unit

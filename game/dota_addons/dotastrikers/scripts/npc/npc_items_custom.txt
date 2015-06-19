@@ -2,6 +2,7 @@
 {
 	"item_taunt"
 	{
+		"ID"							"1001"
 		"BaseClass"             		"item_datadriven"
 		"AbilityTextureName"			"item_taunt"
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
@@ -24,6 +25,7 @@
 	}
 	"item_frown"
 	{
+		"ID"							"1002"
 		"BaseClass"             		"item_datadriven"
 		"AbilityTextureName"			"item_frown"
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"

@@ -116,6 +116,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 	end)
 
 	Timers:CreateTimer(.06, function()
+		print("OnAllPlayersLoaded")
 		FireGameEvent("all_players_loaded", {})
 	end)
 
@@ -243,6 +244,7 @@ function DotaStrikers:OnGameRulesStateChange(keys)
 	elseif newState == DOTA_GAMERULES_STATE_INIT then
 		Timers:RemoveTimer("alljointimer")
 	elseif newState == DOTA_GAMERULES_STATE_HERO_SELECTION then
+		print("DOTA_GAMERULES_STATE_HERO_SELECTION")
 		local et = 1
 		if self.bSeenWaitForPlayers then
 			et = .01
@@ -263,6 +265,13 @@ function DotaStrikers:OnGameRulesStateChange(keys)
 		--FireGameEvent("turn_off_waitforplayers", {})
 	elseif newState == DOTA_GAMERULES_STATE_GAME_IN_PROGRESS then
 		DotaStrikers:OnGameInProgress()
+	elseif newState == DOTA_GAME_UI_STATE_LOADING_SCREEN then
+		print("Entered DOTA_GAME_UI_STATE_LOADING_SCREEN")
+	elseif newState == DOTA_GAME_UI_DOTA_INGAME then
+		print("Entered DOTA_GAME_UI_DOTA_INGAME")
+	elseif newState == DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP then
+		print("Entered DOTA_GAMERULES_STATE_CUSTOM_GAME_SETUP")
+		FireGameEvent("custom_game_setup", {})
 	end
 end
 
@@ -287,6 +296,10 @@ function DotaStrikers:OnNPCSpawned(keys)
 			self:OnHeroRespawn(hero)
 		end
 	end
+end
+
+function DotaStrikers:OnPlayerChat( keys )
+	if keys then DeepPrintTable(keys) end
 end
 
 function DotaStrikers:OnHeroInGameFirstTime( hero )
@@ -443,7 +456,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 		hero.bh_targets = {}
 		heroes_kv_name = "black_hole"
 	-- why it's a capital I, i have no idea.
-	elseif classname == "npc_dota_hero_Invoker" then
+	elseif classname == "npc_dota_hero_invoker" then
 		hero.isPowershot = true
 		heroes_kv_name = "powershot"
 	elseif classname == "npc_dota_hero_earthshaker" then
@@ -808,6 +821,8 @@ function DotaStrikers:InitDotaStrikers()
 	ListenToGameEvent('dota_player_pick_hero', Dynamic_Wrap(DotaStrikers, 'OnPlayerPickHero'), self)
 	ListenToGameEvent('dota_team_kill_credit', Dynamic_Wrap(DotaStrikers, 'OnTeamKillCredit'), self)
 	ListenToGameEvent("player_reconnected", Dynamic_Wrap(DotaStrikers, 'OnPlayerReconnect'), self)
+	--player_chat
+	ListenToGameEvent("player_chat", Dynamic_Wrap(DotaStrikers, 'OnPlayerChat'), self) -- DOESN'T WORK
 
 	-- Commands can be registered for debugging purposes or as functions that can be called by the custom Scaleform UI
 	Convars:RegisterCommand( "command_example", Dynamic_Wrap(DotaStrikers, 'ExampleConsoleCommand'), "A console command example", 0 )
@@ -847,6 +862,8 @@ function DotaStrikers:InitDotaStrikers()
 		local soundStr = arg[1]
 
 		local cmdPlayer = Convars:GetCommandClient()
+
+		--print("play_sound " .. soundStr)
 		EmitSoundOnClient(soundStr, cmdPlayer)
 
 	end, 'play_sound', 0)
