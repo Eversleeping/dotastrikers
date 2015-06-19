@@ -22,20 +22,40 @@
 		public var globals:Object
 		var _scrollBar:Object
 		var _funModeCheckbox:Object
+		var _learnAboutHeroesBtn:Object
+		var parentMC:MovieClip
 
 		public function Home() {
 			// constructor code
 		}
 		
 		//set initialise this instance's gameAPI
-		public function setup(api:Object, globals:Object) {
+		public function setup(api:Object, globals:Object, _parentMC:MovieClip) {
 			this.gameAPI = api;
 			this.globals = globals;
+			parentMC = _parentMC
 
-			_funModeCheckbox = replaceWithValveComponent(funModeCheckbox, "DotaCheckBoxDota")
+			//_funModeCheckbox = replaceWithValveComponent(funModeCheckbox, "DotaCheckBoxDota")
+			welcomeToLabel.text = Globals.instance.GameInterface.Translate("#WelcomeTo")
+			alphaLabel.text = Globals.instance.GameInterface.Translate("#Alpha")
+			howToPlayText.text = Globals.instance.GameInterface.Translate("#HowToPlayText")
+			pleaseNote.text = Globals.instance.GameInterface.Translate("#PleaseNote")
+
+			_learnAboutHeroesBtn = replaceWithValveComponent(learnAboutHeroesBtn, "ButtonThinPrimary", true)
+			_learnAboutHeroesBtn.label = "LEARN MORE"
+			_learnAboutHeroesBtn.addEventListener(ButtonEvent.CLICK, onLearnAboutHeroesBtnClick)
+
 
 			trace("##Called Home Setup!");
 		}
+
+		public function onLearnAboutHeroesBtnClick(event:ButtonEvent) {
+			trace("onLearnAboutHeroesBtnClick")
+			gameAPI.SendServerCommand("play_sound ui.click_toptab")
+			parentMC.changeMenuPanel("Learn")
+		}
+
+
 		//Parameters: 
 		//	mc - The movieclip to replace
 		//	type - The name of the class you want to replace with

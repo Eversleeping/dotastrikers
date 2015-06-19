@@ -38,8 +38,6 @@
 		public function onLoaded() : void {		
 			trace("[CustomUI] OnLoaded");
 			
-			//welcome.visible = true
-			learn_about_heroes.visible = true
 			ds_menu.visible = false
 
 			menuButtonTxtFormat = new TextFormat()
@@ -62,7 +60,7 @@
 				oldChatSay(obj, bool);
 			};
 
-			Globals.instance.resizeManager.AddListener(this);
+			Globals.instance.resizeManager.AddListener(this)
 
 			Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 			Globals.instance.GameInterface.SetConvar("dota_hud_healthbar_number", "0")
@@ -72,8 +70,6 @@
 			//Globals.instance.GameInterface.SetConvar("dota_draw_portrait", "0")
 
 			//pass the gameAPI on to the modules
-			//welcome.setup(gameAPI, globals)
-			learn_about_heroes.setup(gameAPI, globals)
 			ds_menu.setup(gameAPI, globals)
 
 			_menuButton = replaceWithValveComponent(menuButton, "chrome_button_primary")
@@ -105,7 +101,6 @@
 		}
 
 		public function onAllPlayersLoaded() : void {
-			learn_about_heroes.visible = false
 			ds_menu.visible = false
 			if (ds_menu.getCurrentMenuMC()) {
 				ds_menu.getCurrentMenuMC().visible = false
@@ -156,9 +151,7 @@
 		}
 
 		private function myEnterFrame(e:Event) : void {
-			/*if (_menuButton != null && _menuButton.textField.getTextFormat() != menuButtonTxtFormat) {
-				_menuButton.textField.setTextFormat(menuButtonTxtFormat)
-			}*/
+			globals.Loader_actionpanel.movieClip.middle.invokeListButton.visible = false
 		}
 
 		public function replaceWithValveComponent(mc:MovieClip, type:String, keepDimensions:Boolean = false) : MovieClip {
@@ -195,8 +188,6 @@
 			ScreenHeight = re.ScreenHeight;
 
 			//pass the resize event to our module, we pass the width and height of the screen, as well as the INVERSE of the stage scaling ratios.
-			//welcome.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
-			learn_about_heroes.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 			ds_menu.screenResize(re.ScreenWidth, re.ScreenHeight, scaleRatioY, scaleRatioY, re.IsWidescreen());
 
 			menuButton.x = 243*scaleRatioY;

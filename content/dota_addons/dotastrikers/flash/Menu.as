@@ -20,9 +20,6 @@
 		public var gameAPI:Object;
 		public var globals:Object;
 
-		var _optionsBtn:Object
-		var _leaguesBtn:Object
-		var _changelogBtn:Object
 		var nextX:int = 0
 		var nextY:int = 0
 		var radioBtnHeight:Number
@@ -83,9 +80,9 @@
 
 			//bodyText.htmlText = Globals.instance.GameInterface.Translate("#WelcomeToDotaStrikers")
 
-			home.setup(gameAPI, globals)
+			home.setup(gameAPI, globals, this)
 			options.setup(gameAPI, globals)
-			//leagues.setup(gameAPI, globals)
+			learn.setup(gameAPI, globals)
 			//changelogs.setup(gameAPI, globals)
 
 			trace("##Called Menu Setup!");
@@ -129,12 +126,20 @@
 
         public function onRadioBtnClicked(e:ButtonEvent)
         {
-			var mc:MovieClip = nameToMenuMCs[e.target.label]
+			changeMenuPanel(e.target.label)
+        }
+
+        public function changeMenuPanel(mName:String) : void {
+			var mc:MovieClip = nameToMenuMCs[mName]
 			currentMenuMC.visible = false
 			currentMenuMC = mc
 			mc.visible = true
 			//gameAPI.SendServerCommand("play_sound ui.click_toptab")
 			trace(mc.name + " is now visible. ")
+			if (!radioNamesToValveObjs[mName].selected) {
+				radioNamesToValveObjs[mName].selected = true
+			}
+
         }
 
         public function getCurrentMenuMC():MovieClip {
@@ -187,7 +192,7 @@
 
 			home.screenResize(stageW, stageH, yScale, yScale, wide)
 			options.screenResize(stageW, stageH, yScale, yScale, wide)
-			//leagues.screenResize(stageW, stageH, yScale, yScale, wide
+			learn.screenResize(stageW, stageH, yScale, yScale, wide)
 			//changelogs.screenResize(stageW, stageH, yScale, yScale, wide
 		}
 	}	
