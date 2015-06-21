@@ -32,7 +32,7 @@
 		"AttackDamageMax"			"0"		// Damage range max.
 		"AttackDamageType"			"DAMAGE_TYPE_ArmorPhysical"
 		"AttackRate"				"1"			// Speed of attack.
-		"AttackRange"				"32"		// Range within a target can be attacked.
+		"AttackRange"				"80"		// Range within a target can be attacked.
 		"AttackAnimationPoint"		"0.3"		// Normalized time in animation cycle to attack.
 
 		// Bounty

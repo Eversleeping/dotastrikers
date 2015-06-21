@@ -90,6 +90,7 @@ function DotaStrikers:OnRefereeAttacked( keys )
 
 	-- reset pos of ref
 	Timers:CreateTimer(.5, function()
+		--FindClearSpaceForUnit(Referee, RefereeSpawnPos, false)
 		Referee:SetAbsOrigin(RefereeSpawnPos)
 		Timers:CreateTimer(.06, function()
 			AddEndgameRoot(Referee)

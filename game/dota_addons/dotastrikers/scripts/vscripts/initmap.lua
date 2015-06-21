@@ -201,8 +201,7 @@ function DotaStrikers:OnGoal(team)
 
 	--local win_ball_pos = ball:GetAbsOrigin()
 	Timers:CreateTimer(.06, function()
-		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
-		--ParticleManager:SetParticleControl(win_ball_particle, 0, win_ball_pos)
+		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
 		EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
 	end)
 
@@ -316,6 +315,8 @@ function DotaStrikers:OnGoal(team)
 					-- return heroes back to their spawn positions.
 					hero:SetAbsOrigin(Vector(hero.spawn_pos.x, hero.spawn_pos.y, GroundZ))
 
+					ParticleManager:CreateParticle("particles/econ/events/ti4/blink_dagger_end_ti4.vpcf", PATTACH_ABSORIGIN, hero)
+
 					if scorer.highlightP then
 						ParticleManager:DestroyParticle(scorer.highlightP, false)
 						scorer.highlightP = nil
@@ -333,6 +334,9 @@ function DotaStrikers:OnGoal(team)
 						end)
 					end)
 				end
+
+				-- play some particle on the ball
+				ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
 
 				ball.controller = nil
 				ball.dontChangeFriction = false
@@ -533,6 +537,7 @@ function InitCreepSpec( creep )
 		AddDisarmed( creep )
 		AddEndgameRoot(creep)
 		creep.isCreepSpectator = true
+		creep:SetAbsOrigin(GetGroundPosition(creep:GetAbsOrigin(), creep))
 
 		if string.starts(creep:GetName(), "brew") then
 			Timers:CreateTimer(RandomFloat(5, 20), function()

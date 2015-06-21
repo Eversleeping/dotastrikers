@@ -83,7 +83,7 @@
 			home.setup(gameAPI, globals, this)
 			options.setup(gameAPI, globals)
 			learn.setup(gameAPI, globals)
-			//changelogs.setup(gameAPI, globals)
+			credits.setup(gameAPI, globals)
 
 			trace("##Called Menu Setup!");
 		}
@@ -93,7 +93,7 @@
 			var name:String = str.substr(7, str.length-7)
 			var tmp:Object = replaceWithValveComponent(btn, "d_RadioButton_2nd");
 			radioNamesToValveObjs[name] = tmp
-			tmp.label = name
+			tmp.label = Globals.instance.GameInterface.Translate("#" + name)
 			tmp.addEventListener(ButtonEvent.CLICK, onRadioBtnClicked)
 			trace("setup valve component: " + name)
 
@@ -122,6 +122,14 @@
 
 		public function onGameOver() : void {
 			options.onGameOver()
+			credits.onGameOver()
+
+			if (!visible) {
+				visible = true
+			}
+
+			changeMenuPanel("Credits")
+
 		}
 
         public function onRadioBtnClicked(e:ButtonEvent)
@@ -193,7 +201,7 @@
 			home.screenResize(stageW, stageH, yScale, yScale, wide)
 			options.screenResize(stageW, stageH, yScale, yScale, wide)
 			learn.screenResize(stageW, stageH, yScale, yScale, wide)
-			//changelogs.screenResize(stageW, stageH, yScale, yScale, wide
+			credits.screenResize(stageW, stageH, yScale, yScale, wide)
 		}
 	}	
 }

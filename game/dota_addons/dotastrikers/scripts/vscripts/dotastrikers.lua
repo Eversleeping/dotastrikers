@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = true
+Testing = false
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -28,12 +28,6 @@ RoundsCompleted = 0
 -- define classes
 Ball = {}
 MovementComponents = {}
-
-if not Testing then --Only send stats when not testing
-  statcollection.addStats({
-    modID = '7044690ce484329ad2704e8c12a0498b'
-  })
-end
 
 ColorStr = 
 {	-- This is plyID+1
@@ -135,6 +129,8 @@ function DotaStrikers:OnAllPlayersLoaded()
 				return 1
 			end
 		end)
+
+		ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, Ball.unit.particleDummy)
 
 		Timers:CreateTimer(PRE_FIRSTROUND_START, function()
 			for _,ply in pairs(DotaStrikers.vPlayers) do
@@ -899,12 +895,16 @@ function DotaStrikers:InitDotaStrikers()
 
 	self:InitCreeps() -- creep spectators
 
-	RefereeSpawnPos = Vector(2780,1550,GroundZ)
-	Referee = CreateUnitByName("referee", RefereeSpawnPos, true, nil, nil, DOTA_TEAM_NEUTRALS)
+	RefereeSpawnPos = Entities:FindByName(nil, "referee_spawn"):GetAbsOrigin()
+	RefereeSpawnPos = Vector(RefereeSpawnPos.x, RefereeSpawnPos.y, 512)
+	Referee = CreateUnitByName("referee", RefereeSpawnPos, false, nil, nil, DOTA_TEAM_NEUTRALS)
+	--RefereeSpawnPos = GetGroundPosition(RefereeSpawnPos, Referee)
+
 	-- helps avoid runtime errors down the road.
 	SetupStats(Referee)
 
 	Timers:CreateTimer(.06, function()
+		Referee:SetAbsOrigin(RefereeSpawnPos)
 		AddEndgameRoot(Referee)
 		AddDisarmed(Referee)
 

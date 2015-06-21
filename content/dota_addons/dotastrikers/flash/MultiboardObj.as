@@ -212,8 +212,8 @@
 			
 			//trace("#Result Resize: ",x,y,yScale);
 			
-			x = stageW/2 - width/2;
-			y = stageH/2 - height/2-120*yScale;
+			x = stageW/2 - width/2 + 160*yScale
+			y = stageH/2 - height/2-120*yScale
 
 			//Now we just set the scale of this element, because these parameters are already the inverse ratios
 			scaleX = xScale;

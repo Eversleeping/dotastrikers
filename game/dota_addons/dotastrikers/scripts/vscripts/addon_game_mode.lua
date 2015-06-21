@@ -1,5 +1,4 @@
 requires = {
-	'lib.statcollection',
 	'util',
 	'timers',
 	'physics',
@@ -100,6 +99,19 @@ function Precache( context )
 	PrecacheResource("particle", "particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", context)
 	PrecacheResource("particle", "particles/econ/courier/courier_snapjaw/courier_snapjaw_ambient_rocket_sparks.vpcf", context)
 	PrecacheResource("particle", "particles/units/heroes/hero_techies/techies_suicide_sparks.vpcf", context)
+	PrecacheResource("particle", "particles/econ/items/doom/doom_f2p_death_effect/doom_bringer_f2p_death_sigil_c.vpcf", context)
+	PrecacheResource("particle", "particles/econ/items/huskar/huskar_searing_dominator/huskar_searing_dominator_backhair.vpcf", context)
+	--PrecacheResource("particle", "particles/units/heroes/hero_nevermore/nevermore_shadowraze.vpcf", context)
+	PrecacheResource("particle", "particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", context)
+	PrecacheResource("particle", "particles/econ/courier/courier_murrissey_the_smeevil/courier_murrissey_the_smeevil.vpcf", context)
+	PrecacheResource("particle", "particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", context)
+	PrecacheResource("particle", "particles/econ/events/ti4/blink_dagger_end_ti4.vpcf", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
+	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)
 	--PrecacheResource("particle", "blah", context)

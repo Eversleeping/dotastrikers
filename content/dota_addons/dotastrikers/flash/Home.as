@@ -42,7 +42,7 @@
 			pleaseNote.text = Globals.instance.GameInterface.Translate("#PleaseNote")
 
 			_learnAboutHeroesBtn = replaceWithValveComponent(learnAboutHeroesBtn, "ButtonThinPrimary", true)
-			_learnAboutHeroesBtn.label = "LEARN MORE"
+			_learnAboutHeroesBtn.label = Globals.instance.GameInterface.Translate("#LearnMore")
 			_learnAboutHeroesBtn.addEventListener(ButtonEvent.CLICK, onLearnAboutHeroesBtnClick)
 
 

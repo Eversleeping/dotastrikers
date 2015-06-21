@@ -1,13 +1,10 @@
 "AddonInfo"
 {
-	"addonSteamAppID"				"816"
-	"addontitle"					"Dota Strikers"
-	"addonversion"					"0.1"
-	"addontagline"					"Dota Strikers"
-	"addonauthor"					"Myll"
-	"addonSteamGroupName"			""
-	"addonauthorSteamID"			""
-	"addonContent_Campaign"			"0"
-	"addonURL0"						""
-	"addonDescription"				"Dota Strikers"
+	"TeamCount" "2"
+	maps			"dotastrikers"
+	"IsPlayable"	"1"
+	"dotastrikers"
+	{
+					"MaxPlayers"                    "8"
+	}
 }

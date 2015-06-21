@@ -38,7 +38,7 @@
 		public function onLoaded() : void {		
 			trace("[CustomUI] OnLoaded");
 			
-			ds_menu.visible = false
+			//ds_menu.visible = false
 
 			menuButtonTxtFormat = new TextFormat()
 			menuButtonTxtFormat.size = 14

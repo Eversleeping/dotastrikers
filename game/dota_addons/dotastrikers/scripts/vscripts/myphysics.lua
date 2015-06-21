@@ -99,6 +99,11 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		end
 
 		if unit.isBall then
+			if ball.groundTrailP then
+				print("removing ball.groundTrailP")
+				ParticleManager:DestroyParticle(ball.groundTrailP, true)
+				ball.groundTrailP = nil
+			end
 			PlayAirTrailParticle(unit)
 			--StopBallRollLoopSound()
 		end
@@ -116,7 +121,13 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			if unit.airTrailP then
 				ParticleManager:DestroyParticle(unit.airTrailP, false)
 				unit.airTrailP = nil
+				print("adding groundTrailP")
 			end
+			
+			if not ball.groundTrailP then
+				ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+			end
+
 		end
 	end
 
@@ -272,6 +283,9 @@ function Ball:Init(  )
 		Timers:CreateTimer(.06, function()
 			if not ball.ballParticle then
 				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+
+				--ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				--ParticleManager:SetParticleControlEnt(p3, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 
 				ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 			end
@@ -668,11 +682,9 @@ function PlayAirTrailParticle( unit )
 	local ball = Ball.unit
 	
 	if not unit.airTrailP and not ball.controller then
-		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_golden_doomling/courier_golden_doomling_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/items/huskar/huskar_searing_dominator/huskar_searing_dominator_backhair.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 		--ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_trail_05/courier_trail_05.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
-		
-
-		ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+		--ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 	elseif unit.airTrailP and ball.controller then
 		ParticleManager:DestroyParticle(unit.airTrailP, false)
 		unit.airTrailP = nil

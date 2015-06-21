@@ -42,6 +42,7 @@
 			Globals.instance.resizeManager.AddListener(this);
 
 			gameAPI.SubscribeToGameEvent("all_players_loaded", onAllPlayersLoaded)
+			gameAPI.SubscribeToGameEvent("game_over", onGameOver)
 
 			//Globals.instance.GameInterface.SetConvar("dota_always_show_player_names", "1")
 
@@ -63,8 +64,20 @@
 			//multiboard.onAllPlayersLoaded()
 		}
 
+		public function onGameOver() : void {
+			toggleMultiboard(true)
+		}
+
 		public function onMultiboardButtonClicked(event:ButtonEvent) {
+			toggleMultiboard(false)
+		}
+
+		public function toggleMultiboard(forceOpen : Boolean) {
 			if (multiboard.visible) {
+				if (forceOpen) {
+					return
+				}
+
 				multiboard.visible = false
 				/*if (ds_menu.getCurrentMenuMC()) {
 					ds_menu.getCurrentMenuMC().visible = false
