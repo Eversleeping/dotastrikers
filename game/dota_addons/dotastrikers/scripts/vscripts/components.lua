@@ -56,11 +56,14 @@ function AddMovementComponent( ... )
 			if needsNewAbil then
 				--unit:SetBaseMoveSpeed(0)
 				local abilName = "movespeed_" .. total
-				unit:AddAbility(abilName)
-				unit.movespeedAbil = unit:FindAbilityByName(abilName)
-				unit.movespeedAbil:SetLevel(1)
-				unit.movespeedModifierName = "modifier_movespeed_" .. total
-				--print("change to " .. "modifier_movespeed_" .. total)
+
+				if unit:GetAbilityByIndex(4) ~= nil then
+					unit:AddAbility(abilName)
+					unit.movespeedAbil = unit:FindAbilityByName(abilName)
+					unit.movespeedAbil:SetLevel(1)
+					unit.movespeedModifierName = "modifier_movespeed_" .. total
+					--print("change to " .. "modifier_movespeed_" .. total)
+				end
 			end
 
 			return .01

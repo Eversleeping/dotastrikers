@@ -11,8 +11,8 @@ PEAK_Z_THRESH = 40
 BOUNCE_MULTIPLIER = .9
 BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
-PP_COLLISION_RADIUS = 110
-PP_COLLISION_THRESHOLD = CRACK_THRESHOLD -- player-player collision threshold
+PP_COLLISION_RADIUS = 80
+PP_COLLISION_THRESHOLD = BOUNCE_VEL_THRESHOLD -- player-player collision threshold
 CrackThreshSq = CRACK_THRESHOLD*CRACK_THRESHOLD
 
 BALL_HANDLED_OFFSET = BALL_COLLISION_DIST-10
@@ -74,6 +74,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 	local len3dSq = Length3DSq(currVel)
 	local currTime = GameRules:GetGameTime()
 	unit.velocityMagnitude = len3dSq
+	unit.vm = unit.velocityMagnitude
 	local inAir = unitPos.z > (GroundZ+ABOVE_GROUND_Z)
 
 	-- do above ground think logic
@@ -100,7 +101,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 
 		if unit.isBall then
 			if ball.groundTrailP then
-				print("removing ball.groundTrailP")
+				--print("removing ball.groundTrailP")
 				ParticleManager:DestroyParticle(ball.groundTrailP, true)
 				ball.groundTrailP = nil
 			end
@@ -121,7 +122,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			if unit.airTrailP then
 				ParticleManager:DestroyParticle(unit.airTrailP, false)
 				unit.airTrailP = nil
-				print("adding groundTrailP")
+				--print("adding groundTrailP")
 			end
 			
 			if not ball.groundTrailP then
@@ -726,7 +727,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 
-		if TryWaitComponent(collider) then return true end
+		if TryWaitComponent(hero) then return true end
 
 		if collided == ball and ball.pshotInvoke then
 			-- 5-17-15 bug: if ball is really close to collided, collided won't receive knockback. 
@@ -744,7 +745,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 			passTest = true
 		end
 
-		TrySignalComponents(passTest, collider)
+		TrySignalComponents(passTest, hero)
 
 		return passTest
 	end
@@ -760,7 +761,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 
 		if not IsPhysicsUnit(collided) then return false end
 		
-		if TryWaitComponent(collider) then return true end
+		if TryWaitComponent(hero) then return true end
 
 		if collided.isSwapDummy and hero ~= collided.caster then
 			-- technically treat this as a collision, but return false since we don't want the momentum stuff
@@ -812,16 +813,26 @@ function DotaStrikers:SetupPersonalColliders(hero)
 				end)
 
 				hero.tackled_someone = true
+
 			elseif collided.isUsingTackle or (collided.tackle_end_time and GameRules:GetGameTime()-collided.tackle_end_time < .2) or hero.isUsingTackle or
 				(hero.tackle_end_time and GameRules:GetGameTime()-hero.tackle_end_time < .2) then
-			elseif hero.velocityMagnitude > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
-				TryPlayCracks(collider, nil, nil, true)
+
+			elseif hero.vm > PP_COLLISION_THRESHOLD*PP_COLLISION_THRESHOLD then
+				if hero.vm > CrackThreshSq then
+					TryPlayCracks(hero, nil, nil, true)
+				end
+
 				passTest = true
+
+				if hero.isUsingJump and not collided.isAboveGround then
+					passTest = false
+				end
+				
 			end
 
 		end
 
-		TrySignalComponents(passTest, collider)
+		TrySignalComponents(passTest, hero)
 
 		return passTest
 	end

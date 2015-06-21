@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -10,12 +10,12 @@ UseCursorStream = false
 Bounds = {max = 1366.77}
 Bounds.min = -1*Bounds.max
 
-HERO_SELECTION_TIME = 60
+HERO_SELECTION_TIME = 45
 PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
 
 PRE_FIRSTROUND_START = 8
-SCORE_TO_WIN = 13
+SCORE_TO_WIN = 11
 FIELD = "grass"
 
 if Testing then
@@ -116,8 +116,18 @@ function DotaStrikers:OnAllPlayersLoaded()
 
 	Timers:CreateTimer(function()
 		if not AllPlayersSelectedHeroes and not HeroSelectionOver then
+
+			if not LastHeroSelectionNotification or GameRules:GetGameTime() - LastHeroSelectionNotification > 2.5 then
+
+				ShowCenterMsg("WAITING ON PLAYERS TO SELECT HEROES", 2.5)
+
+				LastHeroSelectionNotification = GameRules:GetGameTime()
+			end
+
 			return .1
 		end
+
+		Ball.unit:SpawnParticle()
 
 		local count = PRE_FIRSTROUND_START
 		Timers:CreateTimer(function()
@@ -279,8 +289,7 @@ function DotaStrikers:OnNPCSpawned(keys)
 		local hero = npc
 		if not ply.firstTime then
 			if not self.greetPlayers then
-				self:GreetPlayers()
-				Ball.unit:SpawnParticle()
+				--self:GreetPlayers()
 				DotaStrikers:InitScoreboard()
 				self.greetPlayers = true
 			end
@@ -610,8 +619,19 @@ end
 -- A player has reconnected to the game.  This function can be used to repaint Player-based particles or change
 -- state as necessary
 function DotaStrikers:OnPlayerReconnect(keys)
-	--print ( '[DOTASTRIKERS] OnPlayerReconnect' )
-	--PrintTable(keys)
+	print ( '[DOTASTRIKERS] OnPlayerReconnect' )
+	PrintTable(keys)
+	local plyID = keys.PlayerID
+	local ply = PlayerResource:GetPlayer(plyID)
+	print("P" .. plyID .. " reconnected.")
+	local hero = PlayerResource:GetPlayer(plyID):GetAssignedHero()
+	ply.disconnected = false
+
+	if ply.ballParticle then
+		ParticleManager:DestroyParticle(ply.ballParticle, true)
+	end
+
+	ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
 end
 
 -- An item was purchased by a player
@@ -784,7 +804,7 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetHeroRespawnEnabled( true )
 	GameRules:SetUseUniversalShopMode( true )
 	GameRules:SetSameHeroSelectionEnabled( true )
-	GameRules:SetHeroSelectionTime( HERO_SELECTION_TIME )
+	GameRules:SetHeroSelectionTime( 0 )
 	GameRules:SetPreGameTime( PRE_GAME_TIME )
 	GameRules:SetPostGameTime( POST_GAME_TIME )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)

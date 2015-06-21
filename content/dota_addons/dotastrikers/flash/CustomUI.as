@@ -66,7 +66,7 @@
 			Globals.instance.GameInterface.SetConvar("dota_hud_healthbar_number", "0")
 
 			// these prevent tooltips from fcking up at the start
-			Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "0")
+			//Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "0")
 			//Globals.instance.GameInterface.SetConvar("dota_draw_portrait", "0")
 
 			//pass the gameAPI on to the modules
@@ -113,7 +113,7 @@
 				return
 			}
 			trace("onHeroPicked")
-			Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "1")
+			//Globals.instance.GameInterface.SetConvar("dota_render_crop_height", "1")
 			//Globals.instance.GameInterface.SetConvar("dota_draw_portrait", "1")
 		}
 
