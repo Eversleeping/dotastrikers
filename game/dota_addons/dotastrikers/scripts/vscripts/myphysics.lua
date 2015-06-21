@@ -5,13 +5,13 @@ AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
 
-BALL_COLLISION_DIST = 125
+BALL_COLLISION_DIST = 120
 ABOVE_GROUND_Z = 20
 PEAK_Z_THRESH = 40
 BOUNCE_MULTIPLIER = .9
 BOUNCE_VEL_THRESHOLD = 500
 CRACK_THRESHOLD = BOUNCE_VEL_THRESHOLD*2
-PP_COLLISION_RADIUS = 80
+PP_COLLISION_RADIUS = 100
 PP_COLLISION_THRESHOLD = BOUNCE_VEL_THRESHOLD -- player-player collision threshold
 CrackThreshSq = CRACK_THRESHOLD*CRACK_THRESHOLD
 
@@ -646,7 +646,7 @@ function TryPlayCracks( ... )
 		--end
 
 		if checkFence then
-			if unit.velocityMagnitude > 2*CrackThreshSq then
+			if unit.velocityMagnitude > 1.5*CrackThreshSq then
 				EmitSoundAtPosition("Fence_Heavy", unitPos)
 			else
 				EmitSoundAtPosition("Fence_Light", unitPos)
@@ -827,7 +827,7 @@ function DotaStrikers:SetupPersonalColliders(hero)
 				if hero.isUsingJump and not collided.isAboveGround then
 					passTest = false
 				end
-				
+
 			end
 
 		end

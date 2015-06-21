@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = true
+Testing = false
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -128,6 +128,16 @@ function DotaStrikers:OnAllPlayersLoaded()
 		end
 
 		Ball.unit:SpawnParticle()
+
+		local lines = 
+		{
+			[1] = ColorIt("Welcome to ", "yellow") .. ColorIt("Dota Strikers", "green") .. ColorIt("!", "yellow"),
+			[2] = ColorIt("Created by: ", "yellow") .. ColorIt("Myll", "blue"),
+			[3] = ColorIt("First team to ", "yellow") .. ColorIt(SCORE_TO_WIN, "red") .. ColorIt(" points wins!", "yellow"),
+			[4] = ColorIt("GOOD LUCK!", "pink") .. ColorIt(" HAVE FUN!!", "cyan"),
+		}
+
+		ShowQuickMessages( lines, .5 )
 
 		local count = PRE_FIRSTROUND_START
 		Timers:CreateTimer(function()
@@ -289,7 +299,6 @@ function DotaStrikers:OnNPCSpawned(keys)
 		local hero = npc
 		if not ply.firstTime then
 			if not self.greetPlayers then
-				--self:GreetPlayers()
 				DotaStrikers:InitScoreboard()
 				self.greetPlayers = true
 			end
@@ -581,21 +590,6 @@ function DotaStrikers:OnHeroRespawn( hero )
 
 end
 
-function DotaStrikers:GreetPlayers(  )
-	local lines = 
-	{
-		[1] = "Welcome to " .. ColorIt("Dota Strikers!!", "green"),
-		[2] = "This is a " .. ColorIt("Football", "yellow") .. " game. When you have the ball, press " .. ColorIt("W", "orange") .. " to kick, and " .. ColorIt("E", "orange") .. " to sprint!",
-		[3] = "Some heros have special abilities. Use " .. ColorIt("Q", "orange") .. " to use your hero's special ability!",
-		[4] = "Press " .. ColorIt("D", "orange") .. " and " .. ColorIt("F", "orange") .. " to make your hero say stuff!",
-		[5] = ColorIt("GOOD LUCK, HAVE FUN!!", "pink"),
-	}
-
-	Timers:CreateTimer(2, function()
-		ShowQuickMessages( lines, 2 )
-	end)
-end
-
 -- An entity somewhere has been hurt.  This event fires very often with many units so don't do too many expensive
 -- operations here
 function DotaStrikers:OnEntityHurt(keys)
@@ -629,9 +623,14 @@ function DotaStrikers:OnPlayerReconnect(keys)
 
 	if ply.ballParticle then
 		ParticleManager:DestroyParticle(ply.ballParticle, true)
+		ply.ballParticle = nil
 	end
 
-	ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
+	local ball = Ball.unit
+
+	if ball then
+		ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
+	end
 end
 
 -- An item was purchased by a player

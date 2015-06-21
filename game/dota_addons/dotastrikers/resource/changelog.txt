@@ -1,5 +1,18 @@
+// REMEMBER: DON'T UPDATE FREQUENTLY. AT LEAST WAIT 30 MINS BEFORE NEXT UPDATE. This error will occur: "Host version doesn't match your version"
+
+[h1]GENERAL:[/h1]
+[list]
+[*] Added short welcome notification after everybody chooses their hero.
+[/list]
+
+[h1]GENERAL:[/h1]
+[list]
+[*] Hotfix related to ball particle not showing upon reconnection.
+[/list]
+
 6/21/2015
 
+[h1]GENERAL:[/h1]
 [list]
 [*] Fixed ball particle not showing upon reconnection.
 [*] Reduced hero selection time from 60 to 45 seconds.
@@ -9,14 +22,16 @@
 [*] Fixed goalie jump being replaced with a dummy ability.
 [*] Decreased score to win from 13 to 11. In the future you will be able to choose the score to win.
 [*] Added Russian translation, thanks to Maxwells.
+[*] Fixed slark colliding with people on the ground while using jump.
+[*] Reduced max # of players to 8.
 [/list]
 
-BALANCE:
+[h1]BALANCE:[/h1]
 [list]
 [*] Reduced Io's pull acceleration (2400 > 2100)
 [*] Reduced Powersprint velocity (850 > 750)
-[*] Reduced player-player collision radius (110 > 90)
+[*] Reduced player-player collision radius (110 > 100)
+[*] Reduced ball collision radius (125 > 120)
 [*] Reduced slark z-velocity (1500 > 1300)
 [*] Reduced slark xy-velocity (800 > 700)
-
 [/list]
