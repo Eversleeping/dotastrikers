@@ -1,0 +1,17 @@
+// REMEMBER: DON'T UPDATE FREQUENTLY. AT LEAST WAIT 30 MINS BEFORE NEXT UPDATE. This error will occur: "Host version doesn't match your version"
+
+[h1]GENERAL:[/h1]
+[list]
+[*] Added custom loading screen, thanks to Insert!
+[*] Added Simplified Chinese translation, thanks to Staretech!
+[/list]
+
+[h1]BALANCE:[/h1]
+[list]
+[*] Reduced Io's pull acceleration (2400 > 2100)
+[*] Reduced Powersprint velocity (850 > 750)
+[*] Reduced player-player collision radius (110 > 100)
+[*] Reduced ball collision radius (125 > 120)
+[*] Reduced slark z-velocity (1500 > 1300)
+[*] Reduced slark xy-velocity (800 > 700)
+[/list]
