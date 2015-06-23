@@ -1,0 +1,262 @@
+"lang"
+{
+	"Language"		"schinese"
+	"Tokens"
+	{		
+		"game_mode_15"				"足球先锋"
+		"addon_game_name"			"足球先锋"
+		
+
+		"DOTA_Console"										":"
+		"Console"											":"
+
+		"goalie_ball_hog_warning"								"你正在控球!"
+		"cant_enter_enemy_goal_post"							"无法进入对方禁区"
+		"already_has_goalie"									"你的队伍已有一个守门员 "
+		"outofbounds_warning"									"球出界"
+		"ClickOnTheHeroes"										"点击英雄图标查看更多信息"
+		"Abilities"												"技能:"
+		"Heroes"												"英雄"
+		"Items"													"装备:"
+		"HeroName"												"英雄名:"
+		"Tip"													"提示"
+		"WelcomeToDotaStrikers"									"欢迎来到足球先锋! 这是一个基于团队的足球游戏，你控制一个英雄，将球踢入对方球门得分。每个英雄都有1-2个独特的技能.，有的英雄擅长防守，而有的则擅长进攻。查看左侧面板来学习一下有关这个游戏的更多内容，不然Loading的时候也没啥事做，是吧？<br><br>祝你好运，玩的开心！"                              
+		"CamDistLabel"											"镜头距离:"
+		"CurrDistLabel"											"当前距离:"
+		"YourSettingsWill"										"你的设置会自动保存在足球先锋中。"
+		"HowToPlay"												"如何进行游戏"
+		"HowToPlayText"											"- 这是一个基于团队的足球游戏，你控制一个英雄，将球踢入对方球门得分。\n- 走到足球的控球半径内即可控球.\n- 每个英雄可以射门/传球 (W),加速 (E).\n- 按Q和R使用技能.\n- 如果你是守门员，在不控球的情况下可以使用奋身一跃 (F)\n- 按D提醒你的队友给你传球.\n- 首先拿到13分的队伍赢得游戏。\n- 使用装备栏发送表情"
+		"Scoreboard"											"计分板"
+		"NotCounted"											"这些状态将不计入总分："
+		"HoverOver"												"(悬停在标签上查看更多信息)"
+		"WelcomeTo"												"欢迎来到"
+		"Alpha"													"Alpha测试"
+		//"PleaseNote"											"请注意，这个游戏正在apha测试阶段。现阶段可能会有许多问题，但是应该还能玩的挺High的！\n\n在足球先锋的创意工坊页面分享你的反馈信息： http://tinyurl.com/dotastrikers"
+		"PleaseNote"											"在足球先锋的创意工坊页面分享你的反馈信息，帮助足球先锋变得更好： http://tinyurl.com/dotastrikers"
+		"Home"													"主页"
+		"Learn"													"教程"
+		"Options"												"选项"
+		"Credits"												"职员表"
+		"ThankYou"												"感谢您进行足球先锋游戏！如果您觉得游戏还不错，不要忘了投票并把足球先锋加到你最喜欢的游戏列表中。 欢迎将反馈发送到: www.tinyurl.com/dotastrikers"
+		"CreditsBody"											"- 开发者: Myll (@MyllDota)\n- Mapping帮助: Epitaque & Aletah\n- 物理 & 定时器: BMD\n- Custom error: zed\n- 帮助: BMD, Noya, Rook\n\n足球先锋基于War3的Banjoball, 由 Garfield1337制作, 并由SC2 Zealot Hockey改进.\n\n特别感谢 Banjoball 社区的所有人！你们是进步的源泉！"
+		"Exit"													"退出"
+		"LearnMore"												"查看更多"
+
+		"DOTA_Tooltip_ability_sbLabel_playerName"                                         "玩家名称"
+		"DOTA_Tooltip_ability_sbLabel_playerName_Description"                             ""
+
+		"DOTA_Tooltip_ability_sbLabel_g"                                                  "得分"
+		"DOTA_Tooltip_ability_sbLabel_g_Description"                                      "你的总得分.<br>Own-goals decrease this value by 1."
+
+		"DOTA_Tooltip_ability_sbLabel_a"                                                  "助攻"
+		"DOTA_Tooltip_ability_sbLabel_a_Description"                                      ""
+
+		"DOTA_Tooltip_ability_sbLabel_s"                                                  "抢断"
+		"DOTA_Tooltip_ability_sbLabel_s_Description"                                      ""
+
+		"DOTA_Tooltip_ability_sbLabel_t"                                                  "失误"
+		"DOTA_Tooltip_ability_sbLabel_t_Description"                                      ""
+
+		"DOTA_Tooltip_ability_sbLabel_st"                                                 "抢断-失误"
+		"DOTA_Tooltip_ability_sbLabel_st_Description"                                     "抢断数减失误数"
+
+		"DOTA_Tooltip_ability_sbLabel_pu"                                                 "拾球"
+		"DOTA_Tooltip_ability_sbLabel_pu_Description"                                     ""
+
+		"DOTA_Tooltip_ability_sbLabel_pass"                                               "传球"
+		"DOTA_Tooltip_ability_sbLabel_pass_Description"                                   ""
+
+		"DOTA_Tooltip_ability_sbLabel_pr"                                                 "接到传球"
+		"DOTA_Tooltip_ability_sbLabel_pr_Description"                                     ""
+
+		"DOTA_Tooltip_ability_sbLabel_poss"                                                 "控球时间"
+		"DOTA_Tooltip_ability_sbLabel_poss_Description"                                     "在整个游戏中你的控球时间, 以秒为单位."
+
+		"DOTA_Tooltip_ability_sbLabel_savp"                                                 "扑救 %"
+		"DOTA_Tooltip_ability_sbLabel_savp_Description"                                     "# 扑救 / (# 扑救 + # 失守)<br>只有在你是守门员时会统计此数据."
+
+		"DOTA_Tooltip_ability_sbLabel_spag"                                                 "作为守门员的时间"
+		"DOTA_Tooltip_ability_sbLabel_spag_Description"                                     "你作为守门员的总时间，以秒为单位."
+
+		"DOTA_Tooltip_ability_sbLabel_tot"                                                  "总分"
+		"DOTA_Tooltip_ability_sbLabel_tot_Description"                                      "方程:<br>总分 = 10*得分 + 5*助攻 + (抢断 – 失误) + 拾球 + 2*传球 + 3*扑救 – 失守"
+
+		"DOTA_Tooltip_ability_sbLabel_gp"                                                 "游戏次数"
+		"DOTA_Tooltip_ability_sbLabel_gp_Description"                                     "你进行过足球先锋的总次数."
+
+		// ******************** HEROES ********************
+		"npc_dota_hero_omniknight"                                                        "裁判"
+
+		// ******************** UNITS ********************
+		"ball"                                                                            "Ball"
+		"dummy_no_invuln"                                                                 "Dummy No Invuln"
+		"dummy"                                                                           "Dummy"
+		"vision_dummy"                                                                    "Vision Dummy"
+		"npc_precache_everything"                                                         "Precache Everything"
+		"referee"                                                                         "Referee"
+
+		// ******************** ABILITY MODIFIERS ********************
+
+		"DOTA_Tooltip_modifier_goalie"                                                    "守门员"
+		"DOTA_Tooltip_modifier_goalie_Description"                                        "如果你不是控球员，可以使用守门员技能."
+
+		"DOTA_Tooltip_modifier_ball_controller"                                           "控球"
+		"DOTA_Tooltip_modifier_ball_controller_Description"                               "你被减速20%%"
+
+		"DOTA_Tooltip_modifier_ninja_invis"                                               "疾风步"
+		"DOTA_Tooltip_modifier_ninja_invis_Description"                                   "你处于隐身状态"
+
+		"DOTA_Tooltip_modifier_rune_haste"                                               "极速"
+		"DOTA_Tooltip_modifier_rune_haste_Description"                                   ""
+
+		"DOTA_Tooltip_modifier_bloodseeker_rupture"										"擒摔"
+		"DOTA_Tooltip_modifier_bloodseeker_rupture_Description"							"你被撂倒了!"
+
+		"DOTA_Tooltip_modifier_powersprint"                                               "加速"
+		"DOTA_Tooltip_modifier_powersprint_Description"                                   "你在加速的影响下"	
+
+		// ******************** ITEM MODIFIERS ********************
+
+		// ******************** ABILITIES ********************
+
+		"DOTA_Tooltip_ability_swap"                                                       "移形换位"
+		"DOTA_Tooltip_ability_swap_Description"                                           "向前释放一个幻象法球，当碰撞到英雄时，转换你和他的位置。"
+
+		"DOTA_Tooltip_ability_blink"                                                      "闪烁"
+		"DOTA_Tooltip_ability_blink_Description"                                          "在一段施法时间后将你向前传送一段距离。在传送之后，你有一小段时间可以将自己传送回去。 "
+		"DOTA_Tooltip_ability_blink_distance"                                             "施法距离:"
+		"DOTA_Tooltip_ability_blink_wait_time"                                            "施法前摇:"
+		"DOTA_Tooltip_ability_blink_time_to_use_backtrack"                                "回传时间:"
+		"DOTA_Tooltip_ability_blink_cd_if_backtrack_used"                                 "使用回传后的冷却时间:"
+
+		"DOTA_Tooltip_ability_blink_backtrack"                                            "回传"
+		"DOTA_Tooltip_ability_blink_backtrack_Description"                                ""
+
+		"DOTA_Tooltip_ability_goalie_jump"                                                "奋身一跃"
+		"DOTA_Tooltip_ability_goalie_jump_Description"                                    "跃起并将球扑住。<br><font color=\"#fd0618\">不是守门员时无法使用。</font>"
+
+		"DOTA_Tooltip_ability_ninja_invis_sprint"                                         "疾风步"
+		"DOTA_Tooltip_ability_ninja_invis_sprint_Description"                             "隐身并加速。在此状态下消耗魔法。<br>使用突袭后将破隐"
+		"DOTA_Tooltip_ability_ninja_invis_sprint_movespeed_increase"                      "%移动速度提升:"
+		"DOTA_Tooltip_ability_ninja_invis_sprint_mana_drain_rate"                         "每秒消耗魔法:"
+		"DOTA_Tooltip_ability_ninja_invis_sprint_mana_recovery_rate"                      "每秒魔法回复:"
+
+		"DOTA_Tooltip_ability_ninja_invis_sprint_break"                                   "破隐"
+		"DOTA_Tooltip_ability_ninja_invis_sprint_break_Description"                       "停止使用疾风步"
+
+		"DOTA_Tooltip_ability_black_hole"                                                 "黑洞"
+		"DOTA_Tooltip_ability_black_hole_Description"                                     "在目标位置召唤一个黑洞. 越靠近中心，收到黑洞的引力越大。"
+		"DOTA_Tooltip_ability_black_hole_radius"                                          "半径:"
+		"DOTA_Tooltip_ability_black_hole_duration"                                        "持续时间:"
+
+		"DOTA_Tooltip_ability_powershot_channel"                                          "大力出奇迹"
+		"DOTA_Tooltip_ability_powershot_channel_Description"                              ""
+
+		"DOTA_Tooltip_ability_powershot"                                                  "大力出奇迹"
+		"DOTA_Tooltip_ability_powershot_Description"                                      "将足球注入神秘药剂，使球的摩擦力变为0，在球场上高速运动。"
+		"DOTA_Tooltip_ability_powershot_channel_time"                                     "施法前摇:"
+
+		"DOTA_Tooltip_ability_powersprint_break"                                          "打断凌波微步"
+		"DOTA_Tooltip_ability_powersprint_break_Description"                              "停止凌波微步"
+
+		"DOTA_Tooltip_ability_powersprint"                                                "凌波微步"
+		"DOTA_Tooltip_ability_powersprint_Description"                                    "向你的前方冲刺一段距离.凌波微步激活时将无法改变你的方向.<br><font color=\"#fd0618\">控球时无法使用.</font>"
+		"DOTA_Tooltip_ability_powersprint_mana_drain_rate"                                "每秒魔法消耗:"
+		"DOTA_Tooltip_ability_powersprint_mana_recovery_rate"                             "每秒魔法恢复:"
+
+		"DOTA_Tooltip_ability_frown"                                                      "呵呵"
+		"DOTA_Tooltip_ability_frown_Description"                                          "哔了狗了 :("
+
+		"DOTA_Tooltip_ability_pass_me"                                                    "传给我"
+		"DOTA_Tooltip_ability_pass_me_Description"                                        "提醒队友传球给你。<br>只对队友显示。"
+
+		"DOTA_Tooltip_ability_ninja_jump"                                                 "突袭"
+		"DOTA_Tooltip_ability_ninja_jump_Description"                                     "向前跳跃一段距离并腾空。"
+
+		"DOTA_Tooltip_ability_super_sprint"                                               "草上飞"
+		"DOTA_Tooltip_ability_super_sprint_Description"                                   "在草场上飞奔，在此状态下消耗魔法。"
+		"DOTA_Tooltip_ability_super_sprint_mana_drain_rate"                               "每秒魔法消耗:"
+		"DOTA_Tooltip_ability_super_sprint_mana_recovery_rate"                            "每秒魔法回复:"
+
+		"DOTA_Tooltip_ability_super_sprint_break"                                         "打断草上飞"
+		"DOTA_Tooltip_ability_super_sprint_break_Description"                             "停止草上飞"
+
+		"DOTA_Tooltip_ability_surge"                                                      "加速"
+		"DOTA_Tooltip_ability_surge_Description"                                          "跑的更快，在此状态下消耗魔法"
+		"DOTA_Tooltip_ability_surge_movespeed_increase"                                   "%移动速度加成:"
+		"DOTA_Tooltip_ability_surge_mana_drain_rate"                                      "每秒消耗魔法:"
+		"DOTA_Tooltip_ability_surge_mana_recovery_rate"                                   "每秒回复魔法:"
+
+		"DOTA_Tooltip_ability_surge_break"                                                "关闭加速"
+		"DOTA_Tooltip_ability_surge_break_Description"                                    "停止加速"
+
+		"DOTA_Tooltip_ability_pull_break"                                                 "打断精灵之链"
+		"DOTA_Tooltip_ability_pull_break_Description"                                     "停止精灵之链"
+
+		"DOTA_Tooltip_ability_pull"                                                       "精灵之链"
+		"DOTA_Tooltip_ability_pull_Description"                                           "将IO拉向足球.<br>冷却时间取决于精灵之链激活的时间。<br><font color=\"#fd0618\">控球时无法使用</font><br><br><font color=\"#CC0099\">COOLDOWNS:</font>"
+		"DOTA_Tooltip_ability_pull_cooldown_one"                                          	  "激活时间 &lt; 1.5:"
+		"DOTA_Tooltip_ability_pull_cooldown_two"                                          	  "激活时间 &lt; 2.5:"
+		"DOTA_Tooltip_ability_pull_cooldown_three"                                            "激活时间 &lt; 3.5:"
+		"DOTA_Tooltip_ability_pull_cooldown_four"                                          	  "激活时间 &lt; 4.55:"
+		"DOTA_Tooltip_ability_pull_cooldown_five"                                          	  "激活时间 = 4.55 (MAX):"
+
+		"DOTA_Tooltip_ability_tackle"                                                     "擒摔"
+		"DOTA_Tooltip_ability_tackle_Description"                                         "快速向目标移动。"
+		"DOTA_Tooltip_ability_tackle_duration"                                      	  "持续时间:"
+
+		"DOTA_Tooltip_ability_slam"                                                       "震地一击"
+		"DOTA_Tooltip_ability_slam_Description"                                           "强击地面，击飞靠近的单位。离撼地者越近的单位将受到更大的力量。"
+		"DOTA_Tooltip_ability_slam_radius"                                                "半径:"
+
+		"DOTA_Tooltip_ability_throw_ball"                                                 "大力抽射"
+		"DOTA_Tooltip_ability_throw_ball_Description"                                     "向目标地点大力抽射。"
+
+		"DOTA_Tooltip_ability_ball_passive"                                               "Ball Passive"
+		"DOTA_Tooltip_ability_ball_passive_Description"                                   ""
+
+		"DOTA_Tooltip_ability_rooted_passive"                                             "Rooted Passive"
+		"DOTA_Tooltip_ability_rooted_passive_Description"                                 ""
+
+		"DOTA_Tooltip_ability_referee_passive"                                            "Referee Passive"
+		"DOTA_Tooltip_ability_referee_passive_Description"                                ""
+
+		"DOTA_Tooltip_ability_dummy_no_invuln_passive"                                    "Dummy No Invuln Passive"
+		"DOTA_Tooltip_ability_dummy_no_invuln_passive_Description"                        ""
+
+		"DOTA_Tooltip_ability_hero_passive"                                               "Hero Passive"
+		"DOTA_Tooltip_ability_hero_passive_Description"                                   ""
+
+		"DOTA_Tooltip_ability_dummy_passive"                                              "Dummy Passive"
+		"DOTA_Tooltip_ability_dummy_passive_Description"                                  ""
+
+		"DOTA_Tooltip_ability_throw_target"                                               "Throw Target"
+		"DOTA_Tooltip_ability_throw_target_Description"                                   ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty1"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty1_Description"                            ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty2"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty2_Description"                            ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty3"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty3_Description"                            ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty4"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty4_Description"                            ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty5"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty5_Description"                            ""
+
+		"DOTA_Tooltip_ability_dotastrikers_empty6"                                        "Empty"
+		"DOTA_Tooltip_ability_dotastrikers_empty6_Description"                            ""
+
+
+		// ******************** ITEMS ********************
+		"DOTA_Tooltip_ability_item_taunt"                                                 "嘿嘿"
+		"DOTA_Tooltip_ability_item_taunt_Description"                                     "发送一个笑脸 :P"
+
+		"DOTA_Tooltip_ability_item_frown"                                                 "呵呵"
+		"DOTA_Tooltip_ability_item_frown_Description"                                     "哔了狗了 :("
+	}
+}
