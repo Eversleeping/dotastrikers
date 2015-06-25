@@ -1,6 +1,6 @@
 THROW_VELOCITY = 1700
 HEADBUMP_BALL_Z_PUSH = 600
-TIME_TILL_HEADBUMP_EXPIRES = 4
+TIME_TILL_HEADBUMP_EXPIRES = 1.5
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
@@ -110,7 +110,7 @@ function DotaStrikers:on_powershot_succeeded( keys, dir )
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
 	ball.dontChangeFriction = true
 	ball:SetPhysicsFriction(0)
-	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
 
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
@@ -399,7 +399,7 @@ function DotaStrikers:pull( keys )
 
 	-- particle
 	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball, 1, "follow_origin", ball:GetAbsOrigin(), true)
 
 	caster:EmitSound("Hero_Wisp.Tether")
 	caster:EmitSound("Hero_Wisp.Tether.Target")

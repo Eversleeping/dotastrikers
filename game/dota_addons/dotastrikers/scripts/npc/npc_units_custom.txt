@@ -78,8 +78,10 @@
 	{
 		// General
 		"BaseClass"					"npc_dota_creature"	
-		"Model"						"models/development/invisiblebox.vmdl"
-		//"ModelScale"				"1.5"
+		//"Model"						"models/particle/snowball.vmdl"
+		"Model"						"ball.vmdl"
+		"ModelScale"				".6"
+		//"ModelScale"				"1"
 		//"MinimapIcon"				"minimap_ancient"
 		//"MinimapIconSize"			"370"
 

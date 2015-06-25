@@ -1,8 +1,8 @@
 dotastrikers
 {
 	material materials/overviews/dotastrikers.vmat
-	pos_x -5460
-	pos_y 5862
-	scale 10.184
+	pos_x -6644
+	pos_y 7292
+	scale 12.324
 }
 

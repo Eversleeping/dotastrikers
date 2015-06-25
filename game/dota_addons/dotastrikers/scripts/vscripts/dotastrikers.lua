@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -96,6 +96,7 @@ end
   It can be used to initialize non-hero player state or adjust the hero selection (i.e. force random etc)
 ]]
 function DotaStrikers:OnAllPlayersLoaded()
+	local ball = Ball.unit
 	PlayerCount = 0
 	for i=0,9 do
 		local ply = PlayerResource:GetPlayer(i)
@@ -127,8 +128,6 @@ function DotaStrikers:OnAllPlayersLoaded()
 			return .1
 		end
 
-		Ball.unit:SpawnParticle()
-
 		local lines = 
 		{
 			[1] = ColorIt("Welcome to ", "yellow") .. ColorIt("Dota Strikers", "green") .. ColorIt("!", "yellow"),
@@ -150,7 +149,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 			end
 		end)
 
-		ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, Ball.unit.particleDummy)
+		ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, Ball.unit)
 
 		Timers:CreateTimer(PRE_FIRSTROUND_START, function()
 			for _,ply in pairs(DotaStrikers.vPlayers) do
@@ -165,6 +164,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 				end
 			end
 			print("RoundInProgress")
+			ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
 			RoundInProgress = true
 		end)
 	end)
@@ -398,7 +398,9 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	hero.plyID = hero:GetPlayerID()
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
+
 	hero.components = {}
+
 	AddMovementComponent(hero, "base", hero.base_move_speed)
 
 	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_hero_passive", {})
@@ -428,12 +430,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	-- mark the hero as a dota strikers hero.
 	hero.isDSHero = true
-	--Referee:SetControllableByPlayer(hero:GetPlayerID(), true)
 
-
-	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
-	--table.insert(self.colliderFilter, hero)
 
 	hero.last_peak_z = 0
 
@@ -629,7 +627,7 @@ function DotaStrikers:OnPlayerReconnect(keys)
 	local ball = Ball.unit
 
 	if ball then
-		ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
+		--ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
 	end
 end
 
@@ -902,12 +900,13 @@ function DotaStrikers:InitDotaStrikers()
 	self.m_TeamColors[8] = { 5, 110, 50 } -- 7:109:44
 	self.m_TeamColors[9] = { 130, 80, 5 } -- 124:75:6
 
-	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
+	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), true, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
 
-	GroundZ = GetGroundPosition(GlobalDummy:GetAbsOrigin(), GlobalDummy).z
-	--print("GroundZ: " .. GroundZ)
+	GroundZ = GetGroundPosition(Vector(0,0,0), GlobalDummy).z
+	--GroundZ = 129
+	print("GroundZ: " .. GroundZ)
 
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
@@ -1015,6 +1014,17 @@ function DotaStrikers:InitDotaStrikers()
 
 		end
 		LastHeroThinkerTime = currTime
+
+		--[[if Ball.unit then
+			print("ballZ: " .. Ball.unit:GetAbsOrigin().z)
+			if not Ball.unit.controlled then
+				if PlayerResource:GetPlayer(0) then
+					Ball.unit:SetControllableByPlayer(0, true)
+					Ball.unit.controlled = true
+				end
+			end
+		end]]
+
 		return 1/30
 	end)
 

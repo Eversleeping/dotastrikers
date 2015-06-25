@@ -201,7 +201,7 @@ function DotaStrikers:OnGoal(team)
 
 	--local win_ball_pos = ball:GetAbsOrigin()
 	Timers:CreateTimer(.06, function()
-		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
+		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
 		EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
 	end)
 
@@ -304,7 +304,9 @@ function DotaStrikers:OnGoal(team)
 
 					-- NOTE: make sure to do all physics stuff BEFORE StopPhysicsSimulation or AFTER StartPhysicsSimulation.
 					hero.dontChangeFriction = false
+
 					hero:SetPhysicsFriction(GROUND_FRICTION)
+
 					hero:StopPhysicsSimulation()
 
 					if ball.netParticle then
@@ -336,17 +338,25 @@ function DotaStrikers:OnGoal(team)
 				end
 
 				-- play some particle on the ball
-				ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
+				ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, ball)
 
 				ball.controller = nil
+
 				ball.dontChangeFriction = false
+
 				ball:SetPhysicsFriction(GROUND_FRICTION)
-				ball:SetAbsOrigin(Vector(0,0,GroundZ))
+
+				FindClearSpaceForUnit(ball, Vector(0,0,0), false)
+
+				--ball:SetAbsOrigin(Vector(0,0,GroundZ))
+
 				Timers:CreateTimer(.03, function()
 					ball:StopPhysicsSimulation()
 				end)
 			end
+
 			EmitGlobalSound("RoundCountdown" .. roundCountdownSet .. "_" .. RandomInt(1, numCountdownSounds))
+
 			Say(nil, i .. "...", false)
 		end)
 	end
@@ -354,22 +364,34 @@ function DotaStrikers:OnGoal(team)
 	Timers:CreateTimer(TIME_TILL_NEXT_ROUND, function()
 		for _,hero in ipairs(DotaStrikers.vHeroes) do
 			RemoveEndgameRoot(hero)
+
 			RemoveSilence(hero)
 
 			hero:StartPhysicsSimulation()
+
 			hero:SetPhysicsAcceleration(BASE_ACCELERATION)
+
 			hero:SetPhysicsVelocity(Vector(0,0,0))
 		end
+
 		ball:StartPhysicsSimulation()
+
 		ball:SetPhysicsAcceleration(BASE_ACCELERATION)
+
 		local ballVel = ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2]))
+
 		ball:SetPhysicsVelocity(ballVel)
+
 		ball:SetFV(ballVel:Normalized())
 
 		RoundInProgress = true
+
 		Say(nil, "PLAY!!", false)
+
 		local roundStartSound = "Round_Start" .. RandomInt(1, NumRoundStartSounds)
+
 		EmitGlobalSound(roundStartSound)
+
 		-- make all creeps cheer
 		PlayVictoryAndDeathAnimations(DOTA_TEAM_GOODGUYS, true)
 		--print("playing " .. roundStartSound)
@@ -444,9 +466,13 @@ function OnBoundsCollision( self, unit, bc )
 	if TryWaitComponent(unit) then return true end
 
 	local ball = Ball.unit
+
 	local isBall = unit == ball
+
 	local passTest = true
+
 	local unitPos = unit:GetAbsOrigin()
+	
 	--print(bc.name)
 	--print(VectorString(unitPos))
 
