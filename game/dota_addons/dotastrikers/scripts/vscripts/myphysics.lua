@@ -357,26 +357,45 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 	-- alter ball pos for more accurate representation.
 	local ballPos = ball:GetAbsOrigin()
 	--ball:GetPaddedCollisionRadius() is 36
-	ballPos = Vector(ballPos.x, ballPos.y, ballPos.z + 50)
+	--ballPos = Vector(ballPos.x, ballPos.y, ballPos.z + 50)
 
-	DebugDrawSphere(ball:GetAbsOrigin(), Vector(255,0,0), ball:GetPaddedCollisionRadius(), 100, false, NF)
+	local ball_xy_off = 40
+	local ball_z_off = 40
+
+	DebugDrawBox(ballPos, Vector(-1*ball_xy_off, -1*ball_xy_off, -1*ball_z_off), Vector(ball_xy_off, ball_xy_off, ball_z_off), 255, 0, 0, 40, NF)
 
 	--if not RoundInProgress then return end
 
 	for _,hero in pairs(DotaStrikers.vHeroes) do
 		-- alter hero pos for more accurate representation.
 		local heroPos = hero:GetAbsOrigin()
-		heroPos = Vector(heroPos.x, heroPos.y, heroPos.z + 110)
+		--heroPos = Vector(heroPos.x, heroPos.y, heroPos.z + 110)
+
 		--print("hero:GetPaddedCollisionRadius(): " .. hero:GetPaddedCollisionRadius())
+
 		print("heroZ: " .. hero:GetAbsOrigin().z)
 		--hero:GetPaddedCollisionRadius() is 27.
 
-		DebugDrawSphere(heroPos, Vector(255,0,0), hero:GetPaddedCollisionRadius(), 100, false, NF)
+		--DebugDrawSphere(heroPos, Vector(255,0,0), hero:GetPaddedCollisionRadius(), 10, false, NF)
 
 		local ballCollDist = BALL_COLLISION_DIST
-		--if 
 
-		local collision = (heroPos-ballPos):Length() <= BALL_COLLISION_DIST
+		--local collision = (heroPos-ballPos):Length() <= BALL_COLLISION_DIST
+		--TODO: RECTANGLE COLLISION.
+		local collision = false
+
+		local xy_off = 70
+		local z_off = 180
+
+		if ballPos.x - ball_xy_off < heroPos.x + xy_off and ballPos.x + ball_xy_off > heroPos.x - xy_off and
+			ballPos.y - ball_xy_off < heroPos.y + xy_off and ballPos.y + ball_xy_off > xy_off and
+			ballPos.z - ball_z_off < heroPos.z + z_off and ballPos.z + ball_z_off >= heroPos.z then
+
+			collision = true
+		end
+
+		DebugDrawBox(heroPos, Vector(-1*xy_off, -1*xy_off, 0), Vector(xy_off, xy_off, z_off), 255, 0, 0, 40, NF)
+
 		if hero ~= ball.controller and collision then
 			if not hero.ballProc then
 				-- new controller
