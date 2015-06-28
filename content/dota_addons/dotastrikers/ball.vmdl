@@ -11,8 +11,11 @@ CVModel CVModel_0
 				string m_meshFile = "ball.fbx"
 				string m_materialSearchPath = ""
 				bool m_bSkinParentedObjects = true
+				bool m_bLegacySkinParentedTransforms = false
 				bool m_bExpensiveTangents = false
 				bool m_bExpensiveVertices = false
+				bool m_bIgnoreCloth = false
+				bool m_bGetSkinningFromLod0 = false
 				CVmorphInfo* m_pMorphInfo = NULL
 			}
 		]
@@ -27,7 +30,7 @@ CVModel CVModel_0
 		bool m_bCreateStaticBone = false
 		int m_nMaxBonesPerVertex = 4
 		bool m_bRemoveUnusedBonesEnabled = false
-		bool m_bUseOnlyRealMeshBones = false
+		bool m_bDriveMeshesWithBacksolvedJointsOnly = true
 		float m_flMatchProxiesToMeshes = 1.000000
 		float m_flReservedFloat = 0.000000
 		int m_nReservedInt = 0
@@ -99,7 +102,13 @@ CVModel CVModel_0
 		
 	]
 	string m_collision = ""
+	string m_softbody = ""
 	string m_sMDLFilename = ""
+	string[] m_sOffsetHitboxSets = 
+	[
+		
+	]
+	float(3) m_vHitboxSetOffset = ( 0.000000, 0.000000, 0.000000 )
 	string[] m_scriptFiles = 
 	[
 		
@@ -107,12 +116,18 @@ CVModel CVModel_0
 	CVMaterialRemapList* m_pMaterialRemapList = &CVMaterialRemapList_0
 	float m_flFbxScale = 1.000000
 	float m_flQCScale = 1.000000
+	float(3) m_vOrigin = ( 0.000000, 0.000000, 0.000000 )
 	CVPsf* m_pvPsf = NULL
 	string m_keyValueText = ""
 	bool m_bStaticProp = false
 	bool m_bEnableClothProcessing = true
 	float m_flClothEnableThreshold = 0.050000
 	int m_nMaxClothVertsPerMesh = 2048
+	bool m_bBuildClothBoneHierarchy = false
+	symbol m_nNavType = AUTH_NAV_MESH
+	bool m_bMakeUniqueVMeshes = false
+	bool m_bMakeImplicitBindPoseSequence = false
+	bool m_bAdjustSkeletonFromBoneFlags = false
 }
 
 CVhitBoxSetList CVhitBoxSetList_0
@@ -130,8 +145,8 @@ CVhitBoxSetList CVhitBoxSetList_0
 					string m_sSurfaceProperty = ""
 					int m_nGroupId = 0
 					string m_sBoneName = "Ball"
-					float(3) m_vMinBounds = ( -49.083420, -49.060593, -49.351250 )
-					float(3) m_vMaxBounds = ( 49.083420, 49.060593, 49.351250 )
+					float(3) m_vMinBounds = ( -49.522957, -49.522961, -49.522972 )
+					float(3) m_vMaxBounds = ( 49.522957, 49.522961, 49.522972 )
 					uint(4) m_cRenderColor = ( 0, 0, 0, 0 )
 				}
 			]
@@ -168,7 +183,7 @@ CVanimGroup CVanimGroup_0
 			string m_Animationname = "Stand"
 			string m_Filepath = "Animation.FBX"
 			int m_nStartframe = 0
-			int m_nEndframe = 30
+			int m_nEndframe = 10
 			float m_flFps = 30.000000
 			CAnimationLoop m_Loop = CAnimationLoop
 			{
@@ -185,20 +200,22 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				CActivity
-				{
-					string m_Name = "ACT_DOTA_IDLE"
-					int m_nWeight = 1
-				},
-				CActivity
-				{
-					string m_Name = "ACT_DOTA_CAST_ABILITY_1"
-					int m_nWeight = 1
-				}
+				
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				
+				CAnimationEvent
+				{
+					string m_Event = "ACT_DOTA_IDLE"
+					int m_nFrame = 0
+					string m_DataString = ""
+				},
+				CAnimationEvent
+				{
+					string m_Event = "ACT_DOTA_CAST_ABILITY_1"
+					int m_nFrame = 0
+					string m_DataString = ""
+				}
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -208,6 +225,7 @@ CVanimGroup CVanimGroup_0
 			[
 				
 			]
+			CAlignAnimation* m_pAlignAnimation = NULL
 			CAdjustAnimation m_adjustAnimation = CAdjustAnimation
 			{
 				float(3) m_translation = ( 0.000000, 0.000000, 0.000000 )
@@ -227,33 +245,34 @@ CVanimGroup CVanimGroup_0
 		{
 			string m_Animationname = "Roll 1x"
 			string m_Filepath = "Animation.FBX"
-			int m_nStartframe = 65
-			int m_nEndframe = 92
+			int m_nStartframe = 10
+			int m_nEndframe = 40
 			float m_flFps = 30.000000
 			CAnimationLoop m_Loop = CAnimationLoop
 			{
 				bool m_bLoop = true
-				bool m_bSmoothLoop = true
+				bool m_bSmoothLoop = false
 				int m_nSmoothLoopStart = 0
 				int m_nSmoothLoopEnd = 0
 				CVAnimCmdStartLoop m_StartLoop = CVAnimCmdStartLoop
 				{
 					bool m_bEnabled = false
-					int m_nLoopRestart = 1
+					int m_nLoopRestart = 0
 				}
 			}
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				CActivity
-				{
-					string m_Name = "ACT_DOTA_CAST_ABILITY_2"
-					int m_nWeight = 1
-				}
+				
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				
+				CAnimationEvent
+				{
+					string m_Event = "ACT_DOTA_CAST_ABILITY_2"
+					int m_nFrame = 0
+					string m_DataString = ""
+				}
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -263,6 +282,7 @@ CVanimGroup CVanimGroup_0
 			[
 				
 			]
+			CAlignAnimation* m_pAlignAnimation = NULL
 			CAdjustAnimation m_adjustAnimation = CAdjustAnimation
 			{
 				float(3) m_translation = ( 0.000000, 0.000000, 0.000000 )
@@ -282,8 +302,8 @@ CVanimGroup CVanimGroup_0
 		{
 			string m_Animationname = "Roll 2x"
 			string m_Filepath = "Animation.FBX"
-			int m_nStartframe = 126
-			int m_nEndframe = 140
+			int m_nStartframe = 40
+			int m_nEndframe = 60
 			float m_flFps = 30.000000
 			CAnimationLoop m_Loop = CAnimationLoop
 			{
@@ -300,15 +320,16 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				CActivity
-				{
-					string m_Name = "ACT_DOTA_CAST_ABILITY_3"
-					int m_nWeight = 1
-				}
+				
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				
+				CAnimationEvent
+				{
+					string m_Event = "ACT_DOTA_CAST_ABILITY_3"
+					int m_nFrame = 0
+					string m_DataString = ""
+				}
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -318,6 +339,7 @@ CVanimGroup CVanimGroup_0
 			[
 				
 			]
+			CAlignAnimation* m_pAlignAnimation = NULL
 			CAdjustAnimation m_adjustAnimation = CAdjustAnimation
 			{
 				float(3) m_translation = ( 0.000000, 0.000000, 0.000000 )
@@ -335,14 +357,14 @@ CVanimGroup CVanimGroup_0
 		},
 		CVanim
 		{
-			string m_Animationname = "Roll 4x"
+			string m_Animationname = "Roll 3x"
 			string m_Filepath = "Animation.FBX"
-			int m_nStartframe = 157
-			int m_nEndframe = 163
+			int m_nStartframe = 60
+			int m_nEndframe = 70
 			float m_flFps = 30.000000
 			CAnimationLoop m_Loop = CAnimationLoop
 			{
-				bool m_bLoop = false
+				bool m_bLoop = true
 				bool m_bSmoothLoop = false
 				int m_nSmoothLoopStart = 0
 				int m_nSmoothLoopEnd = 0
@@ -355,15 +377,16 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				CActivity
-				{
-					string m_Name = "ACT_DOTA_CAST_ABILITY_4"
-					int m_nWeight = 1
-				}
+				
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				
+				CAnimationEvent
+				{
+					string m_Event = "ACT_DOTA_CAST_ABILITY_4"
+					int m_nFrame = 0
+					string m_DataString = ""
+				}
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -373,6 +396,7 @@ CVanimGroup CVanimGroup_0
 			[
 				
 			]
+			CAlignAnimation* m_pAlignAnimation = NULL
 			CAdjustAnimation m_adjustAnimation = CAdjustAnimation
 			{
 				float(3) m_translation = ( 0.000000, 0.000000, 0.000000 )
@@ -401,8 +425,8 @@ CVMaterialRemapList CVMaterialRemapList_0
 	[
 		CVMaterialRemap
 		{
-			string m_sSearchMaterial = "dota_2_soccer_ball_-_dayne1.vmat"
-			string m_sReplaceMaterial = "ball.vmat"
+			string m_sSearchMaterial = "08_-_default.vmat"
+			string m_sReplaceMaterial = "texture.vmat"
 		}
 	]
 }

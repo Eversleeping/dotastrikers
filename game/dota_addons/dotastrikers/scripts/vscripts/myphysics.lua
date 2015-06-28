@@ -33,7 +33,7 @@ NUM_KICK_SOUNDS = 10
 NUM_CATCH_SOUNDS = 6
 NumRoundStartSounds = 6
 NUM_ROUNDEND_SOUNDS = 10
-NUM_FAIL_SOUNDS = 2
+NUM_FAIL_SOUNDS = 3
 NumGiantImpactSounds = 1
 NumHeavyImpactSounds = 2
 NumMediumImpactSounds = 4
@@ -373,7 +373,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 		--print("hero:GetPaddedCollisionRadius(): " .. hero:GetPaddedCollisionRadius())
 
-		print("heroZ: " .. hero:GetAbsOrigin().z)
+		--print("heroZ: " .. hero:GetAbsOrigin().z)
 		--hero:GetPaddedCollisionRadius() is 27.
 
 		--DebugDrawSphere(heroPos, Vector(255,0,0), hero:GetPaddedCollisionRadius(), 10, false, NF)
@@ -389,12 +389,12 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 		if ballPos.x - ball_xy_off < heroPos.x + xy_off and ballPos.x + ball_xy_off > heroPos.x - xy_off and
 			ballPos.y - ball_xy_off < heroPos.y + xy_off and ballPos.y + ball_xy_off > xy_off and
-			ballPos.z - ball_z_off < heroPos.z + z_off and ballPos.z + ball_z_off >= heroPos.z then
-
+			ballPos.z - ball_z_off < heroPos.z + z_off and ballPos.z + ball_z_off >= heroPos.z - 30 then
+			print("collision")
 			collision = true
 		end
 
-		DebugDrawBox(heroPos, Vector(-1*xy_off, -1*xy_off, 0), Vector(xy_off, xy_off, z_off), 255, 0, 0, 40, NF)
+		DebugDrawBox(heroPos, Vector(-1*xy_off, -1*xy_off, -30), Vector(xy_off, xy_off, z_off), 255, 0, 0, 40, NF)
 
 		if hero ~= ball.controller and collision then
 			if not hero.ballProc then
@@ -464,7 +464,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 						end
 					end
-
+					print("new ball.controller")
 					ball.controller = hero
 				end
 
