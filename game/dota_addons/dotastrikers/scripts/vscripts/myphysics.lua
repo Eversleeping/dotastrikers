@@ -356,25 +356,12 @@ end
 function DotaStrikers:OnBallPhysicsFrame( ball )
 	-- alter ball pos for more accurate representation.
 	local ballPos = ball:GetAbsOrigin()
-	--ball:GetPaddedCollisionRadius() is 36
-	ballPos = Vector(ballPos.x, ballPos.y, ballPos.z + 50)
-
-	DebugDrawSphere(ball:GetAbsOrigin(), Vector(255,0,0), ball:GetPaddedCollisionRadius(), 100, false, NF)
 
 	--if not RoundInProgress then return end
 
 	for _,hero in pairs(DotaStrikers.vHeroes) do
 		-- alter hero pos for more accurate representation.
 		local heroPos = hero:GetAbsOrigin()
-		heroPos = Vector(heroPos.x, heroPos.y, heroPos.z + 110)
-		--print("hero:GetPaddedCollisionRadius(): " .. hero:GetPaddedCollisionRadius())
-		print("heroZ: " .. hero:GetAbsOrigin().z)
-		--hero:GetPaddedCollisionRadius() is 27.
-
-		DebugDrawSphere(heroPos, Vector(255,0,0), hero:GetPaddedCollisionRadius(), 100, false, NF)
-
-		local ballCollDist = BALL_COLLISION_DIST
-		--if 
 
 		local collision = (heroPos-ballPos):Length() <= BALL_COLLISION_DIST
 		if hero ~= ball.controller and collision then
