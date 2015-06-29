@@ -200,22 +200,20 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				
+				CActivity
+				{
+					string m_Name = "ACT_DOTA_IDLE"
+					int m_nWeight = 1
+				},
+				CActivity
+				{
+					string m_Name = "ACT_DOTA_CAST_ABILITY_1"
+					int m_nWeight = 1
+				}
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				CAnimationEvent
-				{
-					string m_Event = "ACT_DOTA_IDLE"
-					int m_nFrame = 0
-					string m_DataString = ""
-				},
-				CAnimationEvent
-				{
-					string m_Event = "ACT_DOTA_CAST_ABILITY_1"
-					int m_nFrame = 0
-					string m_DataString = ""
-				}
+				
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -263,16 +261,15 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				
+				CActivity
+				{
+					string m_Name = "ACT_DOTA_CAST_ABILITY_2"
+					int m_nWeight = 1
+				}
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				CAnimationEvent
-				{
-					string m_Event = "ACT_DOTA_CAST_ABILITY_2"
-					int m_nFrame = 0
-					string m_DataString = ""
-				}
+				
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -320,16 +317,15 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				
+				CActivity
+				{
+					string m_Name = "ACT_DOTA_CAST_ABILITY_3"
+					int m_nWeight = 1
+				}
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				CAnimationEvent
-				{
-					string m_Event = "ACT_DOTA_CAST_ABILITY_3"
-					int m_nFrame = 0
-					string m_DataString = ""
-				}
+				
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
@@ -377,16 +373,15 @@ CVanimGroup CVanimGroup_0
 			bool m_bHidden = false
 			CActivity[] m_Activities = 
 			[
-				
+				CActivity
+				{
+					string m_Name = "ACT_DOTA_CAST_ABILITY_4"
+					int m_nWeight = 1
+				}
 			]
 			CAnimationEvent[] m_AnimationEvents = 
 			[
-				CAnimationEvent
-				{
-					string m_Event = "ACT_DOTA_CAST_ABILITY_4"
-					int m_nFrame = 0
-					string m_DataString = ""
-				}
+				
 			]
 			CMotionFrame[] m_MotionFrames = 
 			[
