@@ -414,11 +414,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	SetupStats(hero)
 
 	FireGameEvent("hero_picked", {player_ID = hero.plyID})
-
-	-- OnConnectFull doesn't run in alpha tools.
-	if Testing then
-		FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = DummyNames[hero.plyID+1]})
-	end
+	FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = hero.playerName})
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = self.gcs[1]
@@ -1085,8 +1081,6 @@ function DotaStrikers:OnConnectFull(keys)
 	if Testing then
 		playerName = DummyNames[playerID+1]
 	end
-
-	FireGameEvent("activate_player", {player_ID=playerID, player_name = playerName})
 
 	-- Update the user ID table with this user
 	self.vUserIds[keys.userid] = ply
