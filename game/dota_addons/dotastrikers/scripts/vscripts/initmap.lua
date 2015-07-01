@@ -819,6 +819,17 @@ function DotaStrikers:PrecacheTest()
 
 end
 
+function IsPointWithinField( p )
+	-- check big rectangle first
+	if p.x > RECT_X_MIN and p.x < RECT_X_MAX and p.y < Bounds.max and p.y > Bounds.min then
+		return true
+	end
+
+
+	return false
+end
+
+
 
 TORNADO_RADIUS = 230
 TORNADO_FORCE = 1600
