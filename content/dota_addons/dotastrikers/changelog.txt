@@ -2,23 +2,13 @@
 
 [h1]GENERAL:[/h1]
 [list]
-[*] Replaced ball with a new model. Thanks to "Carpe Swag"!
-[*] All reconnection issues related to the ball should be fixed.
-[*] Reduced ball model scale.
 [*] Reduced turn rates by 20%.
 [*] Reduced time till header expires (4 sec -> 1.5 sec)
-[*] A header can now occur if the ball is caught in the air.
-[*] 
+[*] A header can now occur if the ball is caught while the hero is in the air.
+[*] Fixed Chinese localization.
+[*] Fixed player names not appearing on the scoreboard.
 
 
-[/list]
-
-
-
-[h1]GENERAL:[/h1]
-[list]
-[*] Added custom loading screen, thanks to Insert!
-[*] Added Simplified Chinese translation, thanks to Staretech!
 [/list]
 
 [h1]BALANCE:[/h1]
