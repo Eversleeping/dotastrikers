@@ -80,7 +80,7 @@
 		"BaseClass"					"npc_dota_creature"	
 		//"Model"						"models/particle/snowball.vmdl"
 		"Model"						"ball.vmdl"
-		//"ModelScale"				".6"
+		"ModelScale"				".7"
 		//"ModelScale"				"1"
 		//"MinimapIcon"				"minimap_ancient"
 		//"MinimapIconSize"			"370"
