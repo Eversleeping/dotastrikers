@@ -568,6 +568,7 @@ function DotaStrikers:SetupPhysicsSettings( unit )
 	unit:SetGroundBehavior(PHYSICS_GROUND_ABOVE)
 	-- gravity
 	unit:SetPhysicsAcceleration(BASE_ACCELERATION)
+	unit:SetPhysicsVelocityMax(MAX_VELOCITY)
 	--unit:SetPhysicsBoundingRadius(unit:GetPaddedCollisionRadius()+20)
 	unit.shieldParticles = {}
 	unit.lastShieldParticleTime = GameRules:GetGameTime()
