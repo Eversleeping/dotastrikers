@@ -249,7 +249,13 @@ function DotaStrikers:surge( keys )
 		caster:RemoveAbility("ninja_invis_sprint")
 		caster:AddAbility("ninja_invis_sprint_break")
 		caster:FindAbilityByName("ninja_invis_sprint_break"):SetLevel(1)
+
+		if caster.surgeParticle then
+			ParticleManager:DestroyParticle(caster.surgeParticle, false)
+		end
+
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/ninja_invis_sprint/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+
 		caster:EmitSound("Hero_BountyHunter.WindWalk")
 
 		if caster.dust_particle then
@@ -283,6 +289,11 @@ function DotaStrikers:surge( keys )
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
 
 		--particles/generic_gameplay/rune_haste_owner.vpcf
+
+		if caster.surgeParticle then
+			ParticleManager:DestroyParticle(caster.surgeParticle, false)
+		end
+		
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/items2_fx/phase_boots.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
 		-- play local phaseboots sound.
