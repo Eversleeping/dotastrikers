@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -15,7 +15,7 @@ PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
 
 PRE_FIRSTROUND_START = 8
-SCORE_TO_WIN = 11
+SCORE_TO_WIN = 10
 FIELD = "grass"
 
 if Testing then
@@ -96,7 +96,10 @@ end
   It can be used to initialize non-hero player state or adjust the hero selection (i.e. force random etc)
 ]]
 function DotaStrikers:OnAllPlayersLoaded()
+	local ball = Ball.unit
+
 	PlayerCount = 0
+
 	for i=0,9 do
 		local ply = PlayerResource:GetPlayer(i)
 		if ply and ply:GetAssignedHero() == nil then
@@ -164,7 +167,11 @@ function DotaStrikers:OnAllPlayersLoaded()
 					RemoveSilence(hero)
 				end
 			end
+
 			print("RoundInProgress")
+
+			ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
+
 			RoundInProgress = true
 		end)
 	end)
@@ -235,6 +242,12 @@ function DotaStrikers:PlayerSay( keys )
 		end
 		if txt == "precache" then
 			DotaStrikers:PrecacheTest()
+		end
+		if txt == "time" then
+			GameRules:SetTimeOfDay( 0 )
+		end
+		if txt == "time2" then
+			GameRules:SetTimeOfDay( 1 )
 		end
 	end
 end
@@ -413,10 +426,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	FireGameEvent("hero_picked", {player_ID = hero.plyID})
 
-	-- OnConnectFull doesn't run in alpha tools.
-	if Testing then
-		FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = DummyNames[hero.plyID+1]})
-	end
+	FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = hero.playerName})
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
 		hero.gc = self.gcs[1]
@@ -428,12 +438,8 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	-- mark the hero as a dota strikers hero.
 	hero.isDSHero = true
-	--Referee:SetControllableByPlayer(hero:GetPlayerID(), true)
 
-
-	-- Store this hero handle in this table.
 	table.insert(self.vHeroes, hero)
-	--table.insert(self.colliderFilter, hero)
 
 	hero.last_peak_z = 0
 
@@ -574,6 +580,7 @@ function DotaStrikers:SetupPhysicsSettings( unit )
 	unit:SetGroundBehavior(PHYSICS_GROUND_ABOVE)
 	-- gravity
 	unit:SetPhysicsAcceleration(BASE_ACCELERATION)
+	unit:SetPhysicsVelocityMax(MAX_VELOCITY)
 	--unit:SetPhysicsBoundingRadius(unit:GetPaddedCollisionRadius()+20)
 	unit.shieldParticles = {}
 	unit.lastShieldParticleTime = GameRules:GetGameTime()
@@ -807,8 +814,10 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetPreGameTime( PRE_GAME_TIME )
 	GameRules:SetPostGameTime( POST_GAME_TIME )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)
-	GameRules:SetHeroMinimapIconScale( .8 )
-	GameRules:SetCreepMinimapIconScale( 1.4 )
+	GameRules:SetHeroMinimapIconScale( 1.3 )
+	GameRules:SetCreepMinimapIconScale( 2.0 )
+	GameRules:SetCustomGameTeamMaxPlayers(DOTA_TEAM_GOODGUYS, 4)
+	GameRules:SetCustomGameTeamMaxPlayers(DOTA_TEAM_BADGUYS, 4)
 	--print('[DOTASTRIKERS] GameRules set')
 
 	InitLogFile( "log/dotastrikers.txt","")
@@ -902,12 +911,12 @@ function DotaStrikers:InitDotaStrikers()
 	self.m_TeamColors[8] = { 5, 110, 50 } -- 7:109:44
 	self.m_TeamColors[9] = { 130, 80, 5 } -- 124:75:6
 
-	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
+	GlobalDummy = CreateUnitByName("global_dummy", Vector(0,0,0), true, nil, nil, DOTA_TEAM_GOODGUYS)
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
 
 	GroundZ = GetGroundPosition(GlobalDummy:GetAbsOrigin(), GlobalDummy).z
-	--print("GroundZ: " .. GroundZ)
+	print("GroundZ: " .. GroundZ)
 
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
 	EndRoundDummy.endround_passive = EndRoundDummy:FindAbilityByName("endround_passive")
@@ -1075,8 +1084,6 @@ function DotaStrikers:OnConnectFull(keys)
 	if Testing then
 		playerName = DummyNames[playerID+1]
 	end
-
-	FireGameEvent("activate_player", {player_ID=playerID, player_name = playerName})
 
 	-- Update the user ID table with this user
 	self.vUserIds[keys.userid] = ply

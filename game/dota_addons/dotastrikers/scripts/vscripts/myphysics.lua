@@ -5,6 +5,7 @@ AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
 
+MAX_VELOCITY = 7000
 BALL_COLLISION_DIST = 120
 ABOVE_GROUND_Z = 20
 PEAK_Z_THRESH = 40
@@ -32,7 +33,7 @@ NUM_KICK_SOUNDS = 10
 NUM_CATCH_SOUNDS = 6
 NumRoundStartSounds = 6
 NUM_ROUNDEND_SOUNDS = 10
-NUM_FAIL_SOUNDS = 2
+NUM_FAIL_SOUNDS = 3
 NumGiantImpactSounds = 1
 NumHeavyImpactSounds = 2
 NumMediumImpactSounds = 4
@@ -102,7 +103,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if unit.isBall then
 			if ball.groundTrailP then
 				--print("removing ball.groundTrailP")
-				ParticleManager:DestroyParticle(ball.groundTrailP, true)
+				--ParticleManager:DestroyParticle(ball.groundTrailP, true)
 				ball.groundTrailP = nil
 			end
 			PlayAirTrailParticle(unit)
@@ -126,7 +127,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			end
 			
 			if not ball.groundTrailP then
-				ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				--ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 			end
 
 		end
@@ -257,7 +258,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 end
 
 function Ball:Init(  )
-	Ball.unit = CreateUnitByName("ball", Vector(0,0,GroundZ), true, nil, nil, DOTA_TEAM_NOTEAM)
+	Ball.unit = CreateUnitByName("ball", Vector(0,0,0), true, nil, nil, DOTA_TEAM_NOTEAM)
 	local ball = Ball.unit
 	--table.insert(DotaStrikers.colliderFilter, ball)
 	ball.colliderID = DoUniqueString("a")
@@ -265,6 +266,7 @@ function Ball:Init(  )
 	BALL = ball.unit
 	ball.isBall = true
 	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
+	--ball.particleDummy = ball
 	ball.lastBounceTime = 0
 	ball.last_peak_z = 0
 	ball.lastPos = Vector(0,0,GroundZ)
@@ -378,7 +380,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 					-- do some stats stuff
 					if not ball.controller and not saved then
 						-- determine if catch was a pass
-						if ball.velocityMagnitude < 400*400 then
+						if ball.vm < 300*300 then
 							hero.pickups = hero.pickups + 1
 						else
 							if hero:GetTeam() == ball.lastMovedBy:GetTeam() then
@@ -396,7 +398,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 						end
 					end
 
-					if not hero.isAboveGround and ballPos.z > hero:GetAbsOrigin().z+BALL_COLLISION_DIST-50 then
+					if ballPos.z > hero:GetAbsOrigin().z+HEADER_Z_OFFSET then
 						if hero:HasAbility("throw_ball") then
 							hero:RemoveAbility("throw_ball")
 							hero:AddAbility("head_bump")
@@ -479,7 +481,10 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		-- turn the facing direction of the ball for aesthetics.
 		local ballVelocityDir = ball:GetPhysicsVelocity():Normalized()
 
-		if ball.bStarted and ball.velocityMagnitude > 150*150 and ball:GetForwardVector() ~= ballVelocityDir then
+		local angleDiff = math.abs(RotationDelta(VectorToAngles(ball:GetForwardVector()), VectorToAngles(ballVelocityDir)).y)
+
+		if ball.bStarted and ball.vm > 100*100 and angleDiff > 20 then
+			--print("SetFV")
 			ball:SetFV(ballVelocityDir)
 		end
 

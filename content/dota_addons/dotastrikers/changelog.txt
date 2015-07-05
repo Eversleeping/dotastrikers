@@ -2,16 +2,20 @@
 
 [h1]GENERAL:[/h1]
 [list]
-[*] Added custom loading screen, thanks to Insert!
-[*] Added Simplified Chinese translation, thanks to Staretech!
+[*] Reduced turn rates by 20%.
+[*] Reduced time till header expires (4 sec -> 1.5 sec)
+[*] Reduced score-to-win from 11 to 10.
+[*] A header can now occur if the ball is caught while the hero is in the air.
+[*] Fixed Chinese localization.
+[*] Fixed player names not appearing on the scoreboard.
+[*] Added a maximum velocity (7000).
+[*] Forced radiant and dire teams to have a max of 4 players each.
+
+
+
 [/list]
 
 [h1]BALANCE:[/h1]
 [list]
 [*] Reduced Io's pull acceleration (2400 > 2100)
-[*] Reduced Powersprint velocity (850 > 750)
-[*] Reduced player-player collision radius (110 > 100)
-[*] Reduced ball collision radius (125 > 120)
-[*] Reduced slark z-velocity (1500 > 1300)
-[*] Reduced slark xy-velocity (800 > 700)
 [/list]

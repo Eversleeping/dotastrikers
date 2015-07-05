@@ -48,7 +48,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -105,7 +105,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -162,7 +162,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -218,7 +218,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -275,7 +275,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -332,7 +332,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// 320
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -389,7 +389,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -446,7 +446,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -503,7 +503,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
@@ -560,7 +560,7 @@
 
 		"MovementCapabilities"		"DOTA_UNIT_CAP_MOVE_GROUND"
 		"MovementSpeed"				"320"									// Speed.
-		"MovementTurnRate"			"1.0"									// Turning rate.
+		"MovementTurnRate"			"0.8"									// Turning rate.
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.

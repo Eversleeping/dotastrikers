@@ -1,6 +1,9 @@
 THROW_VELOCITY = 1700
+
 HEADBUMP_BALL_Z_PUSH = 600
-TIME_TILL_HEADBUMP_EXPIRES = 4
+TIME_TILL_HEADBUMP_EXPIRES = 1.5
+HEADER_Z_OFFSET = 60
+
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
@@ -193,7 +196,7 @@ function DotaStrikers:surge( keys )
 		caster:AddAbility("super_sprint_break")
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
 
-		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/econ/items/spirit_breaker/spirit_breaker_iron_surge/spirit_breaker_iron_surge_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		
 		caster.sprint_fv = caster:GetForwardVector()
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
