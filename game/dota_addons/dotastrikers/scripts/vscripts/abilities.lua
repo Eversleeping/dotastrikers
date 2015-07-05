@@ -347,6 +347,9 @@ function DotaStrikers:surge_break( keys )
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
+		if caster:HasModifier("modifier_ninja_fade") then
+			caster:RemoveModifierByName("modifier_ninja_fade")
+		end
 	elseif caster.isPowershot then
 		caster:RemoveAbility("powersprint_break")
 		caster:AddAbility("powersprint")
