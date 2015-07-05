@@ -196,7 +196,7 @@ function DotaStrikers:surge( keys )
 		caster:AddAbility("super_sprint_break")
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
 
-		caster.surgeParticle = ParticleManager:CreateParticle("particles/econ/items/spirit_breaker/spirit_breaker_iron_surge/spirit_breaker_iron_surge_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/econ/items/spirit_breaker/spirit_breaker_iron_surge/spirit_breaker_charge_iron.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		
 		caster.sprint_fv = caster:GetForwardVector()
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
