@@ -482,7 +482,7 @@ function DotaStrikers:pull_break( keys )
 	else
 		pullAbility:StartCooldown(30)
 	end
-	
+
 	pullAbility:StartCooldown(PULL_COOLDOWN)
 
 	if Testing then
@@ -878,6 +878,22 @@ function DotaStrikers:blink( keys )
 		caster.pos_before_blink = caster:GetAbsOrigin()
 		caster.vel_before_blink = caster:GetPhysicsVelocity()
 		local newPos = caster:GetAbsOrigin() + BLINK_DISTANCE*fv
+
+		-- Are we blinking to a valid position?
+		local checkPos = newPos
+		if (not IsPointOnField(checkPos)) then -- If it's nil the points in the field
+			local distTraveled = 0
+			newPos = caster:GetAbsOrigin()
+			while (distTraveled < BLINK_DISTANCE) do
+				checkPos = newPos + 10*fv
+				if (IsPointOnField(checkPos)) then
+					newPos = checkPos
+					distTraveled = distTraveled + 10 -- To be honest, I could just do away with this line and just have it run infinitely until it breaks via the break two lines down
+				else
+					break
+				end
+			end
+		end
 
 		DummyCastBlink(caster, caster:GetAbsOrigin(), newPos )
 		caster:SetAbsOrigin(newPos)
