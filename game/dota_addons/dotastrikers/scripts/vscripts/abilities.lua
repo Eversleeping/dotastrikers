@@ -11,10 +11,10 @@ SLAM_XY = 1000
 PSHOT_VELOCITY = 1500
 PSPRINT_VELOCITY = 750 --850
 
-NINJA_JUMP_Z = 1300
+NINJA_JUMP_Z = 1100
 NINJA_JUMP_XY = 700
 
-PULL_ACCEL_FORCE = 2100
+PULL_ACCEL_FORCE = 1900
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
@@ -471,18 +471,20 @@ function DotaStrikers:pull_break( keys )
 
 	-- determine cooldown to set
 	local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
-	if timeDiff < 1.5 then
+	if timeDiff < 0.5 then
 		pullAbility:StartCooldown(10)
-	elseif timeDiff < 2.5 then
+	elseif timeDiff < 1.5 then
 		pullAbility:StartCooldown(15)
-	elseif timeDiff < 3.5 then
+	elseif timeDiff < 2.5 then
 		pullAbility:StartCooldown(20)
-	elseif timeDiff < 4.5 then
+	elseif timeDiff < 3.5 then
 		pullAbility:StartCooldown(25)
 	else
 		pullAbility:StartCooldown(30)
 	end
+	
 	pullAbility:StartCooldown(PULL_COOLDOWN)
+
 	if Testing then
 		pullAbility:EndCooldown()
 	end
