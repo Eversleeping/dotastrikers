@@ -52,7 +52,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -109,7 +109,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -166,7 +166,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -222,7 +222,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -279,7 +279,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -336,7 +336,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -393,7 +393,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -450,7 +450,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -507,7 +507,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.
@@ -564,7 +564,7 @@
 
 		"StatusHealth"				"100"									// Base health.
 		"StatusHealthRegen"			"0.0"									// Health regeneration rate.
-		"StatusMana"				"100"										// Base mana.
+		"StatusMana"				"101"										// Base mana.
 		"StatusManaRegen"			"0"									// Mana regeneration rate.
 
 		"VisionNighttimeRange"		"1800"									// Range of vision at night time.

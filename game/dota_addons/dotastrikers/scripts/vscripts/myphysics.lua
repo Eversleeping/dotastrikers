@@ -1,11 +1,11 @@
 BALL_PARTICLE_Z_OFFSET=50 --this makes the particle look nicer.
 
-GROUND_FRICTION = .06
-AIR_FRICTION = .02
+GROUND_FRICTION = .035
+AIR_FRICTION = .015
 GRAVITY = -2200
 BASE_ACCELERATION = Vector(0,0,GRAVITY)
-HERO_Z_OFFSET = 30
 
+MAX_VELOCITY = 7000
 BALL_COLLISION_DIST = 120
 ABOVE_GROUND_Z = 20
 PEAK_Z_THRESH = 40
@@ -33,7 +33,7 @@ NUM_KICK_SOUNDS = 10
 NUM_CATCH_SOUNDS = 6
 NumRoundStartSounds = 6
 NUM_ROUNDEND_SOUNDS = 10
-NUM_FAIL_SOUNDS = 2
+NUM_FAIL_SOUNDS = 3
 NumGiantImpactSounds = 1
 NumHeavyImpactSounds = 2
 NumMediumImpactSounds = 4
@@ -103,7 +103,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 		if unit.isBall then
 			if ball.groundTrailP then
 				--print("removing ball.groundTrailP")
-				ParticleManager:DestroyParticle(ball.groundTrailP, true)
+				--ParticleManager:DestroyParticle(ball.groundTrailP, true)
 				ball.groundTrailP = nil
 			end
 			PlayAirTrailParticle(unit)
@@ -127,7 +127,7 @@ function DotaStrikers:OnMyPhysicsFrame( unit )
 			end
 			
 			if not ball.groundTrailP then
-				--ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+				--ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 			end
 
 		end
@@ -265,6 +265,8 @@ function Ball:Init(  )
 	DotaStrikers.colliderFilter[ball.colliderID] = ball
 	BALL = ball.unit
 	ball.isBall = true
+	ball.particleDummy = CreateUnitByName("dummy", Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET), false, nil, nil, DOTA_TEAM_NOTEAM)
+	--ball.particleDummy = ball
 	ball.lastBounceTime = 0
 	ball.last_peak_z = 0
 	ball.lastPos = Vector(0,0,GroundZ)
@@ -278,38 +280,23 @@ function Ball:Init(  )
 		ball.last_bh_accels[i] = Vector(0,0,0)
 	end
 
+	function ball:SpawnParticle(  )
+		-- constantly reposition the ball particle dummy.
+		ball.particleDummy:SetAbsOrigin(Vector(0,0,GroundZ+BALL_PARTICLE_Z_OFFSET))
+		Timers:CreateTimer(.06, function()
+			if not ball.ballParticle then
+				ball.ballParticle = ParticleManager:CreateParticle("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+
+				--ball.groundTrailP = ParticleManager:CreateParticle("particles/econ/items/windrunner/windrunner_cape_cascade/windrunner_cape_cascade_ambient.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+				--ParticleManager:SetParticleControlEnt(p3, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
+
+				ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
+			end
+		end)
+	end
+
 	function ball:Rotate(  )
-		if not ball.controller then
-			local newAnimation = nil
-			if ball.vm < CrackThreshSq and ball.vm > 40*40 then
-				newAnimation = ACT_DOTA_CAST_ABILITY_2
-			elseif ball.vm >= CrackThreshSq then
-				newAnimation = ACT_DOTA_CAST_ABILITY_3
-			end
-
-			if newAnimation ~= ball.animation then
-				-- remove curr one
-				if ball.animation then
-					ball:RemoveGesture(ball.animation)
-					ball.animation = nil
-				end
-
-				if newAnimation ~= nil then
-					ball.animation = newAnimation
-					ball:StartGesture(ball.animation)
-				end
-			end
-
-		else
-			if ball.animation then
-				ball:RemoveGesture(ball.animation)
-				ball.animation = nil
-			end
-		end
-
-
-		--[[if not ball.ballParticle then return end
-
+		if not ball.ballParticle then return end
 		local vel_for_max_rotation = 900*900
 		local vel_for_zero_rotation = 20*20
 		local cp_value_for_max_rotation = -60
@@ -330,7 +317,7 @@ function Ball:Init(  )
 					ball.rotateStarted = true
 				end
 			end
-		end]]
+		end
 	end
 
 	function ball:SetFV( fv )
@@ -354,16 +341,12 @@ function Ball:Init(  )
 end
 
 function DotaStrikers:OnBallPhysicsFrame( ball )
-	-- alter ball pos for more accurate representation.
 	local ballPos = ball:GetAbsOrigin()
 
 	--if not RoundInProgress then return end
 
-	for _,hero in pairs(DotaStrikers.vHeroes) do
-		-- alter hero pos for more accurate representation.
-		local heroPos = hero:GetAbsOrigin()
-
-		local collision = (heroPos-ballPos):Length() <= BALL_COLLISION_DIST
+	for _,hero in ipairs(DotaStrikers.vHeroes) do
+		local collision = (hero:GetAbsOrigin()-ballPos):Length() <= BALL_COLLISION_DIST
 		if hero ~= ball.controller and collision then
 			if not hero.ballProc then
 				-- new controller
@@ -415,7 +398,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 						end
 					end
 
-					if ballPos.z > heroPos.z + 20 then
+					if ballPos.z > hero:GetAbsOrigin().z+HEADER_Z_OFFSET then
 						if hero:HasAbility("throw_ball") then
 							hero:RemoveAbility("throw_ball")
 							hero:AddAbility("head_bump")
@@ -450,7 +433,7 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 			end
 		elseif hero == ball.controller then
 			local fv = hero:GetForwardVector()
-			--local heroPos = hero:GetAbsOrigin()
+			local heroPos = hero:GetAbsOrigin()
 			-- reposition ball to in front of controller.
 			if hero:HasAbility("head_bump") then
 				ball:SetAbsOrigin(Vector(heroPos.x, heroPos.y, heroPos.z+BALL_HANDLED_OFFSET))
@@ -500,8 +483,8 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 		local angleDiff = math.abs(RotationDelta(VectorToAngles(ball:GetForwardVector()), VectorToAngles(ballVelocityDir)).y)
 
-		if ball.bStarted and ball.velocityMagnitude > 100*100 and angleDiff > 20 then
-			print("SetFV")
+		if ball.bStarted and ball.vm > 100*100 and angleDiff > 20 then
+			--print("SetFV")
 			ball:SetFV(ballVelocityDir)
 		end
 
@@ -605,6 +588,11 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 
 	ball.lastPos = ballPos
 
+	-- move the ball particle dummy, so ball particle displays above ground.
+	ball.particleDummy:SetAbsOrigin(Vector(ballPos.x, ballPos.y, ballPos.z+BALL_PARTICLE_Z_OFFSET))
+
+	ball.particleDummy:SetForwardVector(ball:GetForwardVector())
+	--print("rotating.")
 end
 
 --[[function StopBallRollLoopSound(  )
@@ -700,7 +688,9 @@ function PlayAirTrailParticle( unit )
 	local ball = Ball.unit
 	
 	if not unit.airTrailP and not ball.controller then
-		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/items/huskar/huskar_searing_dominator/huskar_searing_dominator_backhair.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+		ball.airTrailP = ParticleManager:CreateParticle("particles/econ/items/huskar/huskar_searing_dominator/huskar_searing_dominator_backhair.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		--ball.airTrailP = ParticleManager:CreateParticle("particles/econ/courier/courier_trail_05/courier_trail_05.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+		--ParticleManager:SetParticleControlEnt(ball.airTrailP, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 	elseif unit.airTrailP and ball.controller then
 		ParticleManager:DestroyParticle(unit.airTrailP, false)
 		unit.airTrailP = nil
@@ -796,16 +786,17 @@ function DotaStrikers:SetupPersonalColliders(hero)
 				-- do negative stuff
 				if hero:GetTeam() ~= collided:GetTeam() then
 					Timers:CreateTimer(.03, function()
-						hero.tackleDummy:SetForwardVector((collided:GetAbsOrigin() - hero.tackleDummy:GetAbsOrigin()):Normalized())
+						--[[hero.tackleDummy:SetForwardVector((collided:GetAbsOrigin() - hero.tackleDummy:GetAbsOrigin()):Normalized())
 						Timers:CreateTimer(.03, function()
 							hero.tackleDummy:CastAbilityOnTarget(collided, hero.tackleDummyAbil, 0)
 							Timers:CreateTimer(.06, function()
 								--FireGameEvent("toggle_show_ability_silenced", {player_ID=collided:GetPlayerID(), ability_index=2})
 							end)
-						end)
+						end)]]
 					end)
 
 					collided.last_time_tackled = GameRules:GetGameTime()
+
 					AddMovementComponent(collided, "tackle", -9999)
 
 					-- give collided a small push

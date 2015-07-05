@@ -161,11 +161,16 @@ function DotaStrikers:OnGoal(team)
 		return
 	end
 	DotaStrikers.lastGoalTime = currTime
+
 	print("OnGoal")
+
 	RoundOver = true
+
 	local ball = Ball.unit
+
 	local scorer = ball.lastMovedBy
 
+	-- Retrieve winning and losing teams.
 	local nWinningTeam = DOTA_TEAM_BADGUYS
 	local nLosingTeam = DOTA_TEAM_GOODGUYS
 	if team == "Radiant" then
@@ -197,11 +202,12 @@ function DotaStrikers:OnGoal(team)
 
 	ball.dontChangeFriction = true
 
+	-- Slow the ball down a lot
 	ball:SetPhysicsFriction(GROUND_FRICTION*3)
 
 	--local win_ball_pos = ball:GetAbsOrigin()
 	Timers:CreateTimer(.06, function()
-		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball)
+		local win_ball_particle = ParticleManager:CreateParticle("particles/units/heroes/hero_templar_assassin/templar_assassin_trap_explode.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
 		EmitSoundAtPosition("Hero_TemplarAssassin.Trap.Explode", ball:GetAbsOrigin())
 	end)
 
@@ -338,7 +344,7 @@ function DotaStrikers:OnGoal(team)
 				end
 
 				-- play some particle on the ball
-				ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, ball)
+				ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
 
 				ball.controller = nil
 
@@ -346,17 +352,14 @@ function DotaStrikers:OnGoal(team)
 
 				ball:SetPhysicsFriction(GROUND_FRICTION)
 
-				FindClearSpaceForUnit(ball, Vector(0,0,0), false)
-
 				--ball:SetAbsOrigin(Vector(0,0,GroundZ))
+				FindClearSpaceForUnit(ball, Vector(0,0,0), false)
 
 				Timers:CreateTimer(.03, function()
 					ball:StopPhysicsSimulation()
 				end)
 			end
-
 			EmitGlobalSound("RoundCountdown" .. roundCountdownSet .. "_" .. RandomInt(1, numCountdownSounds))
-
 			Say(nil, i .. "...", false)
 		end)
 	end

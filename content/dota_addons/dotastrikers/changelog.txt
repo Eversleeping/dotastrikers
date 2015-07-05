@@ -2,31 +2,12 @@
 
 [h1]GENERAL:[/h1]
 [list]
-[*] Replaced ball with a new model. Thanks to "Carpe Swag"!
-[*] All reconnection issues related to the ball should be fixed.
-[*] Reduced ball model scale.
-[*] Reduced turn rates by 20%.
-[*] Reduced time till header expires (4 sec -> 1.5 sec)
-[*] A header can now occur if the ball is caught in the air.
-[*] 
-
-
-[/list]
-
-
-
-[h1]GENERAL:[/h1]
-[list]
-[*] Added custom loading screen, thanks to Insert!
-[*] Added Simplified Chinese translation, thanks to Staretech!
+[*] Hotfixes relating to Slark.
 [/list]
 
 [h1]BALANCE:[/h1]
 [list]
-[*] Reduced Io's pull acceleration (2400 > 2100)
-[*] Reduced Powersprint velocity (850 > 750)
-[*] Reduced player-player collision radius (110 > 100)
-[*] Reduced ball collision radius (125 > 120)
-[*] Reduced slark z-velocity (1500 > 1300)
-[*] Reduced slark xy-velocity (800 > 700)
+[*]
 [/list]
+
+Updated by Myll & Carpe Swag.
