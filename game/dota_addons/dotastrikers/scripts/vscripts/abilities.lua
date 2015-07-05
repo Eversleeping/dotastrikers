@@ -1,6 +1,9 @@
 THROW_VELOCITY = 1700
+
 HEADBUMP_BALL_Z_PUSH = 600
 TIME_TILL_HEADBUMP_EXPIRES = 1.5
+HEADER_Z_OFFSET = 60
+
 SURGE_TICK = .2
 SLAM_Z = 2100
 SLAM_XY = 1000
@@ -8,10 +11,10 @@ SLAM_XY = 1000
 PSHOT_VELOCITY = 1500
 PSPRINT_VELOCITY = 750 --850
 
-NINJA_JUMP_Z = 1300
+NINJA_JUMP_Z = 1100
 NINJA_JUMP_XY = 700
 
-PULL_ACCEL_FORCE = 2100
+PULL_ACCEL_FORCE = 1900
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
@@ -30,12 +33,12 @@ BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
 TACKLE_DURATION = .55
-TACKLE_VEL_FORCE = 1500
+TACKLE_DISTANCE = 50
 TACKLE_PUSH = 300
 TACKLE_SLOW_RADIUS = PP_COLLISION_RADIUS+70
 
 BLINK_WAIT_TIME = .4
-BLINK_DISTANCE = 800
+BLINK_DISTANCE = 500
 TIME_HAS_TO_BACKTRACK = 2
 BLINK_CD_USED_BACKTRACK = 30
 
@@ -110,7 +113,7 @@ function DotaStrikers:on_powershot_succeeded( keys, dir )
 	ball.controller:EmitSound("Hero_VengefulSpirit.MagicMissile")
 	ball.dontChangeFriction = true
 	ball:SetPhysicsFriction(0)
-	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball)
+	ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
 
 	ball:AddPhysicsVelocity(dir*PSHOT_VELOCITY)
 
@@ -193,7 +196,7 @@ function DotaStrikers:surge( keys )
 		caster:AddAbility("super_sprint_break")
 		caster:FindAbilityByName("super_sprint_break"):SetLevel(1)
 
-		caster.surgeParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_spirit_breaker/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+		caster.surgeParticle = ParticleManager:CreateParticle("particles/econ/items/spirit_breaker/spirit_breaker_iron_surge/spirit_breaker_charge_iron.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 		
 		caster.sprint_fv = caster:GetForwardVector()
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
@@ -246,7 +249,9 @@ function DotaStrikers:surge( keys )
 		caster:RemoveAbility("ninja_invis_sprint")
 		caster:AddAbility("ninja_invis_sprint_break")
 		caster:FindAbilityByName("ninja_invis_sprint_break"):SetLevel(1)
+
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/ninja_invis_sprint/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+
 		caster:EmitSound("Hero_BountyHunter.WindWalk")
 
 		if caster.dust_particle then
@@ -278,8 +283,7 @@ function DotaStrikers:surge( keys )
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
-
-		--particles/generic_gameplay/rune_haste_owner.vpcf
+		
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/items2_fx/phase_boots.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
 		-- play local phaseboots sound.
@@ -341,9 +345,14 @@ function DotaStrikers:surge_break( keys )
 
 		RemoveMovementComponent(caster, "surge")
 
+		if caster:HasModifier("modifier_ninja_fade") then
+			caster:RemoveModifierByName("modifier_ninja_fade")
+		end
+
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
+
 	elseif caster.isPowershot then
 		caster:RemoveAbility("powersprint_break")
 		caster:AddAbility("powersprint")
@@ -374,9 +383,14 @@ function DotaStrikers:surge_break( keys )
 
 		RemoveMovementComponent(caster, "surge")
 	end
-	if caster.surgeParticle then
-		ParticleManager:DestroyParticle(caster.surgeParticle, false)
-	end
+
+	Timers:CreateTimer(1/30, function()
+		if caster.surgeParticle then
+			ParticleManager:DestroyParticle(caster.surgeParticle, false)
+		else
+			print("no surgeParticle")
+		end
+	end)
 end
 
 function DotaStrikers:pull( keys )
@@ -399,7 +413,7 @@ function DotaStrikers:pull( keys )
 
 	-- particle
 	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
-	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball, 1, "follow_origin", ball:GetAbsOrigin(), true)
+	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 
 	caster:EmitSound("Hero_Wisp.Tether")
 	caster:EmitSound("Hero_Wisp.Tether.Target")
@@ -465,18 +479,20 @@ function DotaStrikers:pull_break( keys )
 
 	-- determine cooldown to set
 	local timeDiff = GameRules:GetGameTime() - caster.pull_start_time
-	if timeDiff < 1.5 then
+	if timeDiff < 0.5 then
 		pullAbility:StartCooldown(10)
-	elseif timeDiff < 2.5 then
+	elseif timeDiff < 1.5 then
 		pullAbility:StartCooldown(15)
-	elseif timeDiff < 3.5 then
+	elseif timeDiff < 2.5 then
 		pullAbility:StartCooldown(20)
-	elseif timeDiff < 4.5 then
+	elseif timeDiff < 3.5 then
 		pullAbility:StartCooldown(25)
 	else
 		pullAbility:StartCooldown(30)
 	end
+
 	pullAbility:StartCooldown(PULL_COOLDOWN)
+
 	if Testing then
 		pullAbility:EndCooldown()
 	end
@@ -761,16 +777,7 @@ function DotaStrikers:tackle( keys )
 		AddHasteAnimation(caster)
 	end)
 
-	caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
-	caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()+caster.tackle_vel)
-
 	caster:EmitSound("Hero_FacelessVoid.TimeWalk")
-
-	local tackleDummy = CreateUnitByName("dummy", caster:GetAbsOrigin()-300*caster:GetForwardVector(), true, nil, nil, caster:GetTeam())
-	caster.tackleDummy = tackleDummy
-	caster.tackleDummy:AddAbility("bloodseeker_rupture_datadriven")
-	caster.tackleDummyAbil = caster.tackleDummy:FindAbilityByName("bloodseeker_rupture_datadriven")
-	caster.tackleDummyAbil:SetLevel(1)
 
 	-- move order to turn the unit
 	ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
@@ -780,29 +787,38 @@ function DotaStrikers:tackle( keys )
 	caster.tackleTimer = Timers:CreateTimer(function()
 		if GameRules:GetGameTime() > caster.tackle_end_time or caster.tackled_someone then
 			caster.isUsingTackle = false
-			caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
-			caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-caster.tackle_vel)
 			if caster:HasModifier("modifier_rune_haste") then
 				caster:RemoveModifierByName("modifier_rune_haste")
+				caster:RemoveModifierByName("modifier_tackle_slow_aura")
 				RemoveEndgameRoot(caster)
 				Timers:CreateTimer(.06, function()
 					RemoveHasteAnimation(caster)
 				end)
 			end
-			Timers:CreateTimer(1, function()
-				tackleDummy:ForceKill(true)
-			end)
 			caster.tackled_someone = false
 			caster:Stop()
 
 			return nil
 		end
-		
-		-- remove last vel
-		caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
-		local orig_vel = caster:GetPhysicsVelocity()-caster.tackle_vel
-		caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
-		caster:SetPhysicsVelocity(orig_vel+caster.tackle_vel)
+
+		-- Move tackle forward
+		local fv = caster:GetForwardVector()
+		local newPos = caster:GetAbsOrigin() + TACKLE_DISTANCE*fv
+		local checkPos = newPos
+		if (not IsPointOnField(checkPos)) then
+			local distTraveled = 0
+			newPos = caster:GetAbsOrigin()
+			while (distTraveled < TACKLE_DISTANCE) do
+				checkPos = newPos + 5*fv
+				if (IsPointOnField(checkPos)) then
+					newPos = checkPos
+					distTraveled = distTraveled + 5
+				else
+					break
+				end
+			end
+		end
+		caster:SetAbsOrigin(newPos)
 
 		if not caster.last_tackle_particle_time or GameRules:GetGameTime() - caster.last_tackle_particle_time > .03 then
 			local part = ParticleManager:CreateParticle("particles/ghost_model.vpcf", PATTACH_ABSORIGIN, caster)
@@ -870,6 +886,22 @@ function DotaStrikers:blink( keys )
 		caster.pos_before_blink = caster:GetAbsOrigin()
 		caster.vel_before_blink = caster:GetPhysicsVelocity()
 		local newPos = caster:GetAbsOrigin() + BLINK_DISTANCE*fv
+
+		-- Are we blinking to a valid position?
+		local checkPos = newPos
+		if (not IsPointOnField(checkPos)) then -- If it's nil the points in the field
+			local distTraveled = 0
+			newPos = caster:GetAbsOrigin()
+			while (distTraveled < BLINK_DISTANCE) do
+				checkPos = newPos + 10*fv
+				if (IsPointOnField(checkPos)) then
+					newPos = checkPos
+					distTraveled = distTraveled + 10 -- To be honest, I could just do away with this line and just have it run infinitely until it breaks via the break two lines down
+				else
+					break
+				end
+			end
+		end
 
 		DummyCastBlink(caster, caster:GetAbsOrigin(), newPos )
 		caster:SetAbsOrigin(newPos)

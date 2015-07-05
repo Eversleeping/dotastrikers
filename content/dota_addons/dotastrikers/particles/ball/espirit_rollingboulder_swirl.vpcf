@@ -3,9 +3,9 @@
 	_class = "CParticleSystemDefinition"
 	m_ConstantColor =
 	[
+		170,
 		255,
-		251,
-		204,
+		255,
 		55,
 	]
 	m_flConstantRadius = 2.000000
@@ -148,16 +148,16 @@
 			_class = "C_INIT_RandomColor"
 			m_ColorMin =
 			[
-				183,
-				235,
-				57,
+				255,
+				0,
+				0,
 				255,
 			]
 			m_ColorMax =
 			[
-				213,
-				215,
-				159,
+				255,
+				0,
+				0,
 				255,
 			]
 			m_nTintBlendMode = "2"

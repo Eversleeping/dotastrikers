@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = true
+Testing = false
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -15,7 +15,7 @@ PRE_GAME_TIME = 0
 POST_GAME_TIME = 30
 
 PRE_FIRSTROUND_START = 8
-SCORE_TO_WIN = 11
+SCORE_TO_WIN = 10
 FIELD = "grass"
 
 if Testing then
@@ -97,7 +97,9 @@ end
 ]]
 function DotaStrikers:OnAllPlayersLoaded()
 	local ball = Ball.unit
+
 	PlayerCount = 0
+
 	for i=0,9 do
 		local ply = PlayerResource:GetPlayer(i)
 		if ply and ply:GetAssignedHero() == nil then
@@ -128,6 +130,8 @@ function DotaStrikers:OnAllPlayersLoaded()
 			return .1
 		end
 
+		Ball.unit:SpawnParticle()
+
 		local lines = 
 		{
 			[1] = ColorIt("Welcome to ", "yellow") .. ColorIt("Dota Strikers", "green") .. ColorIt("!", "yellow"),
@@ -149,7 +153,7 @@ function DotaStrikers:OnAllPlayersLoaded()
 			end
 		end)
 
-		ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, Ball.unit)
+		ParticleManager:CreateParticle("particles/econ/events/ti5/blink_dagger_end_ti5.vpcf", PATTACH_ABSORIGIN, Ball.unit.particleDummy)
 
 		Timers:CreateTimer(PRE_FIRSTROUND_START, function()
 			for _,ply in pairs(DotaStrikers.vPlayers) do
@@ -163,8 +167,11 @@ function DotaStrikers:OnAllPlayersLoaded()
 					RemoveSilence(hero)
 				end
 			end
+
 			print("RoundInProgress")
+
 			ball:AddPhysicsVelocity(ball:GetAbsOrigin() + RandomVector(RandomInt(BALL_ROUNDSTART_KICK[1], BALL_ROUNDSTART_KICK[2])))
+
 			RoundInProgress = true
 		end)
 	end)
@@ -235,6 +242,12 @@ function DotaStrikers:PlayerSay( keys )
 		end
 		if txt == "precache" then
 			DotaStrikers:PrecacheTest()
+		end
+		if txt == "time" then
+			GameRules:SetTimeOfDay( 0 )
+		end
+		if txt == "time2" then
+			GameRules:SetTimeOfDay( 1 )
 		end
 	end
 end
@@ -398,9 +411,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	hero.plyID = hero:GetPlayerID()
 	hero.colHex = ColorHex[hero.plyID+1]
 	hero.colStr = ColorStr[hero.plyID+1]
-
 	hero.components = {}
-
 	AddMovementComponent(hero, "base", hero.base_move_speed)
 
 	GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, hero, "modifier_hero_passive", {})
@@ -414,6 +425,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	SetupStats(hero)
 
 	FireGameEvent("hero_picked", {player_ID = hero.plyID})
+
 	FireGameEvent("activate_player", {player_ID=hero.plyID, player_name = hero.playerName})
 
 	if hero:GetTeam() == DOTA_TEAM_GOODGUYS then
@@ -624,7 +636,7 @@ function DotaStrikers:OnPlayerReconnect(keys)
 	local ball = Ball.unit
 
 	if ball then
-		--ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
+		ply.ballParticle = ParticleManager:CreateParticleForPlayer("particles/ball/espirit_rollingboulder.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy, ply)
 	end
 end
 
@@ -802,8 +814,10 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetPreGameTime( PRE_GAME_TIME )
 	GameRules:SetPostGameTime( POST_GAME_TIME )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)
-	GameRules:SetHeroMinimapIconScale( .8 )
-	GameRules:SetCreepMinimapIconScale( 1.4 )
+	GameRules:SetHeroMinimapIconScale( 1.2 )
+	GameRules:SetCreepMinimapIconScale( 2.5 )
+	GameRules:SetCustomGameTeamMaxPlayers(DOTA_TEAM_GOODGUYS, 4)
+	GameRules:SetCustomGameTeamMaxPlayers(DOTA_TEAM_BADGUYS, 4)
 	--print('[DOTASTRIKERS] GameRules set')
 
 	InitLogFile( "log/dotastrikers.txt","")
@@ -901,8 +915,7 @@ function DotaStrikers:InitDotaStrikers()
 	GlobalDummy.rooted_passive = GlobalDummy:FindAbilityByName("rooted_passive")
 	GlobalDummy.dummy_passive = GlobalDummy:FindAbilityByName("global_dummy_passive")
 
-	GroundZ = GetGroundPosition(Vector(0,0,0), GlobalDummy).z
-	--GroundZ = 129
+	GroundZ = GetGroundPosition(GlobalDummy:GetAbsOrigin(), GlobalDummy).z
 	print("GroundZ: " .. GroundZ)
 
 	EndRoundDummy = CreateUnitByName("endround_dummy", Vector(-4000,-4000,0), false, nil, nil, DOTA_TEAM_GOODGUYS)
@@ -1011,17 +1024,6 @@ function DotaStrikers:InitDotaStrikers()
 
 		end
 		LastHeroThinkerTime = currTime
-
-		--[[if Ball.unit then
-			print("ballZ: " .. Ball.unit:GetAbsOrigin().z)
-			if not Ball.unit.controlled then
-				if PlayerResource:GetPlayer(0) then
-					Ball.unit:SetControllableByPlayer(0, true)
-					Ball.unit.controlled = true
-				end
-			end
-		end]]
-
 		return 1/30
 	end)
 
