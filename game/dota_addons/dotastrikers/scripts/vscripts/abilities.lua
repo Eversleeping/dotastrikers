@@ -250,10 +250,6 @@ function DotaStrikers:surge( keys )
 		caster:AddAbility("ninja_invis_sprint_break")
 		caster:FindAbilityByName("ninja_invis_sprint_break"):SetLevel(1)
 
-		if caster.surgeParticle then
-			ParticleManager:DestroyParticle(caster.surgeParticle, false)
-		end
-
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/ninja_invis_sprint/dark_seer_surge.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
 		caster:EmitSound("Hero_BountyHunter.WindWalk")
@@ -287,12 +283,6 @@ function DotaStrikers:surge( keys )
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
 		caster:FindAbilityByName("surge_break"):SetLevel(1)
-
-		--particles/generic_gameplay/rune_haste_owner.vpcf
-
-		if caster.surgeParticle then
-			ParticleManager:DestroyParticle(caster.surgeParticle, false)
-		end
 		
 		caster.surgeParticle = ParticleManager:CreateParticle("particles/items2_fx/phase_boots.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
 
@@ -362,7 +352,7 @@ function DotaStrikers:surge_break( keys )
 		if caster:HasModifier("modifier_ninja_invis") then
 			caster:RemoveModifierByName("modifier_ninja_invis")
 		end
-		
+
 	elseif caster.isPowershot then
 		caster:RemoveAbility("powersprint_break")
 		caster:AddAbility("powersprint")
@@ -393,9 +383,14 @@ function DotaStrikers:surge_break( keys )
 
 		RemoveMovementComponent(caster, "surge")
 	end
-	if caster.surgeParticle then
-		ParticleManager:DestroyParticle(caster.surgeParticle, false)
-	end
+
+	Timers:CreateTimer(1/30, function()
+		if caster.surgeParticle then
+			ParticleManager:DestroyParticle(caster.surgeParticle, false)
+		else
+			print("no surgeParticle")
+		end
+	end)
 end
 
 function DotaStrikers:pull( keys )
