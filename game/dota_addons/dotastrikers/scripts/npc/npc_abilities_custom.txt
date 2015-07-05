@@ -374,7 +374,7 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"AbilityCastRange"				"2000"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"38"
+		"AbilityCooldown"				"34"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
 		"AOERadius"						"280" // kinda half of BH_RADIUS
 
