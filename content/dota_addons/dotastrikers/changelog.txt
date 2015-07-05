@@ -2,29 +2,12 @@
 
 [h1]GENERAL:[/h1]
 [list]
-[*] New Hero: Bloodseeker (Tackle)
-[*] Fixed Queen of Pain blinking out of field bug.
-[*] Updated field terrain.
-[*] Reduced turn rates by 20%.
-[*] Reduced time till header expires (4 sec -> 1.5 sec)
-[*] Reduced score-to-win from 11 to 10.
-[*] Fixed Chinese localization.
-[*] Fixed player names not appearing on the scoreboard.
-[*] Added a maximum velocity (7000).
-[*] Forced radiant and dire teams to have a max of 4 players each.
-[*] Reduced ball size slightly and changed its color.
-[*] Added new effect for antimage super sprint.
-[*] Increased minimap icon sizes.
+[*] Hotfixes relating to Slark.
 [/list]
 
 [h1]BALANCE:[/h1]
 [list]
-[*] Reduced Slark's Backflip's z-velocity (1300 > 1100)
-[*] Slark's invisible sprint now has a 1.0 second fade time.
-[*] Reduced Queen of Pain's Blink distance (800 > 500)
-[*] Reduced Black Hole's cooldown (38 > 34)
-[*] Reduced Io's pull acceleration (2100 > 1900)
-[*] Increased Io cooldowns (time leaps begin at 0.5 instead of 1.5)
+[*]
 [/list]
 
 Updated by Myll & Carpe Swag.
