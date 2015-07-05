@@ -787,15 +787,16 @@ function DotaStrikers:SetupPersonalColliders(hero)
 				if hero:GetTeam() ~= collided:GetTeam() then
 					Timers:CreateTimer(.03, function()
 						hero.tackleDummy:SetForwardVector((collided:GetAbsOrigin() - hero.tackleDummy:GetAbsOrigin()):Normalized())
-						Timers:CreateTimer(.03, function()
+						--[[Timers:CreateTimer(.03, function()
 							hero.tackleDummy:CastAbilityOnTarget(collided, hero.tackleDummyAbil, 0)
 							Timers:CreateTimer(.06, function()
 								--FireGameEvent("toggle_show_ability_silenced", {player_ID=collided:GetPlayerID(), ability_index=2})
 							end)
-						end)
+						end)]]
 					end)
 
 					collided.last_time_tackled = GameRules:GetGameTime()
+					
 					AddMovementComponent(collided, "tackle", -9999)
 
 					-- give collided a small push

@@ -10,7 +10,7 @@
 [*] Fixed player names not appearing on the scoreboard.
 [*] Added a maximum velocity (7000).
 [*] Forced radiant and dire teams to have a max of 4 players each.
-
+[*] Reduced ball size slightly and changed its color.
 
 
 [/list]

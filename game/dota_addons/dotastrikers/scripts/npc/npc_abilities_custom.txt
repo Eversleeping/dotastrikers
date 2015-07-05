@@ -282,6 +282,36 @@
 		"AbilityCooldown"				"32"
 		"AbilityManaCost"				"0"
 		
+		"precache"
+		{
+			"particle"		"particles\units\heroes\hero_bloodseeker\bloodseeker_rupture.vpcf"
+			"soundfile"		"soundevents/game_sounds_heroes/game_sounds_bloodseeker.vsndevts"
+		}
+		
+		"AbilitySpecial"
+		{
+			"01"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"duration"				"0.5"
+			}
+			"02"
+			{
+				"var_type"					"FIELD_INTEGER"
+				"radius"				"200"
+			}
+			"03"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"slow_duration"			"4.0"
+			}
+			"04"
+			{
+				"var_type"					"FIELD_FLOAT"
+				"slow_strength"			"-99"
+			}
+		}
+		
 		"OnSpellStart"
 		{
 			"RunScript"
@@ -290,14 +320,45 @@
 				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
 				"Function"				"tackle"
 			}
-		}
-
-		"AbilitySpecial"
-		{
-			"01"
+			
+			"ApplyModifier"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"duration"				"0.5"
+				"ModifierName"			"modifier_tackle_slow_aura"
+				"Target"				"CASTER"
+			}
+		}
+		
+		"Modifiers"
+		{
+			"modifier_tackle_slow_aura"
+			{
+				"IsHidden"		"1"
+				"Aura"			"modifier_tackle_slow"
+				"Aura_Radius"	"%radius"
+				"Aura_Teams"	"DOTA_UNIT_TARGET_TEAM_ENEMY"
+				"Aura_Types"	"DOTA_UNIT_TARGET_HERO"
+			}
+			
+			"modifier_tackle_slow"
+			{
+				"Duration"					"%slow_duration"
+				"IsDebuff"					"1"
+				"EffectName"				"particles\units\heroes\hero_bloodseeker\bloodseeker_rupture.vpcf"
+				"EffectAttachType"			"follow_origin"
+				
+				"OnCreated"
+				{
+					"FireSound"
+					{
+						"EffectName"		"Hero_Bloodseeker.Rupture"
+						"Target" 			"TARGET"
+					}
+				}
+				
+				"Properties"
+				{
+					"MODIFIER_PROPERTY_MOVESPEED_BONUS_PERCENTAGE"	"%slow_strength"
+				}
 			}
 		}
 	}

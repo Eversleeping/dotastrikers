@@ -33,12 +33,12 @@ BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 --BH_COOLDOWN = 11
 
 TACKLE_DURATION = .55
-TACKLE_VEL_FORCE = 1500
+TACKLE_DISTANCE = 50
 TACKLE_PUSH = 300
 TACKLE_SLOW_RADIUS = PP_COLLISION_RADIUS+70
 
 BLINK_WAIT_TIME = .4
-BLINK_DISTANCE = 800
+BLINK_DISTANCE = 500
 TIME_HAS_TO_BACKTRACK = 2
 BLINK_CD_USED_BACKTRACK = 30
 
@@ -764,16 +764,7 @@ function DotaStrikers:tackle( keys )
 		AddHasteAnimation(caster)
 	end)
 
-	caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
-	caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()+caster.tackle_vel)
-
 	caster:EmitSound("Hero_FacelessVoid.TimeWalk")
-
-	local tackleDummy = CreateUnitByName("dummy", caster:GetAbsOrigin()-300*caster:GetForwardVector(), true, nil, nil, caster:GetTeam())
-	caster.tackleDummy = tackleDummy
-	caster.tackleDummy:AddAbility("bloodseeker_rupture_datadriven")
-	caster.tackleDummyAbil = caster.tackleDummy:FindAbilityByName("bloodseeker_rupture_datadriven")
-	caster.tackleDummyAbil:SetLevel(1)
 
 	-- move order to turn the unit
 	ExecuteOrderFromTable({ UnitIndex = caster:GetEntityIndex(), OrderType = DOTA_UNIT_ORDER_MOVE_TO_POSITION, 
@@ -783,29 +774,38 @@ function DotaStrikers:tackle( keys )
 	caster.tackleTimer = Timers:CreateTimer(function()
 		if GameRules:GetGameTime() > caster.tackle_end_time or caster.tackled_someone then
 			caster.isUsingTackle = false
-			caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
-			caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-caster.tackle_vel)
 			if caster:HasModifier("modifier_rune_haste") then
 				caster:RemoveModifierByName("modifier_rune_haste")
+				caster:RemoveModifierByName("modifier_tackle_slow_aura")
 				RemoveEndgameRoot(caster)
 				Timers:CreateTimer(.06, function()
 					RemoveHasteAnimation(caster)
 				end)
 			end
-			Timers:CreateTimer(1, function()
-				tackleDummy:ForceKill(true)
-			end)
 			caster.tackled_someone = false
 			caster:Stop()
 
 			return nil
 		end
-		
-		-- remove last vel
-		caster.tackle_vel = caster.tackle_vel-(caster.tackle_vel*caster:GetPhysicsFriction())
-		local orig_vel = caster:GetPhysicsVelocity()-caster.tackle_vel
-		caster.tackle_vel = caster:GetForwardVector()*TACKLE_VEL_FORCE
-		caster:SetPhysicsVelocity(orig_vel+caster.tackle_vel)
+
+		-- Move tackle forward
+		local fv = caster:GetForwardVector()
+		local newPos = caster:GetAbsOrigin() + TACKLE_DISTANCE*fv
+		local checkPos = newPos
+		if (not IsPointOnField(checkPos)) then
+			local distTraveled = 0
+			newPos = caster:GetAbsOrigin()
+			while (distTraveled < TACKLE_DISTANCE) do
+				checkPos = newPos + 5*fv
+				if (IsPointOnField(checkPos)) then
+					newPos = checkPos
+					distTraveled = distTraveled + 5
+				else
+					break
+				end
+			end
+		end
+		caster:SetAbsOrigin(newPos)
 
 		if not caster.last_tackle_particle_time or GameRules:GetGameTime() - caster.last_tackle_particle_time > .03 then
 			local part = ParticleManager:CreateParticle("particles/ghost_model.vpcf", PATTACH_ABSORIGIN, caster)
