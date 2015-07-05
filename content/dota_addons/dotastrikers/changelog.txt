@@ -4,17 +4,17 @@
 [list]
 [*] New Hero: Bloodseeker (Tackle)
 [*] Fixed Queen of Pain blinking out of field bug.
+[*] Updated field terrain.
 [*] Reduced turn rates by 20%.
 [*] Reduced time till header expires (4 sec -> 1.5 sec)
 [*] Reduced score-to-win from 11 to 10.
-[*] A header can now occur if the ball is caught while the hero is in the air.
 [*] Fixed Chinese localization.
 [*] Fixed player names not appearing on the scoreboard.
 [*] Added a maximum velocity (7000).
 [*] Forced radiant and dire teams to have a max of 4 players each.
 [*] Reduced ball size slightly and changed its color.
-
-
+[*] Added new effect for antimage super sprint.
+[*] Increased minimap icon sizes.
 [/list]
 
 [h1]BALANCE:[/h1]
