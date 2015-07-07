@@ -1,6 +1,6 @@
 print ('[DOTASTRIKERS] dotastrikers.lua' )
 
-Testing = false
+Testing = true
 NF = 1/30 -- next frame
 --TestMoreAbilities = false
 OutOfWorldVector = Vector(5000, 5000, -200)
@@ -20,7 +20,7 @@ FIELD = "grass"
 
 if Testing then
 	PRE_FIRSTROUND_START = 1
-	SCORE_TO_WIN = 3
+	SCORE_TO_WIN = 2
 end
 
 RoundsCompleted = 0
@@ -812,7 +812,7 @@ function DotaStrikers:InitDotaStrikers()
 	GameRules:SetSameHeroSelectionEnabled( true )
 	GameRules:SetHeroSelectionTime( 0 )
 	GameRules:SetPreGameTime( PRE_GAME_TIME )
-	GameRules:SetPostGameTime( POST_GAME_TIME )
+	--GameRules:SetPostGameTime( POST_GAME_TIME )
 	GameRules:SetUseBaseGoldBountyOnHeroes(false)
 	GameRules:SetHeroMinimapIconScale( 1.2 )
 	GameRules:SetCreepMinimapIconScale( 2.5 )
