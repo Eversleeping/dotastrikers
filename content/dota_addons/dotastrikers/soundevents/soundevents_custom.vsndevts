@@ -17,7 +17,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/menu/filter_close.vsnd"
+                            "value0"     "sound/ui/menu/filter_close.vsnd"
                         }
                     }
                     "volume_min"
@@ -82,7 +82,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/menu/filter_open.vsnd"
+                            "value0"     "sound/ui/menu/filter_open.vsnd"
                         }
                     }
                     "volume_min"
@@ -147,7 +147,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "weapons/hero/invoker/alacrity.vsnd"
+                            "value0"     "weapons/hero/invoker/alacrity.vsnd"
                         }
                     }
                     "volume_min"
@@ -212,7 +212,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "weapons/hero/wisp/tether_stun.vsnd"
+                            "value0"     "weapons/hero/wisp/tether_stun.vsnd"
                         }
                     }
                     "volume_min"
@@ -277,7 +277,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/ui_findmatch_join_02.vsnd"
+                            "value0"     "sound/ui/ui_findmatch_join_02.vsnd"
                         }
                     }
                     "volume_min"
@@ -342,7 +342,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/ui_findmatch_join_01.vsnd"
+                            "value0"     "sound/ui/ui_findmatch_join_01.vsnd"
                         }
                     }
                     "volume_min"
@@ -407,7 +407,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/deny_cooldown.vsnd"
+                            "value0"     "sound/ui/deny_cooldown.vsnd"
                         }
                     }
                     "volume_min"
@@ -472,7 +472,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/misc/crowd_lv_01.vsnd"
+                            "value0"     "sound/misc/crowd_lv_01.vsnd"
                         }
                     }
                     "volume_min"
@@ -537,7 +537,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/misc/crowd_lv_02.vsnd"
+                            "value0"     "sound/misc/crowd_lv_02.vsnd"
                         }
                     }
                     "volume_min"
@@ -602,7 +602,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/misc/crowd_lv_03.vsnd"
+                            "value0"     "sound/misc/crowd_lv_03.vsnd"
                         }
                     }
                     "volume_min"
@@ -667,7 +667,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/misc/crowd_lv_04.vsnd"
+                            "value0"     "sound/misc/crowd_lv_04.vsnd"
                         }
                     }
                     "volume_min"
@@ -732,7 +732,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sounds/misc/greevil_point_team.vsnd"
+                            "value0"     "sounds/misc/greevil_point_team.vsnd"
                         }
                     }
                     "volume_min"
@@ -797,7 +797,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/compendium_levelup.vsnd"
+                            "value0"     "sound/ui/compendium_levelup.vsnd"
                         }
                     }
                     "volume_min"
@@ -862,7 +862,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/npe_objective_complete.vsnd"
+                            "value0"     "sound/ui/npe_objective_complete.vsnd"
                         }
                     }
                     "volume_min"
@@ -927,7 +927,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/npe_objective_given.vsnd"
+                            "value0"     "sound/ui/npe_objective_given.vsnd"
                         }
                     }
                     "volume_min"
@@ -992,7 +992,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sound/ui/acknowledge.vsnd"
+                            "value0"     "sound/ui/acknowledge.vsnd"
                         }
                     }
                     "volume_min"
@@ -1057,7 +1057,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sounds/Round_Start6.vsnd"
+                            "value0"     "sounds/Round_Start6.vsnd"
                         }
                     }
                     "volume_min"
@@ -1122,7 +1122,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sounds/weapons/hero/earthshaker/fist_swing_impact1.vsnd"
+                            "value0"     "sounds/weapons/hero/earthshaker/fist_swing_impact1.vsnd"
                         }
                     }
                     "volume_min"
@@ -1187,7 +1187,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sounds/weapons/hero/earthshaker/fist_swing_impact2.vsnd"
+                            "value0"     "sounds/weapons/hero/earthshaker/fist_swing_impact2.vsnd"
                         }
                     }
                     "volume_min"
@@ -1252,7 +1252,7 @@
                     {
                         "value"
                         {
-                            "wave0"     "sounds/weapons/hero/earthshaker/fist_swing_impact3.vsnd"
+                            "value0"     "sounds/weapons/hero/earthshaker/fist_swing_impact3.vsnd"
                         }
                     }
                     "volume_min"

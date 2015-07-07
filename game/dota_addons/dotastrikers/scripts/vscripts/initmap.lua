@@ -421,8 +421,13 @@ function DotaStrikers:OnWonGame( nWinningTeam )
 		-- inc games won for player.
 	end]]
 	FireGameEvent("game_over", {})
-	GameRules:SetGameWinner( nWinningTeam )
+
+	GameRules:SetPostGameTime( 60 )
 	GameRules:SetSafeToLeave( true )
+
+	Timers:CreateTimer(function()
+		GameRules:SetGameWinner( nWinningTeam )
+	end)
 	-- TODO: show popup with elo rating change
 
 end
