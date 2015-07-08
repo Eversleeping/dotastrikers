@@ -10,7 +10,7 @@ Layer0
 	//---- Layer 0 ----
 	g_flTexCoordRotate0 "0.000"
 	g_flTexCoordScale0 "1.000"
-	g_vColorTint0 "[1.000000 1.000000 1.000000 0.000000]"
+	g_vColorTint0 "[0.623529 0.623529 0.623529 0.000000]"
 	g_vTexCoordOffset0 "[0.000 0.000]"
 	g_vTexCoordScroll0 "[0.000 0.000]"
 	TextureColor0 "materials/myll_football_grass_color.tga"
