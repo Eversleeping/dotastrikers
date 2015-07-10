@@ -1,0 +1,11 @@
+<root>
+  <styles>
+    <include src="file://{resources}/styles/custom_game/dotastrikers_game_info.css" />
+  </styles>
+  <Panel class="DotaStrikersGameInfo">
+    <Panel id="Title">
+      <Label id="TitleName" text="Dota Strikers" />
+    </Panel>
+  </Panel>
+</root>
+

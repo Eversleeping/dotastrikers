@@ -1,0 +1,11 @@
+<root>
+  <styles>
+    <include src="file://{resources}/styles/custom_game/dotastrikers_valve_ui_override.css" />
+  </styles>
+
+  <script></script>
+
+  <Panel>
+    <CustomUIElement type="GameInfo" layoutfile="file://{resources}/layout/custom_game/dotastrikers_game_info.xml" />
+  </Panel>
+</root>

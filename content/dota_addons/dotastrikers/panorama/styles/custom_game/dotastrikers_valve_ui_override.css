@@ -1,0 +1,11 @@
+#GameInfoPanel {
+  width: 200px;
+  height: 800px;
+  vertical-align: top;
+  margin-top: 200px;
+}
+
+#GameInfoButton {
+  margin-top: 400px;
+  horizontal-align: right;
+}
