@@ -43,6 +43,27 @@
 	background-size: 100% 100%;
 }
 
+
+#LoadingScreenMessagesPanel
+{
+  height: 140px;
+  width: 100%;
+  horizontal-align: left;
+  vertical-align: bottom;
+  background-color: #000;
+  opacity: 0.9;
+  flow-children: right;
+}
+
+#LoadingScreenMessageLabel {
+  width: 100%;
+  vertical-align: center;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
 #gamemode
 {
   /*margin-left: 160px;*/
