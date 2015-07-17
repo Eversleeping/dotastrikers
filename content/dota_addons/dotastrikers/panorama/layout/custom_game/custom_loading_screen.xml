@@ -7,7 +7,7 @@
       <Image id="gamemode" class="SeqImg" src="file://{images}/custom_game/loading_screen/gamemode.png" />
     </Panel>
     <Panel id="TitlePanel">
-      <Label id="AddonTitle" text="DOTASTRIKERS.COM" style="" />
+      <Label id="AddonTitle" text="www.dotastrikers.com" />
     </Panel>
   </Panel>
 </root>
