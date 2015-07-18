@@ -901,6 +901,7 @@ function DotaStrikers:goalie_jump(keys)
 	caster.timeToRefreshGoalieJump = GameRules:GetGameTime() + keys.ability:GetCooldown(1)
 
 	caster:EmitSound("Hero_Rubick.Telekinesis.Cast")
+	PlayAnimation("act_dota_attack", caster)
 
 	if Testing then keys.ability:EndCooldown() end
 
