@@ -482,7 +482,7 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	elseif classname == "npc_dota_hero_earthshaker" then
 		hero.isSlam = true
 		heroes_kv_name = "slam"
-	elseif classname == "npc_dota_hero_wisp" then
+	elseif classname == "npc_dota_hero_lina" then
 		hero.isPull = true
 		heroes_kv_name = "pull"
 	elseif classname == "npc_dota_hero_bloodseeker" then

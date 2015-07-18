@@ -517,7 +517,7 @@
 	{
 		"DS_Name"				"Wisp"
 		"AbilityLayout" 		"6"
-		"override_hero"			"npc_dota_hero_wisp"
+		"override_hero"			"npc_dota_hero_lina"
 		"SoundSet"				"0"	
 		"Ability1"				"pull"
 		"Ability2"				"throw_ball"

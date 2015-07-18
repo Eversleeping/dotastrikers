@@ -963,7 +963,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"wisp_tether_break"
+		"AbilityTextureName"			"lina_pull_break"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
@@ -986,7 +986,7 @@
 	{
 		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
 		"BaseClass"						"ability_datadriven"
-		"AbilityTextureName"			"wisp_tether"
+		"AbilityTextureName"			"lina_pull"
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
