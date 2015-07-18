@@ -154,7 +154,7 @@
 			"01"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"distance"					"800"
+				"distance"					"600"
 			}
 			"02"
 			{
