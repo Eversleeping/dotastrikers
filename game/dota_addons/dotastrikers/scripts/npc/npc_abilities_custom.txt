@@ -2,65 +2,99 @@
 {
 	"Version"		"1"
 
-	"bloodseeker_rupture_datadriven"
+	"demonic_endurance_sprint"
 	{
-		// General
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_UNIT_TARGET"
-		"BaseClass"						"bloodseeker_rupture"
-		"AbilityUnitTargetTeam"			"DOTA_UNIT_TARGET_TEAM_BOTH"
-		"AbilityUnitTargetType"			"DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
-		"AbilityType"					"DOTA_ABILITY_TYPE_BASIC"
-		"AbilityTextureName"			"bloodseeker_rupture"
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"night_stalker_hunter_in_the_night"
 
-		// Casting
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastPoint"				"0"
-
-		// Time		
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCooldown"				"0"
-
-		// Cost
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityManaCost"				"0"		
-		
-		// Cast Range
-		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"9999"
-			
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityModifierSupportValue"	"0.0"	// Only does damage
-
-		// Special
-		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
+			{
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge"
+			}
+			"ApplyModifier"
+			{
+				"ModifierName"			"modifier_demonic_endurance"
+				"Target"				"CASTER"
+			}
+		}
 		"AbilitySpecial"
 		{
 			"01"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"duration"					"4.0"
+				"var_type"					"FIELD_INTEGER"
+				"mana_drain_rate" 			"40"
 			}
 			"02"
 			{
 				"var_type"					"FIELD_INTEGER"
-				"movement_damage_pct"		"0"
+				"mana_recovery_rate"		"20"
 			}
-			"03"
+		}
+		"Modifiers"
+		{
+			"modifier_demonic_endurance"
 			{
-				"var_type"					"FIELD_INTEGER"
-				"damage_cap_amount"			"0"
+				"TextureName"      				 "night_stalker_hunter_in_the_night"
 			}
-			"04"
+		}
+	}
+
+	"demonic_endurance_sprint_break"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"demonic_endurance_sprint_break"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastPoint"				"0"
+		"AbilityCooldown"				"0"
+		"MaxLevel"						"1"
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
 			{
-				"var_type"					"FIELD_FLOAT"
-				"damage_cap_interval"		"0"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"surge_break"
 			}
-			"05"
+		}
+	}
+	"empowered_kick"
+	{
+		"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_POINT"
+		"BaseClass"						"ability_datadriven"
+		"AbilityTextureName"			"chaos_knight_chaos_bolt"
+		"MaxLevel"						"1"
+
+		// Stats
+		//-------------------------------------------------------------------------------------------------------------
+		"AbilityCastRange"				"9999"
+		"AbilityCastPoint"				"0.0"
+		"AbilityCooldown"				"2"
+		"AbilityCastAnimation"			"ACT_DOTA_ATTACK"
+
+		"AbilityManaCost"				"0"
+		
+		"OnSpellStart"
+		{
+			"RunScript"
 			{
-				"var_type"					"FIELD_INTEGER"
-				"cast_range_tooltip"		"9999"
+				"Target"				"POINT"
+				"ScriptFile"			"scripts/vscripts/ability_proxy.lua"
+				"Function"				"throw_ball"
 			}
 		}
 	}

@@ -466,7 +466,9 @@ function DotaStrikers:OnBallPhysicsFrame( ball )
 		-- slow the movespeed of the controller if we haven't already.
 		local controller = ball.controller
 		if not controller:HasModifier("modifier_ball_controller") then
-			AddMovementComponent(controller, "ball_slow", -1*controller.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			if not controller:HasModifier("modifier_demonic_endurance") then
+				AddMovementComponent(controller, "ball_slow", -1*controller.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+			end
 			GlobalDummy.dummy_passive:ApplyDataDrivenModifier(GlobalDummy, controller, "modifier_ball_controller", {})
 		end
 
