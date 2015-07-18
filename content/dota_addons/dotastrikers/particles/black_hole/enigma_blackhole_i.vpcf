@@ -25,6 +25,8 @@
 			_class = "C_OP_InterpolateRadius"
 			m_flStartScale = 0.000000
 			m_flBias = 0.950000
+			m_flStartTime = 0.500000
+			m_flEndTime = 4.500000
 		},
 		{
 			_class = "C_OP_FadeOutSimple"
@@ -72,6 +74,12 @@
 			]
 			m_fDrag = 0.050000
 			m_nOpEndCapState = 1
+		},
+		{
+			_class = "C_OP_InterpolateRadius"
+			m_flStartTime = 0.500000
+			m_flEndTime = 4.500000
+			m_flStartScale = 0.125000
 		},
 	]
 	m_Renderers =

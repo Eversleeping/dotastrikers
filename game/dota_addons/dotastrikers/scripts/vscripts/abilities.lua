@@ -27,11 +27,14 @@ SPRINT_VEL_MIN = 200
 
 TACKLE_SLOW_DURATION = 4
 
-BH_RADIUS = 470
+BH_RADIUS = 350
 BH_DURATION = 6
-BH_FORCE_MAX = 4200
-BH_FORCE_MIN = 3400
+BH_FORCE_MAX = 750000
+BH_FORCE_MIN = 25000
+BH_DELAYED_START = 0.5
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
+BH_DISTANCE_FACTOR = 1
+BH_BALL_FACTOR = 1 / 2
 --BH_COOLDOWN = 11
 
 TACKLE_DURATION = .55
@@ -706,7 +709,7 @@ function DotaStrikers:black_hole( keys )
 	local ball = Ball.unit
 	local point = keys.target_points[1]
 	local casterID = caster:GetPlayerID()
-	local bh_z = BH_RADIUS*.7
+	local bh_z = 50 -- BH_RADIUS*.70
 
 	-- adjust the z level of the point
 	point = Vector(point.x,point.y,point.z+bh_z)
@@ -723,11 +726,13 @@ function DotaStrikers:black_hole( keys )
 		return time_quantum
 	end)
 
-	caster.bh_max_growth_endtime = GameRules:GetGameTime()+BH_TIME_TILL_MAX_GROWTH
+	caster.bh_delayed_start = GameRules:GetGameTime()+BH_DELAYED_START
+	caster.bh_delay = true
+	caster.bh_max_growth_endtime = GameRules:GetGameTime()+BH_DELAYED_START+BH_TIME_TILL_MAX_GROWTH
 	caster.bh_growth_interval = (BH_FORCE_MAX/BH_TIME_TILL_MAX_GROWTH)*time_quantum
 	caster.bh_endtime = GameRules:GetGameTime() + BH_DURATION
-	caster.bh_curr_force = 700
-
+	caster.bh_curr_force = BH_FORCE_MIN
+	
 	-- end timer
 	Timers:CreateTimer(BH_DURATION, function()
 		Timers:RemoveTimer(caster.bh_timer)
@@ -751,14 +756,21 @@ function OnBHThink( caster, point, casterID, ball )
 	local currTime = GameRules:GetGameTime()
 
 	-- increase the force over time
-	--[[if currTime < caster.bh_max_growth_endtime then
-		caster.bh_curr_force = caster.bh_curr_force + caster.bh_growth_interval
-		print(caster.bh_curr_force)
+	if currTime < caster.bh_delayed_start then
+		caster.bh_curr_force = 1
+	elseif currTime < caster.bh_max_growth_endtime then
+		if caster.bh_delay then
+			caster.bh_delay = false
+			caster.bh_curr_force = BH_FORCE_MIN
+		else
+			caster.bh_curr_force = caster.bh_curr_force + caster.bh_growth_interval
+		end
+		--print(caster.bh_curr_force)
 	else
 		caster.bh_curr_force = BH_FORCE_MAX
-	end]]
+	end
 
-	caster.bh_curr_force = BH_FORCE_MAX
+	--caster.bh_curr_force = BH_FORCE_MAX
 
 	for k,unit in pairs(DotaStrikers.colliderFilter) do
 		if unit ~= caster and (unit.isDSHero or unit == ball) then
@@ -766,21 +778,23 @@ function OnBHThink( caster, point, casterID, ball )
 			--print("Point: " .. VectorString(point))
 			local p1 = hero:GetAbsOrigin()
 			local pID = 20 -- 20 is the ball
-			if hero ~= ball then
-				pID = hero:GetPlayerID()
-			end
+			
 			--print("len: " .. (point-p1):Length())
 			local len = (point-p1):Length()
-			local force = (len/BH_RADIUS)*caster.bh_curr_force
-			if force < BH_FORCE_MIN then
-				force = BH_FORCE_MIN
+			local force = (caster.bh_curr_force/len/len)
+			
+			if hero ~= ball then
+				pID = hero:GetPlayerID()
+			else
+				force = force / BH_BALL_FACTOR
 			end
+			
 			if len <= (BH_RADIUS) then
 				if not caster.bh_targets[pID] then
 					caster.bh_targets[pID] = true
 				end
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()-hero.last_bh_accels[casterID])
-				local dir = (point-p1):Normalized()
+				local dir = point-p1
 				hero.last_bh_accels[casterID] = dir*force
 				hero:SetPhysicsAcceleration(hero:GetPhysicsAcceleration()+hero.last_bh_accels[casterID])
 				if hero == ball then

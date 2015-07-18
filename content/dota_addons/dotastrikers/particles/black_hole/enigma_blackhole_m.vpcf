@@ -30,6 +30,18 @@
 			m_nField = 16
 			m_nOpEndCapState = 1
 		},
+		{
+			_class = "C_OP_InterpolateRadius"
+			m_flStartTime = 0.500000
+			m_flEndTime = 4.500000
+			m_flStartScale = 0.125000
+		},
+		{
+			_class = "C_OP_InterpolateRadius"
+			m_flEndTime = 0.500000
+			m_flStartScale = 0.125000
+			m_flEndScale = 0.125000
+		},
 	]
 	m_Renderers =
 	[
