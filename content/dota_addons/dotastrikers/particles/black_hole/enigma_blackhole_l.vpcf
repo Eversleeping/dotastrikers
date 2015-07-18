@@ -25,6 +25,7 @@
 			_class = "C_OP_InterpolateRadius"
 			m_flStartScale = 5.000000
 			m_flBias = 0.300000
+			m_flStartTime = 0.500000
 		},
 		{
 			_class = "C_OP_FadeOutSimple"

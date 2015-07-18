@@ -407,9 +407,9 @@
 
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
-		"AbilityCastRange"				"2000"
+		"AbilityCastRange"				"1500"
 		"AbilityCastPoint"				"0"
-		"AbilityCooldown"				"34"
+		"AbilityCooldown"				"38"
 		"AbilityCastAnimation"			"ACT_DOTA_CAST_ABILITY_2"
 		"AOERadius"						"280" // kinda half of BH_RADIUS
 

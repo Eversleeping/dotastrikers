@@ -78,6 +78,12 @@
 	m_Operators =
 	[
 		{
+			_class = "C_OP_InterpolateRadius"
+			m_flStartScale = 0.125000
+			m_flStartTime = 0.500000
+			m_flEndTime = 4.500000
+		},
+		{
 			_class = "C_OP_BasicMovement"
 			m_fDrag = 0.050000
 		},
@@ -137,6 +143,12 @@
 				1.000000,
 			]
 			m_nCP = 1
+		},
+		{
+			_class = "C_OP_InterpolateRadius"
+			m_flEndTime = 0.500000
+			m_flStartScale = 0.125000
+			m_flEndScale = 0.125000
 		},
 	]
 	m_Renderers =
