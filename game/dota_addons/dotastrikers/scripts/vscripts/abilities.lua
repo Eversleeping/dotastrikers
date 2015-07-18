@@ -16,7 +16,7 @@ PSPRINT_VELOCITY = 750 --850
 NINJA_JUMP_Z = 1100
 NINJA_JUMP_XY = 700
 
-PULL_ACCEL_FORCE = 1900
+PULL_ACCEL_FORCE = 1800
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
@@ -448,7 +448,8 @@ function DotaStrikers:pull( keys )
 	local ball = Ball.unit
 
 	-- particle
-	caster.pullParticle = ParticleManager:CreateParticle("particles/units/heroes/hero_wisp/wisp_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+	caster.pullParticle = ParticleManager:CreateParticle("particles/lina_tether/lina_tether.vpcf", PATTACH_ABSORIGIN_FOLLOW, caster)
+	ParticleManager:SetParticleControlEnt(caster.pullParticle, 0, caster, PATTACH_POINT_FOLLOW, "attach_hitloc", caster:GetAbsOrigin(), true)
 	ParticleManager:SetParticleControlEnt(caster.pullParticle, 1, ball.particleDummy, 1, "follow_origin", ball.particleDummy:GetAbsOrigin(), true)
 
 	caster:EmitSound("Hero_Wisp.Tether")
