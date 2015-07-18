@@ -2,12 +2,18 @@
 
 [h1]GENERAL:[/h1]
 [list]
-[*] Hotfixes relating to Slark.
+[*] Tackle Code Optimized
+[*] Black Hole Reworked
+[*] Io changed to Lina due to model issues
+[*] New Hero: Night Stalker
 [/list]
 
 [h1]BALANCE:[/h1]
 [list]
-[*]
+[*] Decreased Black Hole's cast range (2000 > 1500)
+[*] Decreased Black Hole's radius (470 > 350)
+[*] Increased Black Hole's Cooldown (34 > 38)
+[*] Increased Blink distance (500 > 600)
+[*] Decreased Pull acceleration force (1900 > 1800)
+[*] Increased Swap projectile speed (1400 > 1600)
 [/list]
-
-Updated by Myll & Carpe Swag.
