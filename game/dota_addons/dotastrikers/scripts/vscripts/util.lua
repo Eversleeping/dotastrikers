@@ -12,25 +12,19 @@
 X_MAX = 2575
 X_MIN = -1 * X_MAX
 
-BORDER_GOAL_X = 3250
+BORDER_GOAL_X = 3200
 BORDER_GOAL_Y = 225
 
 Y_MAX = 1320
 Y_MIN = -1 * Y_MAX
 
 function IsPointOnField(point)
-	if (point.y < Y_MIN or point.y > Y_MAX ) then
-		return false
-	elseif (point.x < X_MIN or point.x > X_MAX) then
-		if (point.y > -BORDER_GOAL_Y and point.y < BORDER_GOAL_Y) then -- In Goal
-			if (point.x < -BORDER_GOAL_X or point.x > BORDER_GOAL_X) then
-				return false
-			end
-		else
-			return false
-		end
+	if (point.y > Y_MIN and point.y < Y_MAX and point.x > X_MIN and point.x < X_MAX) then -- In the playing field
+		return true
+	elseif (point.y > -BORDER_GOAL_Y and point.y < BORDER_GOAL_Y and point.x > -BORDER_GOAL_X and point.x < BORDER_GOAL_X) then -- In a goal
+		return true
 	end
-	return true
+	return false -- Out of Field
 end
 
 

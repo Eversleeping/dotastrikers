@@ -860,10 +860,10 @@ function DotaStrikers:tackle( keys )
 			local distTraveled = 0
 			newPos = caster:GetAbsOrigin()
 			while (distTraveled < TACKLE_DISTANCE) do
-				checkPos = newPos + 5*fv
+				checkPos = newPos + 10*fv
 				if (IsPointOnField(checkPos)) then
 					newPos = checkPos
-					distTraveled = distTraveled + 5
+					distTraveled = distTraveled + 10
 				else
 					break
 				end
@@ -877,7 +877,7 @@ function DotaStrikers:tackle( keys )
 			caster.last_tackle_particle_time = GameRules:GetGameTime()
 		end
 
-		return .01
+		return .03
 	end)
 
 	caster.isUsingTackle = true
