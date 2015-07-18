@@ -658,6 +658,12 @@ function DotaStrikers:text_particle( keys )
 
 end
 
+function DotaStrikers:fake_injury( keys )
+	local caster = keys.caster
+	
+	PlayAnimation("act_dota_die", caster)
+end
+
 function DotaStrikers:slam( keys )
 	local caster = keys.caster
 	local hero = caster

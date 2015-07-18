@@ -452,8 +452,10 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 
 	hero.tauntItem = CreateItem("item_taunt", hero, hero)
 	hero.frownItem = CreateItem("item_frown", hero, hero)
+	hero.fakeInjuryItem = CreateItem("item_fake_injury", hero, hero)
 	hero:AddItem(hero.tauntItem)
 	hero:AddItem(hero.frownItem)
+	hero:AddItem(hero.fakeInjuryItem)
 
 	-- this is for black holes.
 	hero.last_bh_accels = {}

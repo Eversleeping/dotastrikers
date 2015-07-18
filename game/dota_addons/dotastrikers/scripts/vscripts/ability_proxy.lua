@@ -34,6 +34,10 @@ function text_particle( keys )
 	DotaStrikers:text_particle(keys)
 end
 
+function fake_injury( keys )
+	DotaStrikers:fake_injury(keys)
+end
+
 function slam( keys )
 	DotaStrikers:slam(keys)
 end
