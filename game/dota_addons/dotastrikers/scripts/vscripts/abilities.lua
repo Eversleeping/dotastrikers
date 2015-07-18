@@ -1,5 +1,7 @@
 THROW_VELOCITY = 1700
 
+EMPOWERED_KICK_VELOCITY = THROW_VELOCITY * 1.4
+
 HEADBUMP_BALL_Z_PUSH = 600
 TIME_TILL_HEADBUMP_EXPIRES = 1.5
 HEADER_Z_OFFSET = 60
@@ -152,8 +154,19 @@ function DotaStrikers:throw_ball( keys )
 	else
 		-- if caster is above ground, give the ball more of a push in z direction.
 		local velToAdd = dir*THROW_VELOCITY
+		
+		if keys.ability:GetAbilityName() == "empowered_kick" then
+			velToAdd = dir*EMPOWERED_KICK_VELOCITY
+			--ball.powershot_particle = ParticleManager:CreateParticle("particles/powershot/spirit_breaker_charge.vpcf", PATTACH_ABSORIGIN_FOLLOW, ball.particleDummy)
+			if caster:HasModifier("modifier_ball_controller") then
+				ParticleManager:CreateParticle("particles/enhanced_kick/nightstalker_black_nihility_void_hit.vpcf", PATTACH_ABSORIGIN, ball.particleDummy)
+				ball:EmitSound("Hero_Nightstalker.Void")
+			end
+		end
+		
+		-- if caster is above ground, give the ball more of a push in z direction.
 		if caster.isAboveGround then
-			velToAdd = dir*THROW_VELOCITY + Vector(0,0,KICK_BALL_Z_PUSH)
+			velToAdd = velToAdd + Vector(0,0,KICK_BALL_Z_PUSH)
 		end
 
 		if keys.ability:GetAbilityName() == "head_bump" then
@@ -279,6 +292,15 @@ function DotaStrikers:surge( keys )
 			caster.isUsingPowersprint = true
 			-- physics are in myphysics.lua
 		end
+	elseif caster.isDemon then
+		caster:RemoveAbility("demonic_endurance_sprint")
+		caster:AddAbility("demonic_endurance_sprint_break")
+		caster:FindAbilityByName("demonic_endurance_sprint_break"):SetLevel(1)
+		
+		local controller = ball.controller
+		if caster == controller and controller:HasModifier("modifier_ball_controller") then
+			RemoveMovementComponent(caster, "ball_slow")
+		end
 	else
 		caster:RemoveAbility("surge")
 		caster:AddAbility("surge_break")
@@ -301,6 +323,7 @@ end
 function DotaStrikers:surge_break( keys )
 	local caster = keys.caster
 	caster.surgeOn = false
+	local ball = Ball.unit
 
 	if caster.isSprinter then
 		caster:RemoveAbility("super_sprint_break")
@@ -375,6 +398,19 @@ function DotaStrikers:surge_break( keys )
 
 		if Testing then
 			caster:SetMana(caster:GetMaxMana())
+		end
+	elseif caster.isDemon then
+		caster:RemoveAbility("demonic_endurance_sprint_break")
+		caster:AddAbility("demonic_endurance_sprint")
+		local demonic_endurance = caster:FindAbilityByName("demonic_endurance_sprint")
+		demonic_endurance:SetLevel(1)
+		
+		if caster == ball.controller and ball.controller:HasModifier("modifier_ball_controller") then
+			AddMovementComponent(ball.controller, "ball_slow", -1*ball.controller.base_move_speed*CONTROLLER_MOVESPEED_FACTOR)
+		end
+		
+		if caster:HasModifier("modifier_demonic_endurance") then
+			caster:RemoveModifierByName("modifier_demonic_endurance")
 		end
 	else
 		caster:RemoveAbility("surge_break")

@@ -499,6 +499,10 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 	elseif classname == "npc_dota_hero_puck" then
 		hero.isSwap = true
 		heroes_kv_name = "swap"
+	elseif classname == "npc_dota_hero_night_stalker" then
+		hero.isDemon = true
+		heroes_kv_name = "speed"
+		AddMovementComponent(hero, "demonic_endurance", hero.base_move_speed * SURGE_MOVESPEED_FACTOR)
 	end
 
 	hero.heroes_kv_name = heroes_kv_name
@@ -530,6 +534,10 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 					if hero:HasAbility("powersprint_break") then
 						hero:CastAbilityNoTarget(hero:FindAbilityByName("powersprint_break"), 0)
 					end
+				elseif hero.isDemon then
+					if hero:HasAbility("demonic_endurance_sprint_break") then
+						hero:CastAbilityNoTarget(hero:FindAbilityByName("demonic_endurance_sprint_break"), 0)
+					end
 				else
 					if hero:HasAbility("surge_break") then
 						hero:CastAbilityNoTarget(hero:FindAbilityByName("surge_break"), 0)
@@ -540,6 +548,9 @@ function DotaStrikers:OnHeroInGameFirstTime( hero )
 				manaDrainInterval = SURGE_TICK*40
 			elseif hero.isPowershot then
 				manaDrainInterval = SURGE_TICK*40
+			elseif hero.isDemon then
+				manaDrainInterval = SURGE_TICK*40
+				manaGainInterval = SURGE_TICK*20
 			end
 			hero:SetMana(currMana - manaDrainInterval)
 			--print("draining " .. manaDrainInterval .. " mana")
