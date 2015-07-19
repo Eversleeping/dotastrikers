@@ -20,10 +20,10 @@ PULL_ACCEL_FORCE = 1800
 PULL_MAX_DURATION = 4.55
 PULL_COOLDOWN = 15
 
-SPRINT_ACCEL_FORCE = 1100
-SPRINT_INITIAL_FORCE = 600
+SPRINT_ACCEL_FORCE = 40
+SPRINT_INITIAL_FORCE = 800
 SPRINT_COOLDOWN = 6
-SPRINT_VEL_MIN = 200
+SPRINT_VEL_MIN = 300
 
 BH_RADIUS = 350
 BH_DURATION = 6
@@ -216,15 +216,15 @@ function DotaStrikers:surge( keys )
 		caster.sprint_fv = caster:GetForwardVector()
 		caster:AddPhysicsVelocity(caster.sprint_fv*SPRINT_INITIAL_FORCE)
 		
-		caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL_FORCE
+		--caster.sprint_accel = caster.sprint_fv*SPRINT_ACCEL_FORCE
 		caster.last_supersprint_time = GameRules:GetGameTime()
 		
-		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
+		--caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()+caster.sprint_accel)
 
 		local component = AddPhysicsComponent("super_sprint", caster)
-		component:SetPhysicsAcceleration(caster.sprint_accel)
+		--component:SetPhysicsAcceleration(caster.sprint_accel)
 		component:OnPhysicsFrame(function(x)
-			component:SetPhysicsFriction(caster:GetPhysicsFriction())
+			--component:SetPhysicsFriction(caster:GetPhysicsFriction())
 			if not caster:HasAbility("super_sprint_break") then
 				return
 			end
@@ -235,12 +235,13 @@ function DotaStrikers:surge( keys )
 				end
 			end
 
-			local orig_accel = caster:GetPhysicsAcceleration()-caster.sprint_accel
+			--local orig_accel = caster:GetPhysicsAcceleration()-caster.sprint_accel
 
 			caster.sprint_accel = caster:GetForwardVector()*SPRINT_ACCEL_FORCE
-
-			caster:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
-			component:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
+			caster:AddPhysicsVelocity(caster.sprint_accel)
+			
+			--caster:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
+			--component:SetPhysicsAcceleration(orig_accel+caster.sprint_accel)
 			--print("curr vel mag: " .. caster.velocityMagnitude)
 		end)
 		caster.super_sprint_component = component
@@ -335,12 +336,12 @@ function DotaStrikers:surge_break( keys )
 
 		Timers:RemoveTimer(caster.sprint_timer)
 		Timers:RemoveTimer(caster.dist_check_timer)
-		caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
+		--caster:SetPhysicsAcceleration(caster:GetPhysicsAcceleration()-caster.sprint_accel)
 
 		--print("caster curr vel: " .. caster:GetPhysicsVelocity():Length())
 		--print("caster new vel: " .. (caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4)):Length())
 
-		caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4))
+		--caster:SetPhysicsVelocity(caster:GetPhysicsVelocity()-(caster.super_sprint_component:GetPhysicsVelocity()*3/4))
 		caster.super_sprint_component:RemoveComponent()
 		caster.super_sprint_component = nil
 
