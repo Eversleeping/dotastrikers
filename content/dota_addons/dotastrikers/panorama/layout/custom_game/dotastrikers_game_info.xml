@@ -1,11 +1,15 @@
 <root>
-  <styles>
-    <include src="file://{resources}/styles/custom_game/dotastrikers_game_info.css" />
-  </styles>
-  <Panel class="DotaStrikersGameInfo">
-    <Panel id="Title">
-      <Label id="TitleName" text="Dota Strikers" />
-    </Panel>
-  </Panel>
+	<styles>
+		<include src="file://{resources}/styles/custom_game/dotastrikers_game_info.css" />
+	</styles>
+	<scripts>
+		<include src="file://{resources}/scripts/dotastrikers_game_info.js" />
+	</scripts>
+	<Panel class="GameInfoRoot">
+		<Button id="GameInfoToggle" onactivate="OnToggleInfo()"/>
+		<Panel id="GameInfoPanel">
+		</Panel>
+	</Panel>
 </root>
+
 
