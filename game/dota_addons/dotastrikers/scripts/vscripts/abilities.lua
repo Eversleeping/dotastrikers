@@ -26,13 +26,14 @@ SPRINT_COOLDOWN = 6
 SPRINT_VEL_MIN = 200
 
 BH_RADIUS = 350
+BH_BALL_RADIUS = 500
 BH_DURATION = 6
 BH_FORCE_MAX = 750000
-BH_FORCE_MIN = 25000
+BH_FORCE_MIN = 100000
 BH_DELAYED_START = 0.5
 BH_TIME_TILL_MAX_GROWTH = BH_DURATION-2
 BH_DISTANCE_FACTOR = 1
-BH_BALL_FACTOR = 1 / 2
+BH_BALL_FACTOR = 2 / 3
 --BH_COOLDOWN = 11
 
 TACKLE_SLOW_DURATION = 4
@@ -788,7 +789,7 @@ function OnBHThink( caster, point, casterID, ball )
 				force = force / BH_BALL_FACTOR
 			end
 			
-			if len <= (BH_RADIUS) then
+			if len <= (BH_RADIUS) or (hero == ball and len <= (BH_BALL_RADIUS)) then
 				if not caster.bh_targets[pID] then
 					caster.bh_targets[pID] = true
 				end
